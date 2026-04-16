@@ -2059,6 +2059,27 @@
       if (badge) badge.classList.add('visible');
     }, 3000);
 
+    /* ━━━ HAPEE.AI FORM → REDIRECT TO /gracias ━━━ */
+    window.addEventListener('message', function(event) {
+      if (!event.origin.includes('hapee.ai')) return;
+      var data = event.data;
+      // hapee.ai sends string or object — normalize
+      if (typeof data === 'string') {
+        try { data = JSON.parse(data); } catch(e) {}
+      }
+      if (
+        data &&
+        (
+          data.type === 'form_submitted' ||
+          data.event === 'form_submitted' ||
+          data.type === 'FORM_SUBMITTED' ||
+          data.message === 'form_submitted' ||
+          (typeof data === 'string' && data.indexOf('submitted') !== -1)
+        )
+      ) {
+        window.location.href = '/gracias';
+      }
+    });
 
   })();
   </script>
