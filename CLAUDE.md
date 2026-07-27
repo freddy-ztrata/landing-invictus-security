@@ -56,6 +56,11 @@ To change the form: replace the iframe `src` and the `data-layout-iframe-id` (mu
 - **GTM container**: `GTM-WNTMK96Q` (head + noscript fallback in body of all 3 pages)
 - **gtag.js direct**: `G-VWCD5DSP40` (GA4) and `AW-17648531850` (Google Ads) — loaded alongside GTM. There may be duplication if GTM also fires GA4/Ads tags; verify in tagmanager.google.com before adding new tracking.
 - **Conversion event**: in `gracias.html` only, send_to `AW-17648531850/OcKZCPrpu50cEIrzvN9B`.
+- **Eventos `dg_` (convención Digitals)** en `invictus-landing.html`:
+  - `dg_whatsapp` — click en el botón flotante de WhatsApp (`[data-track="whatsapp"]`). Abre en pestaña nueva, así que el evento se envía sin retener la navegación.
+  - `dg_formulario` — al recibir `form_submitted` del iframe de hapee.ai, antes de redirigir a `/gracias`.
+  - Helper `gtagSendEvent(url, eventName, params)` en el head: envía el evento y navega en el `event_callback` (timeout 2s + `setTimeout` de respaldo si gtag no responde). Un solo helper con el nombre del evento como parámetro — dos funciones `gtagSendEvent()` homónimas se pisarían.
+  - Los `dataLayer.push` legacy (`whatsapp_click`, `call_click`) siguen ahí para los triggers de GTM. `dg_formulario` NO se pushea a dataLayer para no duplicar con la conversión de `gracias.html`.
 - **Placeholders**: search `META PIXEL` and `HOTJAR / CLARITY` in `invictus-landing.html` head for paste targets.
 
 ## Key Design Decisions

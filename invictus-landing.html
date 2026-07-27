@@ -33,6 +33,41 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
   <link rel="apple-touch-icon" sizes="192x192" href="assets/img/favicon-192.png">
 
+  <!-- Google tag (gtag.js) — mismo GA4 + Ads que gracias.html / 404.html.
+       Necesario para los eventos dg_* (GTM solo no define gtag()). -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VWCD5DSP40"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-VWCD5DSP40');
+    gtag('config', 'AW-17648531850');
+  </script>
+
+  <!-- Google tag (gtag.js) event - delayed navigation helper
+       Envía un evento y recién después navega (o abre) la URL.
+       Un solo helper para todos los eventos: el nombre va como parámetro,
+       porque dos funciones gtagSendEvent() se pisarían entre sí. -->
+  <script>
+    function gtagSendEvent(url, eventName, params) {
+      var navigated = false;
+      var callback = function () {
+        if (navigated) return;
+        navigated = true;
+        if (typeof url === 'string') {
+          window.location = url;
+        }
+      };
+      var payload = params || {};
+      payload.event_callback = callback;
+      payload.event_timeout = 2000;
+      gtag('event', eventName || 'dg_event', payload);
+      // Respaldo: si gtag no llama al callback (bloqueado, sin red), navegamos igual.
+      setTimeout(callback, 2000);
+      return false;
+    }
+  </script>
+
   <!-- META PIXEL: Pegar aquí -->
   <!-- HOTJAR / CLARITY: Pegar aquí -->
 
@@ -264,7 +299,11 @@
       font-weight: 600;
       color: var(--primary-light);
       font-family: var(--font-heading);
+      transition: var(--transition);
+      white-space: nowrap;
     }
+    a.top-bar-badge:hover { background: rgba(250,54,10,0.25); transform: scale(1.03); }
+    a.top-bar-badge:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
     /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
        2. HERO — Oscuro (negro con canvas)
@@ -1103,8 +1142,18 @@
       opacity: 0;
       transform: scale(0.8);
       transition: opacity 0.4s ease, transform 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
     }
     .floating-badge.visible { opacity: 1; transform: scale(1); }
+    .floating-badge a.fb-wa {
+      background: #25D366;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+      animation: none;
+    }
+    .floating-badge a.fb-wa:hover { box-shadow: 0 8px 30px rgba(37,211,102,0.55); }
     .floating-badge a {
       display: flex;
       align-items: center;
@@ -1278,10 +1327,10 @@
           <span class="pulse-dot"></span>
           Monitoreo activo 24/7 en todo Chile
         </div>
-        <div class="top-bar-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Presupuesto Gratis
-        </div>
+        <a href="tel:+56957620565" class="top-bar-badge" data-track="call" aria-label="Llamar a Invictus Security">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          +56 9 5762 0565
+        </a>
       </div>
     </div>
   </header>
@@ -1741,6 +1790,10 @@
             title="Formulario landing seguridad"
           ></iframe>
           <script src="https://api.hapee.ai/js/form_embed.js"></script>
+          <div class="form-footer-trust">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Al enviar aceptas nuestra <a href="/privacidad.html" style="color:var(--text-muted);text-decoration:underline;">Política de Privacidad</a>
+          </div>
         </div>
       </div>
     </div>
@@ -1838,6 +1891,9 @@
         </div>
         <div class="footer-right">
           Vicuña Mackenna 4205, Of. N°14, Peñaflor
+          <span style="display:block;margin-top:6px;">
+            <a href="/privacidad.html" style="color:var(--text-muted);text-decoration:underline;">Política de Privacidad</a>
+          </span>
         </div>
       </div>
     </div>
@@ -1846,7 +1902,11 @@
   <!-- ═══════════════════════════════════════════
        13. FLOATING WhatsApp
   ═══════════════════════════════════════════ -->
-  <div class="floating-badge" id="floatingBadge" aria-label="Solicitar presupuesto">
+  <div class="floating-badge" id="floatingBadge" aria-label="Contacto rápido">
+    <a class="fb-wa" href="https://wa.me/56957620565?text=Hola%2C%20quiero%20cotizar%20servicios%20de%20seguridad%20privada" target="_blank" rel="noopener" data-track="whatsapp" aria-label="Escríbenos por WhatsApp">
+      <svg viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp
+    </a>
     <a href="#formulario" aria-label="Ir al formulario - Cotizar ahora">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Cotizar Gratis
@@ -2088,8 +2148,29 @@
           (typeof data === 'string' && data.indexOf('submitted') !== -1)
         )
       ) {
-        window.location.href = '/gracias';
+        /* dg_formulario: se envía el evento y recién después se redirige a /gracias,
+           para no perder la conversión si la navegación corta el request. */
+        gtagSendEvent('/gracias', 'dg_formulario', { form_id: 'bdjfSIhq3trsUkZf9IgB' });
       }
+    });
+
+    /* ━━━ CONTACT CLICK TRACKING (WhatsApp + Llamada) ━━━
+       Empuja eventos al dataLayer para configurar conversiones de Ads en GTM:
+       triggers "whatsapp_click" y "call_click".
+       Además, WhatsApp envía dg_whatsapp por gtag.js (GA4 + Ads). */
+    window.dataLayer = window.dataLayer || [];
+    document.querySelectorAll('[data-track="whatsapp"]').forEach(function(el) {
+      el.addEventListener('click', function() {
+        window.dataLayer.push({ event: 'whatsapp_click', contact_method: 'whatsapp' });
+        /* El link abre en pestaña nueva (target="_blank"), la página no se descarga:
+           basta con enviar el evento sin retener la navegación. */
+        gtag('event', 'dg_whatsapp', { contact_method: 'whatsapp' });
+      });
+    });
+    document.querySelectorAll('[data-track="call"]').forEach(function(el) {
+      el.addEventListener('click', function() {
+        window.dataLayer.push({ event: 'call_click', contact_method: 'phone' });
+      });
     });
 
   })();
