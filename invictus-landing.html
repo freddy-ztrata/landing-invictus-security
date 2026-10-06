@@ -10,24 +10,23 @@
   <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow">
   <title>Empresa de Seguridad Privada en Chile - Presupuesto Gratis</title>
   <meta name="description" content="Empresa de seguridad privada en Chile con guardias certificados OS-10. Protección 24/7 para empresas, eventos y condominios. Solicita tu presupuesto gratis.">
-  <link rel="canonical" href="https://seguridad.invictussecurity.cl/">
+  <link rel="canonical" href="https://invictussecurity.cl/">
   <meta property="og:title" content="Empresa de Seguridad Privada en Chile - Presupuesto Gratis">
   <meta property="og:description" content="Guardias certificados OS-10, cobertura 24/7, presupuesto gratis. Protegemos lo que más valoras.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://seguridad.invictussecurity.cl/">
+  <meta property="og:url" content="https://invictussecurity.cl/">
   <meta property="og:locale" content="es_CL">
   <meta property="og:site_name" content="Invictus Security">
-  <meta property="og:image" content="https://seguridad.invictussecurity.cl/assets/img/og-image.png">
+  <meta property="og:image" content="https://invictussecurity.cl/assets/img/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Invictus Security - Empresa de seguridad privada en Chile con guardias certificados OS-10">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Empresa de Seguridad Privada en Chile - Presupuesto Gratis">
   <meta name="twitter:description" content="Guardias certificados OS-10, cobertura 24/7. Solicita tu presupuesto gratis.">
-  <meta name="twitter:image" content="https://seguridad.invictussecurity.cl/assets/img/og-image.png">
+  <meta name="twitter:image" content="https://invictussecurity.cl/assets/img/og-image.png">
   <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
@@ -78,9 +77,9 @@
     "@type": "SecurityService",
     "name": "Invictus Security",
     "description": "Empresa de seguridad privada en Chile con guardias certificados OS-10. Servicios de vigilancia 24/7 para empresas, eventos, condominios y centros educacionales.",
-    "url": "https://seguridad.invictussecurity.cl/",
-    "logo": "https://seguridad.invictussecurity.cl/assets/img/logo-invictus.png",
-    "image": "https://seguridad.invictussecurity.cl/assets/img/og-image.png",
+    "url": "https://invictussecurity.cl/",
+    "logo": "https://invictussecurity.cl/assets/img/logo-invictus.png",
+    "image": "https://invictussecurity.cl/assets/img/og-image.png",
     "telephone": "+56957620565",
     "email": "comercial@invictussecurity.cl",
     "address": {
@@ -248,6 +247,69 @@
     .cta-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
     .cta-microcopy { display: block; font-size: 0.8rem; color: var(--text-light); margin-top: 10px; }
 
+    /* Botón secundario de llamada (target táctil >= 48px) */
+    .btn-tel {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 12px 22px;
+      border-radius: 60px;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: var(--transition);
+      touch-action: manipulation;
+    }
+    .btn-tel:hover { background: var(--primary); color: #fff; }
+    .btn-tel:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .btn-tel--dark { border-color: rgba(255,255,255,0.35); color: #fff; }
+    .btn-tel--dark:hover { background: rgba(255,255,255,0.12); border-color: #fff; color: #fff; }
+    .cta-final .btn-tel--dark { display: inline-flex; margin: 14px auto 0; }
+
+    /* Formulario superior (segunda instancia bajo el hero) */
+    .formulario-top { background: var(--bg-light); padding: 48px 0 40px; }
+    .form-card--top { max-width: 640px; margin: 0 auto; }
+
+    /* CTA de cierre de sección: franja compacta botón + teléfono */
+    .cta-inline { padding: 0 0 56px; }
+    .cta-inline--gray { background: var(--bg-light); }
+    .cta-inline--white { background: var(--bg-white); }
+    .cta-inline--dark { background: var(--bg-dark, #0B0B0B); }
+    .cta-inline-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg-white);
+      box-shadow: var(--shadow-md);
+    }
+    .cta-inline--white .cta-inline-inner { background: var(--bg-light); }
+    .cta-inline--dark .cta-inline-inner { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); box-shadow: none; }
+    .cta-inline-text {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .cta-inline--dark .cta-inline-text { color: #fff; }
+    .cta-inline--dark .btn-tel { border-color: rgba(255,255,255,0.35); color: #fff; }
+    .cta-inline--dark .btn-tel:hover { background: rgba(255,255,255,0.12); border-color: #fff; }
+    .cta-inline-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .cta-inline .cta-btn { padding: 14px 28px; min-height: 48px; font-size: 0.95rem; }
+
+    /* Enlaces pequeños con target táctil de 44px */
+    .link-privacidad { color: var(--text-muted); text-decoration: underline; display: inline-block; min-height: 44px; line-height: 44px; }
+    .footer-tel { color: var(--text-body); font-weight: 600; display: inline-block; min-height: 44px; line-height: 44px; }
+
     /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
        1. TOP BAR — Oscura (negro)
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -293,7 +355,8 @@
       gap: 6px;
       background: rgba(250,54,10,0.15);
       border: 1px solid rgba(250,54,10,0.3);
-      padding: 5px 14px;
+      padding: 8px 16px;
+      min-height: 44px;
       border-radius: 60px;
       font-size: 0.78rem;
       font-weight: 600;
@@ -1153,6 +1216,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      min-height: 52px;
       padding: 14px 24px;
       background: linear-gradient(135deg, var(--primary), var(--primary-light));
       border-radius: 60px;
@@ -1167,6 +1231,7 @@
     }
     .floating-badge a:hover { transform: scale(1.05); box-shadow: 0 8px 30px var(--glow-strong); }
     .floating-badge a svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .floating-badge .fb-tel { display: none; } /* desktop: el teléfono ya está en la barra superior */
     @keyframes float-pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.08); }
@@ -1217,7 +1282,7 @@
       .section-pad { padding: 56px 0; }
       .section-pad-lg { padding: 64px 0; }
       .top-bar-text { display: none; }
-      .top-bar-badge { font-size: 0.72rem; padding: 4px 10px; }
+      .top-bar-badge { font-size: 0.78rem; padding: 8px 14px; min-height: 44px; }
       .proof-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
       .proof-item { padding: 22px 14px; }
       .proof-item-number { font-size: clamp(1.8rem, 5vw, 2.4rem); }
@@ -1278,8 +1343,35 @@
       .pain-icon { width: 38px; height: 38px; }
       .pain-text h4 { font-size: 0.92rem; }
       .pain-text p { font-size: 0.85rem; }
-      .floating-badge { bottom: 16px; right: 16px; }
-      .floating-badge a { padding: 12px 18px; font-size: 0.82rem; }
+      /* Barra inferior fija en móvil: Llamar ahora + Cotizar Gratis, targets de 52px */
+      body { padding-bottom: 76px; }
+      .floating-badge {
+        left: 0; right: 0; bottom: 0;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 10px;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+        background: rgba(255,255,255,0.96);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid var(--border);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        transform: translateY(100%);
+      }
+      .floating-badge.visible { transform: translateY(0); }
+      .floating-badge a { flex: 1; min-height: 52px; padding: 12px 14px; font-size: 0.9rem; animation: none; border-radius: 14px; }
+      .floating-badge .fb-tel {
+        display: flex;
+        background: #fff;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        box-shadow: none;
+      }
+      .floating-badge .fb-tel svg { stroke: var(--primary); }
+      .formulario-top { padding: 32px 0 24px; }
+      .cta-inline-inner { flex-direction: column; text-align: center; padding: 24px 20px; }
+      .cta-inline-actions { flex-direction: column; width: 100%; }
+      .cta-inline-actions a { width: 100%; }
+      .cta-inline { padding-bottom: 40px; }
     }
 
     /* Small phones (iPhone SE, Galaxy S) */
@@ -1292,13 +1384,13 @@
       .proof-item { padding: 18px 10px; }
       .proof-item-number { font-size: 1.6rem; }
       .top-bar-logo img { height: 26px; }
-      .top-bar-badge { font-size: 0.68rem; padding: 3px 8px; }
+      .top-bar-badge { font-size: 0.72rem; padding: 8px 10px; min-height: 44px; }
       .os10-badge-item { font-size: 0.72rem; padding: 5px 10px; }
       .cta-btn { padding: 14px 20px; font-size: 0.88rem; }
       .form-card { padding: 22px 16px; }
       .form-card-title { font-size: 1.05rem; }
       .faq-question { font-size: 0.85rem; padding: 14px 16px; }
-      .floating-badge a { padding: 10px 14px; font-size: 0.78rem; gap: 6px; }
+      .floating-badge a { font-size: 0.82rem; gap: 6px; }
     }
   </style>
 </head>
@@ -1361,7 +1453,7 @@
             </li>
           </ul>
           <div class="hero-cta-wrap">
-            <a href="#formulario" class="cta-btn" aria-label="Ir al formulario para solicitar presupuesto gratis">
+            <a href="#cotizar" class="cta-btn" aria-label="Ir al formulario para solicitar presupuesto gratis">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               Solicita tu Presupuesto Gratis
             </a>
@@ -1397,6 +1489,40 @@
               <div class="hero-float-value">Todo Chile</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       2b. FORMULARIO SUPERIOR — Gris claro (segunda instancia, bajo el hero)
+  ═══════════════════════════════════════════ -->
+  <section class="formulario-top" id="cotizar" aria-label="Formulario de cotización rápida">
+    <div class="container">
+      <div class="form-card form-card--top reveal" id="formCardTop">
+        <div class="form-card-title">Solicita tu Presupuesto Gratis</div>
+        <div class="form-card-sub">Completa tus datos y te contactamos en menos de 24 horas</div>
+
+        <iframe
+          src="https://api.hapee.ai/widget/form/bdjfSIhq3trsUkZf9IgB"
+          style="width:100%;height:564px;border:none;border-radius:8px"
+          id="inline-top-bdjfSIhq3trsUkZf9IgB"
+          data-layout="{'id':'INLINE'}"
+          data-trigger-type="alwaysShow"
+          data-trigger-value=""
+          data-activation-type="alwaysActivated"
+          data-activation-value=""
+          data-deactivation-type="neverDeactivate"
+          data-deactivation-value=""
+          data-form-name="Formulario landing seguridad"
+          data-height="564"
+          data-layout-iframe-id="inline-top-bdjfSIhq3trsUkZf9IgB"
+          data-form-id="bdjfSIhq3trsUkZf9IgB"
+          title="Formulario landing seguridad (superior)"
+        ></iframe>
+        <div class="form-footer-trust">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Al enviar aceptas nuestra <a href="/privacidad.html" class="link-privacidad">Política de Privacidad</a>
         </div>
       </div>
     </div>
@@ -1515,6 +1641,25 @@
     </div>
   </section>
 
+  <!-- CTA de cierre de sección (gray) -->
+  <div class="cta-inline cta-inline--gray">
+    <div class="container">
+      <div class="cta-inline-inner reveal">
+        <p class="cta-inline-text">¿Necesitas guardias para tu empresa, condominio o evento? Cotiza en 2 minutos.</p>
+        <div class="cta-inline-actions">
+          <a href="#formulario" class="cta-btn" aria-label="Ir al formulario para solicitar presupuesto gratis">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Solicita tu Presupuesto Gratis
+          </a>
+          <a href="tel:+56957620565" class="btn-tel" data-track="call" aria-label="Llamar a Invictus Security">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            +56 9 5762 0565
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Wave: gris → blanco -->
   <div class="wave-separator" aria-hidden="true">
     <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path fill="#FFFFFF" d="M0,35 C360,70 1080,0 1440,35 L1440,70 L0,70 Z"/></svg>
@@ -1556,6 +1701,25 @@
       </div>
     </div>
   </section>
+
+  <!-- CTA de cierre de sección (white) -->
+  <div class="cta-inline cta-inline--white">
+    <div class="container">
+      <div class="cta-inline-inner reveal">
+        <p class="cta-inline-text">Presupuesto gratis y sin compromiso. Te respondemos en menos de 24 horas.</p>
+        <div class="cta-inline-actions">
+          <a href="#formulario" class="cta-btn" aria-label="Ir al formulario para solicitar presupuesto gratis">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Solicita tu Presupuesto Gratis
+          </a>
+          <a href="tel:+56957620565" class="btn-tel" data-track="call" aria-label="Llamar a Invictus Security">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            +56 9 5762 0565
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Wave: blanco → gris -->
   <div class="wave-separator" aria-hidden="true">
@@ -1635,6 +1799,25 @@
     </div>
   </section>
 
+  <!-- CTA de cierre de sección (gray) -->
+  <div class="cta-inline cta-inline--gray">
+    <div class="container">
+      <div class="cta-inline-inner reveal">
+        <p class="cta-inline-text">Guardias certificados OS-10 para la solución que tu empresa necesita.</p>
+        <div class="cta-inline-actions">
+          <a href="#formulario" class="cta-btn" aria-label="Ir al formulario para solicitar presupuesto gratis">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Solicita tu Presupuesto Gratis
+          </a>
+          <a href="tel:+56957620565" class="btn-tel" data-track="call" aria-label="Llamar a Invictus Security">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            +56 9 5762 0565
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══════════════════════════════════════════
        7. OS-10 TRUST — Oscuro (negro)
   ═══════════════════════════════════════════ -->
@@ -1675,6 +1858,25 @@
       </div>
     </div>
   </section>
+
+  <!-- CTA de cierre de sección (dark) -->
+  <div class="cta-inline cta-inline--dark">
+    <div class="container">
+      <div class="cta-inline-inner reveal">
+        <p class="cta-inline-text">Personal 100% acreditado por Carabineros. Pide tu evaluación gratuita.</p>
+        <div class="cta-inline-actions">
+          <a href="#formulario" class="cta-btn" aria-label="Ir al formulario para solicitar presupuesto gratis">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Solicita tu Presupuesto Gratis
+          </a>
+          <a href="tel:+56957620565" class="btn-tel" data-track="call" aria-label="Llamar a Invictus Security">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            +56 9 5762 0565
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════════
        8. TESTIMONIOS — Blanco
@@ -1723,6 +1925,25 @@
       </div>
     </div>
   </section>
+
+  <!-- CTA de cierre de sección (white) -->
+  <div class="cta-inline cta-inline--white">
+    <div class="container">
+      <div class="cta-inline-inner reveal">
+        <p class="cta-inline-text">Únete a las +150 empresas que ya confían en Invictus Security.</p>
+        <div class="cta-inline-actions">
+          <a href="#formulario" class="cta-btn" aria-label="Ir al formulario para solicitar presupuesto gratis">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Solicita tu Presupuesto Gratis
+          </a>
+          <a href="tel:+56957620565" class="btn-tel" data-track="call" aria-label="Llamar a Invictus Security">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            +56 9 5762 0565
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Wave: blanco → gris -->
   <div class="wave-separator" aria-hidden="true">
@@ -1786,7 +2007,7 @@
           <script src="https://api.hapee.ai/js/form_embed.js"></script>
           <div class="form-footer-trust">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Al enviar aceptas nuestra <a href="/privacidad.html" style="color:var(--text-muted);text-decoration:underline;">Política de Privacidad</a>
+            Al enviar aceptas nuestra <a href="/privacidad.html" class="link-privacidad">Política de Privacidad</a>
           </div>
         </div>
       </div>
@@ -1863,6 +2084,10 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           Solicita tu Presupuesto Gratis
         </a>
+        <a href="tel:+56957620565" class="btn-tel btn-tel--dark" data-track="call" aria-label="Llamar a Invictus Security">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          O llama al +56 9 5762 0565
+        </a>
         <div class="cta-guarantee">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           Sin compromiso | Respuesta en menos de 24 horas | 100% confidencial
@@ -1885,8 +2110,11 @@
         </div>
         <div class="footer-right">
           Vicuña Mackenna 4205, Of. N°14, Peñaflor
-          <span style="display:block;margin-top:6px;">
-            <a href="/privacidad.html" style="color:var(--text-muted);text-decoration:underline;">Política de Privacidad</a>
+          <span style="display:block;">
+            <a href="tel:+56957620565" class="footer-tel" data-track="call">+56 9 5762 0565</a>
+          </span>
+          <span style="display:block;">
+            <a href="/privacidad.html" class="link-privacidad">Política de Privacidad</a>
           </span>
         </div>
       </div>
@@ -1897,7 +2125,11 @@
        13. FLOATING CTA
   ═══════════════════════════════════════════ -->
   <div class="floating-badge" id="floatingBadge" aria-label="Cotizar ahora">
-    <a href="#formulario" aria-label="Ir al formulario - Cotizar ahora">
+    <a href="tel:+56957620565" class="fb-tel" data-track="call" aria-label="Llamar ahora a Invictus Security">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Llamar ahora
+    </a>
+    <a href="#formulario" class="fb-cta" aria-label="Ir al formulario - Cotizar ahora">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Cotizar Gratis
     </a>
@@ -2118,7 +2350,7 @@
     setTimeout(function() {
       var badge = document.getElementById('floatingBadge');
       if (badge) badge.classList.add('visible');
-    }, 3000);
+    }, 1500);
 
     /* ━━━ HAPEE.AI FORM → REDIRECT TO /gracias ━━━ */
     window.addEventListener('message', function(event) {

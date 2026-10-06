@@ -4,16 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Google Ads landing page for **Invictus Security**, a private security company in Chile (guardias de seguridad privada, OS-10 certified). Static HTML site deployed via Docker/Nginx on Dokploy. The page is intentionally `noindex, nofollow` — it exists to receive paid traffic and convert via form submission, not for organic SEO.
+Google Ads landing page for **Invictus Security**, a private security company in Chile (guardias de seguridad privada, OS-10 certified). Static HTML site deployed via Docker/Nginx on Dokploy. Since 2026-10-05 it replaces the client's old WordPress on the **main domain** and it IS indexable (no `noindex`, `robots.txt` allows all, `sitemap.xml` declared). Google Ads penalised the previous `noindex` with "Landing page experience: below average" on 100% of keywords, so never reintroduce crawl blocks.
 
-Production URL: `https://seguridad.invictussecurity.cl/`
+Production URL: `https://invictussecurity.cl/` (canonical). `www.` and the old `seguridad.` subdomain 301 to it (nginx `server_name` block; both hosts must stay registered as domains of the Dokploy app so Traefik routes them).
 
 ## Architecture
 
-- **`invictus-landing.html`** — Main landing page: HTML + CSS (`<style>`) + vanilla JS (`<script>`). No frameworks, no build step. ~99 KB / ~2000 lines, all inline.
+- **`invictus-landing.html`** — Main landing page: HTML + CSS (`<style>`) + vanilla JS (`<script>`). No frameworks, no build step. ~110 KB / ~2200 lines, all inline.
+  - Two hapee form instances: `#cotizar` (compact card right under the hero, iframe id `inline-top-…`) and `#formulario` (full section near the end, iframe id `inline-…`). Ids must stay distinct for hapee's resize script. Hero CTA → `#cotizar`; every other CTA → `#formulario`.
+  - `.cta-inline` strips (button + phone) close 5 sections: Solución, 3 pasos, Servicios, OS-10 (`--dark` variant), Testimonios. Added 2026-10-05 after the Ads audit (mobile converted 0.04% vs desktop 2.5%).
+  - All tap targets are ≥44px (`.top-bar-badge`, `.link-privacidad`, `.footer-tel`, floating bar 52px). Keep that when restyling.
+  - `#floatingBadge`: on desktop a single "Cotizar Gratis" pill; at ≤768px it becomes a fixed bottom bar with `Llamar ahora` (`tel:`, `data-track="call"`) + `Cotizar Gratis`, and `body` gets `padding-bottom: 76px`.
 - **`gracias.html`** — Thank-you page. Loaded after form submission (see Form below). Fires Google Ads conversion event on load: `gtag('event', 'conversion', {send_to: 'AW-17648531850/OcKZCPrpu50cEIrzvN9B'})`.
 - **`404.html`** — Custom 404 served by nginx for unknown paths.
-- **`robots.txt`** — `Disallow: /` (consistent with `noindex` meta).
+- **`robots.txt`** — `Allow: /` + `Sitemap:` line. **`sitemap.xml`** lists `/` and `/privacidad.html`.
 - **`assets/img/`** — Logos, service photos, favicons, OG image, hero WebP.
 - **`Dockerfile` + `nginx.conf`** — Production deployment via nginx:alpine.
 - **`.agents/`, `.claude/`, `node_modules/`** — Gitignored. `skills-lock.json` is also untracked locally.
@@ -41,6 +45,8 @@ Hosted on Dokploy via GitHub auto-deploy. Build type: **Dockerfile** (not Nixpac
 
 - Adding a new page (e.g. `oferta.html`) requires nothing more than committing the file; it's served at `/oferta.html`.
 - Pretty URLs (e.g. `/oferta` without `.html`) need an explicit `location` block in `nginx.conf`.
+- Legacy WordPress routes (`/servicios`, `/service/*`, `/contacto`, `/nosotros`, `/sobre-nosotros`, …) 301 to `/` or the matching anchor; `wp-*` paths return 410. Ads sitelinks may still point at them, so keep these redirects.
+- Host canonicalisation lives in a separate `server` block at the top of `nginx.conf` (`www.` and `seguridad.` → 301 `https://invictussecurity.cl$request_uri`). Traefik passes the original `Host`, so `server_name` matching works behind Dokploy.
 - `robots.txt` and `404.html` work because they exist as real files.
 
 Security headers (HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy) and `Cache-Control: max-age=300` for HTML are set in nginx.conf — keep them when editing.
@@ -74,7 +80,7 @@ To change the form: replace the iframe `src` and the `data-layout-iframe-id` (mu
 
 ## SEO Configuration
 
-- `noindex, nofollow` is intentional — this is a paid-traffic LP, not an organic page. Don't change to `index, follow` unless the project goal changes.
-- Canonical: `https://seguridad.invictussecurity.cl/`. OG/Twitter image URLs must use the same host (assets at `www.invictussecurity.cl/assets/img/...` 301-redirect and break social previews).
+- The page is **indexable** (no `<meta name="robots">` at all; default index/follow). It was `noindex` until 2026-10-05 and Google Ads rated the landing page experience "below average" on every keyword because of it. Do NOT add `noindex` or `Disallow` again. `gracias.html`, `404.html` and `privacidad.html` keep their own `noindex`.
+- Canonical: `https://invictussecurity.cl/`. OG/Twitter image and Schema `url`/`logo`/`image` must use that same host (never `seguridad.` nor `www.`, both 301 and break social previews).
 - Schema.org `SecurityService` JSON-LD includes telephone `+56957620565`, email `comercial@invictussecurity.cl`, geo (Peñaflor lat/lon), and openingHours Mon-Fri 09:00-19:00 — these are invisible to users but provide structured data for crawlers without distracting from the form.
-- No sitemap.xml (intentional — would contradict noindex).
+- `sitemap.xml` lists `/` and `/privacidad.html` and is declared in `robots.txt`. After a deploy that changes indexing, request re-indexing in Search Console (URL Inspector on `https://invictussecurity.cl/`).
