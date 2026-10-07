@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 // Páginas que no van al sitemap (noindex vía X-Robots-Tag en nginx y meta robots).
-const NOINDEX = /\/(gracias|privacidad|trabaja-con-nosotros)\/$/;
+const NOINDEX = /\/(gracias|privacidad)\/$/;
 
 export default defineConfig({
   site: 'https://invictussecurity.cl',

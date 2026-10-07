@@ -3,7 +3,7 @@
  * /gracias/, donde se dispara la conversión primaria condicionada al token del envío.
  *
  * Eventos: form_start, form_step, form_submit_error, generate_lead (solo en /gracias/),
- * call_click, job_seeker_click, calculator_complete, faq_open, web_vitals.
+ * call_click, cta_click, calculator_complete, faq_open, web_vitals.
  */
 declare global {
   interface Window { dataLayer: Record<string, unknown>[] }
@@ -21,7 +21,6 @@ document.addEventListener('click', (e) => {
   if (!el) return;
   const kind = el.dataset.track;
   if (kind === 'call') track('call_click', { contact_method: 'phone', placement: el.dataset.placement || '' });
-  else if (kind === 'job_seeker') track('job_seeker_click', { placement: el.dataset.placement || '' });
   else if (kind === 'cta') track('cta_click', { placement: el.dataset.placement || '', label: el.textContent?.trim().slice(0, 60) || '' });
 });
 

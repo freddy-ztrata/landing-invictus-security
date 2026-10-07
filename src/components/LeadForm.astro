@@ -2,10 +2,10 @@
 /**
  * Formulario de cotización = formulario de hapee nuevo embebido (iframe), sin webhook ni API propia.
  *   hapee: cliente 46, formulario 147 "Cotización web (invictussecurity.cl)" → crea el contacto,
- *   el negocio en el pipeline "Ventas web" (etapa Nuevo) y avisa a comercial@invictussecurity.cl.
+ *   el negocio en el pipeline "Ventas web" (etapa Nuevo) y envía el aviso por email (se configura
+ *   en hapee: asunto "Formulario Landing Seguridad", remitente "Invictus Security").
  *   Los campos se editan en hapee (no aquí).
  * Un solo formulario por página (id="cotizar"): todos los CTA apuntan a #cotizar.
- * Los postulantes NO usan este formulario: el enlace de arriba los lleva a /trabaja-con-nosotros/.
  */
 import { empresa } from '../data/empresa';
 import type { SegmentoForm } from '../data/segmentos';
@@ -27,13 +27,6 @@ const {
     <p class="lead__title" id="lead-title">{titulo}</p>
     <p class="lead__sub">{subtitulo}</p>
   </div>
-
-  <a class="lead__job" href="/trabaja-con-nosotros/" data-track="job_seeker" data-placement="form">
-    <span class="lead__job-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm10 0v6m3-3h-6" /></svg>
-    </span>
-    <span><strong>¿Buscas empleo como guardia?</strong> Este formulario es solo para contratar servicios. Postula aquí →</span>
-  </a>
 
   <!-- Atribución: hapee lee gclid/gbraid/wbraid/UTM SOLO de la URL de esta página. Si el visitante
        llegó por Ads a otra página del sitio, devolvemos a la URL el último toque guardado
@@ -94,17 +87,6 @@ const {
   .lead__head { margin-bottom: 14px; }
   .lead__title { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem); letter-spacing: -0.02em; line-height: 1.2; color: var(--text); }
   .lead__sub { color: var(--text-3); font-size: var(--fs-sm); margin-top: 4px; }
-  .lead__job {
-    display: flex; gap: 12px; align-items: center;
-    padding: 10px 12px; margin-bottom: 8px;
-    border: 1.5px dashed var(--line); border-radius: var(--r);
-    font-size: var(--fs-sm); color: var(--text-2); text-decoration: none; line-height: 1.35;
-    transition: border-color var(--dur-1), background-color var(--dur-1);
-  }
-  .lead__job:hover { border-color: var(--text-3); background: var(--bone); }
-  .lead__job strong { color: var(--text); }
-  .lead__job-icon { flex-shrink: 0; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--mist); color: var(--text-3); }
-  .lead__job-icon svg { width: 18px; height: 18px; }
   /* Espacio reservado ≈ alto final del iframe: evita saltos (CLS) mientras carga el embed */
   .lead__frame { min-height: 1010px; margin-inline: -6px; }
   .lead__frame :global(iframe) { display: block; width: 100%; border: 0; }

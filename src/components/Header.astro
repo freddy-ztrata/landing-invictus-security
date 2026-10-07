@@ -37,7 +37,6 @@ const path = Astro.url.pathname;
     )}
 
     <div class="hdr__actions">
-      {!minimal && <a class="hdr__job" href="/trabaja-con-nosotros/" data-track="job_seeker" data-placement="header">¿Buscas trabajo?</a>}
       {!minimal && <a class="btn hdr__cta" href="#cotizar" data-cta-cotizar data-track="cta" data-placement="header">Cotizar</a>}
       {!minimal && (
         <button class="hdr__burger" type="button" popovertarget="menu-movil" aria-label="Abrir menú">
@@ -61,7 +60,6 @@ const path = Astro.url.pathname;
         <li><a href="/nosotros/">Nosotros</a></li>
       </ul>
       <a class="btn btn--block" href="/cotizar/" data-track="cta" data-placement="menu-movil">Cotizar gratis</a>
-      <a class="mnav__job" href="/trabaja-con-nosotros/" data-track="job_seeker" data-placement="menu-movil">¿Buscas trabajo como guardia? Postula aquí</a>
     </div>
   )}
 </header>
@@ -84,13 +82,15 @@ const path = Astro.url.pathname;
   .hdr {
     position: sticky; top: 0; z-index: 1000;
     color: var(--on-dark);
-    background: rgb(10 10 10 / 0.72);
+    /* Arriba: tinta sólida (se funde con el hero; translúcido sobre el body claro se veía gris).
+       Con scroll: translúcido con blur sobre el contenido. */
+    background: var(--ink);
     backdrop-filter: saturate(140%) blur(16px);
     -webkit-backdrop-filter: saturate(140%) blur(16px);
     border-bottom: 1px solid transparent;
     transition: background-color var(--dur-2), border-color var(--dur-2);
   }
-  .hdr[data-scrolled] { background: rgb(10 10 10 / 0.9); border-bottom-color: var(--line-dark); }
+  .hdr[data-scrolled] { background: rgb(10 10 10 / 0.86); border-bottom-color: var(--line-dark); }
   .hdr__inner { display: flex; align-items: center; gap: 24px; min-height: 76px; }
   .hdr__logo { display: flex; align-items: center; min-height: 48px; flex-shrink: 0; }
   .hdr__logo img { width: 232px; height: auto; filter: brightness(0) invert(1); }
@@ -114,8 +114,6 @@ const path = Astro.url.pathname;
   .hdr__pop a:hover, .hdr__pop a[aria-current='page'] { background: rgb(255 255 255 / 0.07); color: var(--signal-3); }
 
   .hdr__actions { display: flex; align-items: center; gap: 14px; margin-left: auto; }
-  .hdr__job { font-size: 0.82rem; color: var(--on-dark-3); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; display: inline-flex; align-items: center; }
-  .hdr__job:hover { color: var(--on-dark); }
   /* CTA principal del header, grande (el teléfono quedó en el hero, la barra móvil y el footer) */
   .hdr__cta { min-height: 52px; padding: 14px 30px; font-size: 1.02rem; box-shadow: 0 8px 24px -10px var(--signal-glow); }
   .hdr__burger { display: none; width: 44px; height: 44px; border-radius: var(--r-sm); border: 1px solid var(--line-dark-2); place-content: center; gap: 6px; }
@@ -132,9 +130,7 @@ const path = Astro.url.pathname;
   .mnav__close { width: 44px; height: 44px; font-size: 1.2rem; color: var(--on-dark); }
   .mnav ul { list-style: none; padding: 0; display: grid; }
   .mnav li a { display: flex; align-items: center; min-height: 52px; font-family: var(--f-display); font-size: 1.15rem; text-decoration: none; border-bottom: 1px solid var(--line-dark); }
-  .mnav__job { margin-top: auto; font-size: var(--fs-sm); color: var(--on-dark-3); text-align: center; min-height: 44px; display: grid; place-items: center; }
 
-  @media (max-width: 1080px) { .hdr__job { display: none; } }
   @media (max-width: 960px) {
     .hdr__nav { display: none; }
     .hdr__burger { display: grid; }

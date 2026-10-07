@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const PAGES = ['/', '/guardias-de-seguridad/', '/seguridad-para-condominios/', '/guardias-para-eventos/', '/seguridad-para-empresas/', '/cotizar/', '/nosotros/', '/guia/cuantos-guardias-necesito/', '/guia/ley-21659-seguridad-privada/', '/trabaja-con-nosotros/', '/privacidad/'];
+const PAGES = ['/', '/guardias-de-seguridad/', '/seguridad-para-condominios/', '/guardias-para-eventos/', '/seguridad-para-empresas/', '/cotizar/', '/nosotros/', '/guia/cuantos-guardias-necesito/', '/guia/ley-21659-seguridad-privada/', '/privacidad/'];
 const HAPEE_FORM = 'invictus_security/cotizaci-n-web-invictussecurity-cl';
 
 function collectErrors(page: Page) {
@@ -95,12 +95,21 @@ test('el gclid de la llegada se conserva para el formulario en otra página', as
   await expect(page).toHaveURL(/utm_campaign=marca/);
 });
 
-test('"Busco empleo" desvía a la página de postulantes', async ({ page }) => {
+test('sin opción de empleo: ningún enlace a postulaciones', async ({ page }) => {
   await page.goto('/');
-  await page.locator('#cotizar .lead__job').click();
-  await page.waitForURL('**/trabaja-con-nosotros/');
-  await expect(page.locator('h1')).toContainText('guardia');
-  await expect(page.locator('[data-zentru-form="invictus_security/postulantes-trabaja-con-nosotros-web"]')).toHaveCount(1);
+  await expect(page.locator('a[href*="trabaja"]')).toHaveCount(0);
+  await expect(page.getByText(/buscas trabajo|busco empleo|postula/i)).toHaveCount(0);
+});
+
+test('el hero muestra la foto de los guardias sobre el pliegue', async ({ page }) => {
+  await page.goto('/');
+  const img = page.locator('.hero__visual img');
+  await expect(img).toBeVisible();
+  await expect(img).toHaveAttribute('fetchpriority', 'high');
+  const box = await img.boundingBox();
+  const vh = page.viewportSize()!.height;
+  expect(box!.y).toBeLessThan(vh);
+  expect(box!.height).toBeGreaterThan(150);
 });
 
 test('calculadora: 24 h lun–vie = 3 guardias; el CTA lleva al formulario', async ({ page }) => {

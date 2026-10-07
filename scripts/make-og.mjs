@@ -5,11 +5,11 @@ import { mkdir } from 'node:fs/promises';
 
 const OUT = 'public/img/og';
 const jobs = [
-  ['home', 'src/assets/img/gen/hero-condominio-andes.jpg', 'right'],
+  ['home', 'src/assets/img/gen/hero-guardias-equipo.jpg', 'right'],
   ['condominios', 'src/assets/img/gen/condominio-conserjeria.jpg', 'centre'],
   ['eventos', 'src/assets/img/gen/evento-control-acceso.jpg', 'centre'],
   ['empresas', 'src/assets/img/gen/empresa-bodega-acceso.jpg', 'centre'],
-  ['guardias', 'src/assets/img/gen/guardia-ronda-nocturna.jpg', 'centre'],
+  ['guardias', 'src/assets/img/gen/hero-condominio-andes.jpg', 'right'],
 ];
 
 const W = 1200;

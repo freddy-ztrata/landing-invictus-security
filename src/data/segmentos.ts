@@ -10,7 +10,7 @@ import type { ImageMetadata } from 'astro';
 import imgCondominio from '../assets/img/gen/condominio-conserjeria.jpg';
 import imgEvento from '../assets/img/gen/evento-control-acceso.jpg';
 import imgEmpresa from '../assets/img/gen/empresa-bodega-acceso.jpg';
-import imgGuardia from '../assets/img/gen/guardia-ronda-nocturna.jpg';
+import imgGuardia from '../assets/img/gen/hero-condominio-andes.jpg';
 
 export type SegmentoForm = 'condominio' | 'empresa' | 'evento' | 'ppi' | 'otro';
 
@@ -57,7 +57,7 @@ export const segmentos: Segmento[] = [
     ],
     resumen: 'Invictus Security es una empresa de guardias de seguridad con base en la Región Metropolitana. Asigna guardias acreditados por puesto y turno, los supervisa en terreno y a distancia, y cubre ausencias con reemplazos para que el puesto nunca quede vacío. La cotización es gratuita y se entrega en menos de 24 horas hábiles.',
     imagen: imgGuardia,
-    imagenAlt: 'Guardia de seguridad en ronda nocturna con radio y linterna en un edificio corporativo de Santiago',
+    imagenAlt: 'Guardia de seguridad uniformado custodiando el acceso vehicular de un condominio en Santiago al anochecer, con la cordillera de los Andes al fondo',
     dolores: [
       { titulo: 'Puestos que quedan vacíos', texto: 'Licencias, renuncias o atrasos que nadie cubre: el recinto queda sin vigilancia justo cuando más importa.' },
       { titulo: 'Guardias sin credencial vigente', texto: 'Personal sin acreditación expone a tu empresa o comunidad a sanciones y te deja sin respaldo ante un incidente.' },

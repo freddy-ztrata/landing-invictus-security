@@ -43,7 +43,7 @@ interface Props {
   schema?: Record<string, unknown>[];
   /** Ocultar la barra móvil (p. ej. en /cotizar/ y /gracias/) */
   hideMobileBar?: boolean;
-  /** Header mínimo (sin navegación) para /gracias/ y /trabaja-con-nosotros/ */
+  /** Header mínimo (sin navegación) para /gracias/ */
   minimalHeader?: boolean;
   /** Medición: false en /gracias/ (allí se inyecta solo con token) */
   loadGtm?: boolean;
@@ -109,7 +109,7 @@ const speculation = {
 
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png" />
-    <link rel="apple-touch-icon" href="/img/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
 
     <link rel="preload" href={unboundedLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
