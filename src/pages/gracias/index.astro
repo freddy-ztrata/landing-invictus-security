@@ -2,13 +2,15 @@
 /**
  * /gracias/ — post-conversión. noindex. NUNCA enlazar a esta página.
  *
- * Medición condicionada: el formulario deja en sessionStorage `inv_lead`
- * { id, ts, segmento, user_data:{email, phone_number} }. Si existe (y tiene < 30 min):
- *   1) dataLayer: generate_lead { lead_id, segmento, user_data } (para GTM / GA4)
+ * Medición condicionada: al enviarse el formulario de hapee (iframe), src/scripts/form.ts deja en
+ * sessionStorage `inv_lead` { id: "lead.<envío de hapee>", ts, segmento }. Si existe (< 30 min):
+ *   1) dataLayer: generate_lead { lead_id, segmento } (para GTM / GA4)
  *   2) GTM (solo en producción)
- *   3) gtag: conversión PRIMARIA de Ads (OcKZ…) con transaction_id y Enhanced Conversions.
+ *   3) gtag: conversión PRIMARIA de Ads (OcKZ…) con transaction_id = id del envío en hapee.
  * Respaldo: sin token pero llegando desde el propio sitio → cuenta una vez por sesión.
  * Recargas, visitas directas y bots NO miden nada.
+ * (Los datos del formulario viven en hapee, en otro origen: no hay Enhanced Conversions desde aquí;
+ *  para eso, importar desde hapee las conversiones offline con el gclid del contacto.)
  *
  * ⚠️ Cuando GTM tenga su tag de Ads disparado por `generate_lead`, quitar el bloque gtag de abajo
  *    para no duplicar la conversión.
@@ -42,30 +44,23 @@ const pasos = [
       try { sessionStorage.setItem('inv_counted', '1'); } catch (e) {}
       window.__invLead = lead;
       if (location.hostname !== 'invictussecurity.cl') {
-        console.info(lead.calidad === 'curioso' ? '[gracias] lead curioso: sin conversión de Ads (simulado)' : '[gracias] conversión simulada (no es producción)', lead);
+        console.info('[gracias] conversión simulada (no es producción) id=' + lead.id);
         return;
       }
 
-      // Las campañas son para leads de contratación: un "curioso" (solo averiguando) queda
-      // registrado en hapee y en GA4, pero NO cuenta como conversión de Google Ads.
-      var calificado = lead.calidad !== 'curioso';
-
       function fire() {
         window.dataLayer = window.dataLayer || [];
-        var ud = lead.user_data || {};
-        dataLayer.push({ event: 'generate_lead', lead_id: lead.id, segmento: lead.segmento || '', lead_quality: lead.calidad || 'calificado', user_data: ud });
+        dataLayer.push({ event: 'generate_lead', lead_id: lead.id, segmento: lead.segmento || '' });
         // GTM
         (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-WNTMK96Q');
-        if (!calificado) return;
-        // Conversión primaria de Ads (gtag) con transaction_id y datos para Enhanced Conversions
+        // Conversión primaria de Ads (gtag) con transaction_id = id del envío en hapee (deduplicación)
         var gs = document.createElement('script');
         gs.async = true;
         gs.src = 'https://www.googletagmanager.com/gtag/js?id=AW-17648531850';
         document.head.appendChild(gs);
         window.gtag = window.gtag || function () { dataLayer.push(arguments); };
         gtag('js', new Date());
-        gtag('config', 'AW-17648531850', { allow_enhanced_conversions: true });
-        if (ud.email || ud.phone_number) gtag('set', 'user_data', ud);
+        gtag('config', 'AW-17648531850');
         gtag('event', 'conversion', { send_to: 'AW-17648531850/OcKZCPrpu50cEIrzvN9B', transaction_id: lead.id });
       }
       // Si la página se pre-renderizara, medir solo al activarse.

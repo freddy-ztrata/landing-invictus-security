@@ -10,12 +10,9 @@ COPY src ./src
 RUN npm run build
 
 # ── 2) Runtime: nginx sirve SOLO dist/ (nunca el repo: ni .git ni .env) ─────────
+# Sitio 100 % estático: no necesita variables de entorno (los formularios son embeds de hapee).
 FROM nginx:stable-alpine
-# envsubst del template SOLO para variables LEAD_*; valor por defecto para que nginx
-# siempre arranque. El valor real de LEAD_WEBHOOK_URL se configura en Dokploy (Environment).
-ENV NGINX_ENVSUBST_FILTER=^LEAD_ \
-    LEAD_WEBHOOK_URL=http://127.0.0.1:9/unset
-COPY nginx/templates/ /etc/nginx/templates/
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY nginx/snippets/ /etc/nginx/snippets/
 COPY --from=build /app/dist/ /usr/share/nginx/html/
 EXPOSE 80

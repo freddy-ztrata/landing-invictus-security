@@ -1,219 +1,63 @@
 ---
 /**
- * Formulario nativo de cotización en 3 pasos → POST /api/lead (nginx → webhook de hapee).
- * Paso 1 = micro-compromiso (chips). "Busco trabajo" desvía a postulantes SIN enviar lead.
+ * Formulario de cotización = formulario de hapee nuevo embebido (iframe), sin webhook ni API propia.
+ *   hapee: cliente 46, formulario 147 "Cotización web (invictussecurity.cl)" → crea el contacto,
+ *   el negocio en el pipeline "Ventas web" (etapa Nuevo) y avisa a comercial@invictussecurity.cl.
+ *   Los campos se editan en hapee (no aquí).
  * Un solo formulario por página (id="cotizar"): todos los CTA apuntan a #cotizar.
+ * Los postulantes NO usan este formulario: el enlace de arriba los lleva a /trabaja-con-nosotros/.
  */
-import { comunasFormulario, empresa } from '../data/empresa';
+import { empresa } from '../data/empresa';
 import type { SegmentoForm } from '../data/segmentos';
+import { HAPEE_FORM_COTIZACION as HAPEE_FORM } from '../data/hapee';
 
 interface Props {
   segmento?: SegmentoForm | null;
   titulo?: string;
   subtitulo?: string;
-  tone?: 'dark' | 'light';
 }
 const {
   segmento = null,
   titulo = 'Cotiza tu servicio de seguridad',
   subtitulo = 'Para empresas, comunidades y productoras. Gratis, con respuesta en menos de 24 h hábiles.',
-  tone = 'light',
 } = Astro.props;
-
-const opciones: { value: SegmentoForm; label: string; hint: string; icon: string }[] = [
-  { value: 'condominio', label: 'Condominio o edificio', hint: 'Casas, torres, comunidades', icon: 'M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z' },
-  { value: 'empresa', label: 'Empresa o industria', hint: 'Oficinas, bodegas, plantas', icon: 'M3 21V8l6 3V8l6 3V4h6v17zM7 17h2m4 0h2' },
-  { value: 'evento', label: 'Evento', hint: 'Conciertos, ferias, matrimonios', icon: 'M8 2v4m8-4v4M3 9h18M5 5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm5 9 2 2 4-4' },
-  { value: 'ppi', label: 'Escolta / PPI', hint: 'Protección de personas', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
-  { value: 'otro', label: 'Otro recinto', hint: 'Colegio, obra, retail…', icon: 'M12 8v4m0 4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z' },
-];
 ---
-<form
-  class:list={['lead', `lead--${tone}`]}
-  id="cotizar"
-  action="/api/lead"
-  method="post"
-  novalidate
-  data-lead-form
-  data-segmento={segmento ?? ''}
-  aria-labelledby="lead-title"
->
+<div class="lead" id="cotizar" data-lead-form data-segmento={segmento ?? ''} aria-labelledby="lead-title">
   <div class="lead__head">
     <p class="lead__title" id="lead-title">{titulo}</p>
     <p class="lead__sub">{subtitulo}</p>
-    <div class="lead__progress" aria-hidden="true">
-      <span class="lead__bar"><span class="lead__bar-fill" data-progress></span></span>
-      <span class="lead__step-label mono" data-step-label>Paso 1 de 3</span>
-    </div>
   </div>
 
-  <!-- PASO 1 -->
-  <!-- is-active desde el HTML: si lo pusiera solo el JS, el formulario aparecería colapsado y saltaría (CLS) -->
-  <fieldset class="lead__step is-active" data-step="1">
-    <legend class="lead__legend">¿Qué necesitas proteger?</legend>
-    <div class="lead__options">
-      {opciones.map((o) => (
-        <label class="opt">
-          <input type="radio" name="segmento" value={o.value} required checked={segmento === o.value} />
-          <span class="opt__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d={o.icon} /></svg>
-          </span>
-          <span class="opt__text">
-            <span class="opt__label">{o.label}</span>
-            <span class="opt__hint">{o.hint}</span>
-          </span>
-        </label>
-      ))}
-      <!-- Desvío explícito de postulantes: NO es una opción del formulario, lleva a otra página. -->
-      <a class="opt opt--job" href="/trabaja-con-nosotros/" data-track="job_seeker" data-placement="form-option">
-        <span class="opt__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm10 0v6m3-3h-6" /></svg>
-        </span>
-        <span class="opt__text">
-          <span class="opt__label">Busco empleo como guardia</span>
-          <span class="opt__hint">Postula en otra página →</span>
-        </span>
-      </a>
-    </div>
-    <p class="lead__error" data-error-for="segmento" hidden>Elige una opción para continuar.</p>
-    <div class="lead__actions">
-      <button type="button" class="btn btn--block" data-next>Continuar</button>
-    </div>
-  </fieldset>
+  <a class="lead__job" href="/trabaja-con-nosotros/" data-track="job_seeker" data-placement="form">
+    <span class="lead__job-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm10 0v6m3-3h-6" /></svg>
+    </span>
+    <span><strong>¿Buscas empleo como guardia?</strong> Este formulario es solo para contratar servicios. Postula aquí →</span>
+  </a>
 
-  <!-- PASO 2 -->
-  <fieldset class="lead__step" data-step="2">
-    <legend class="lead__legend">Cuéntanos del recinto</legend>
+  <!-- Atribución: hapee lee gclid/gbraid/wbraid/UTM SOLO de la URL de esta página. Si el visitante
+       llegó por Ads a otra página del sitio, devolvemos a la URL el último toque guardado
+       (scripts/attribution.ts) ANTES de que cargue el embed, para que el lead no pierda el gclid. -->
+  <script is:inline>
+    (function () {
+      try {
+        var KEYS = ['gclid', 'gbraid', 'wbraid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+        var url = new URL(location.href);
+        if (KEYS.some(function (k) { return url.searchParams.get(k); })) return;
+        var t = JSON.parse(localStorage.getItem('inv_attr_last') || localStorage.getItem('inv_attr_first') || 'null');
+        if (!t || Date.now() - t.ts > 90 * 864e5) return;
+        var added = false;
+        KEYS.forEach(function (k) { if (t[k]) { url.searchParams.set(k, t[k]); added = true; } });
+        if (added) history.replaceState(history.state, '', url.toString());
+      } catch (e) {}
+    })();
+  </script>
 
-    <div class="field">
-      <label for="f-comuna">Comuna</label>
-      <input id="f-comuna" name="comuna" list="comunas-rm" autocomplete="address-level2" placeholder="Ej: Las Condes" required enterkeyhint="next" />
-      <datalist id="comunas-rm">
-        {comunasFormulario.map((c) => <option value={c} />)}
-      </datalist>
-      <p class="lead__error" data-error-for="comuna" hidden>Indícanos la comuna del recinto.</p>
-    </div>
-
-    <div class="field">
-      <span class="field__label" id="lbl-cobertura">Cobertura que necesitas</span>
-      <div class="pills" role="radiogroup" aria-labelledby="lbl-cobertura">
-        {['Día', 'Noche', '24/7', 'Por evento', 'No sé aún'].map((c) => (
-          <label class="pill"><input type="radio" name="cobertura" value={c} required /><span>{c}</span></label>
-        ))}
-      </div>
-      <p class="lead__error" data-error-for="cobertura" hidden>Elige el tipo de cobertura.</p>
-    </div>
-
-    <div class="field">
-      <span class="field__label" id="lbl-plazo">¿Para cuándo lo necesitas?</span>
-      <div class="pills" role="radiogroup" aria-labelledby="lbl-plazo">
-        {['Lo antes posible', 'Este mes', 'En 1 a 3 meses', 'Solo estoy averiguando'].map((c) => (
-          <label class="pill"><input type="radio" name="plazo" value={c} required /><span>{c}</span></label>
-        ))}
-      </div>
-      <p class="lead__error" data-error-for="plazo" hidden>Cuéntanos para cuándo lo necesitas.</p>
-    </div>
-
-    <div class="field" data-only="no-evento">
-      <label for="f-puestos">N° de guardias o puestos</label>
-      <select id="f-puestos" name="puestos">
-        <option value="No sé">No sé, necesito asesoría</option>
-        <option value="1">1 puesto</option>
-        <option value="2">2 puestos</option>
-        <option value="3">3 puestos</option>
-        <option value="4-5">4 a 5 puestos</option>
-        <option value="6+">6 o más</option>
-      </select>
-    </div>
-
-    <div class="field-row" data-only="evento" hidden>
-      <div class="field">
-        <label for="f-fecha">Fecha del evento</label>
-        <input id="f-fecha" name="fecha_evento" type="date" />
-      </div>
-      <div class="field">
-        <label for="f-asistentes">Asistentes aprox.</label>
-        <select id="f-asistentes" name="asistentes">
-          <option value="">Selecciona</option>
-          <option value="<200">Menos de 200</option>
-          <option value="200-1000">200 a 1.000</option>
-          <option value="1000-5000">1.000 a 5.000</option>
-          <option value="5000+">Más de 5.000</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="lead__actions lead__actions--split">
-      <button type="button" class="btn btn--ghost" data-back>Atrás</button>
-      <button type="button" class="btn" data-next>Continuar</button>
-    </div>
-  </fieldset>
-
-  <!-- PASO 3 -->
-  <fieldset class="lead__step" data-step="3">
-    <legend class="lead__legend">¿A quién le enviamos la cotización?</legend>
-    <div class="field">
-      <label for="f-nombre">Nombre</label>
-      <input id="f-nombre" name="nombre" autocomplete="name" required enterkeyhint="next" />
-      <p class="lead__error" data-error-for="nombre" hidden>Escribe tu nombre.</p>
-    </div>
-    <div class="field">
-      <label for="f-telefono">Teléfono</label>
-      <div class="phone">
-        <span class="phone__prefix mono" aria-hidden="true">+56</span>
-        <input id="f-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="9 1234 5678" required enterkeyhint="next" aria-describedby="hint-tel" />
-      </div>
-      <p class="field__hint" id="hint-tel">Celular o fijo. Te llamamos para afinar la cotización.</p>
-      <p class="lead__error" data-error-for="telefono" hidden>Revisa el número: 9 dígitos, por ejemplo 9 1234 5678.</p>
-    </div>
-    <div class="field">
-      <label for="f-email">Email</label>
-      <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="nombre@empresa.cl" required enterkeyhint="next" />
-      <p class="lead__error" data-error-for="email" hidden>Revisa el email.</p>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label for="f-rol">Tu rol</label>
-        <select id="f-rol" name="rol" required>
-          <option value="">Selecciona</option>
-          <option value="Administrador o comité">Administrador o comité</option>
-          <option value="Dueño, gerente o jefatura">Dueño, gerente o jefatura</option>
-          <option value="Seguridad, compras u operaciones">Seguridad, compras u operaciones</option>
-          <option value="Productor de eventos">Productor de eventos</option>
-          <option value="Particular">Particular</option>
-          <option value="Otro">Otro</option>
-        </select>
-        <p class="lead__error" data-error-for="rol" hidden>Selecciona tu rol.</p>
-      </div>
-      <div class="field">
-        <label for="f-empresa">Empresa o condominio <span class="field__opt">(opcional)</span></label>
-        <input id="f-empresa" name="empresa" autocomplete="organization" enterkeyhint="send" />
-      </div>
-    </div>
-    <!-- Honeypot: invisible para personas; los bots lo llenan. -->
-    <div class="hp" aria-hidden="true">
-      <label for="f-website">No llenar</label>
-      <input id="f-website" name="website" tabindex="-1" autocomplete="off" />
-    </div>
-    <p class="lead__legal">Al enviar aceptas nuestra <a href="/privacidad/">Política de Privacidad</a>. Usamos tus datos solo para preparar y enviarte la cotización.</p>
-    <div class="lead__actions lead__actions--split">
-      <button type="button" class="btn btn--ghost" data-back>Atrás</button>
-      <button type="submit" class="btn" data-submit>
-        <span data-submit-label>Recibir mi cotización</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
-      </button>
-    </div>
-  </fieldset>
-
-  <div class="lead__status" role="status" aria-live="polite" data-status></div>
-
-  <div class="lead__fail" data-fail hidden>
-    <p><strong>No pudimos enviar tu solicitud.</strong> Tus datos siguen aquí: intenta de nuevo, o contáctanos directo.</p>
-    <div class="lead__fail-actions">
-      <button type="button" class="btn btn--sm" data-retry>Reintentar envío</button>
-      <a class="btn btn--sm btn--ghost" href={`tel:${empresa.telefono}`} data-track="call" data-placement="form-fallback">Llamar {empresa.telefonoVisible}</a>
-      <a class="btn btn--sm btn--ghost" href={`mailto:${empresa.email}?subject=Cotizaci%C3%B3n%20de%20seguridad`}>Escribir email</a>
-    </div>
+  <div class="lead__frame">
+    <div data-zentru-form={HAPEE_FORM} data-mode="inline" data-height="1010px"></div>
+    <noscript>
+      <p class="lead__noscript">Para cotizar en línea activa JavaScript, o llámanos al <a href={`tel:${empresa.telefono}`}>{empresa.telefonoVisible}</a> · <a href={`mailto:${empresa.email}`}>{empresa.email}</a></p>
+    </noscript>
   </div>
 
   <ul class="lead__trust" role="list">
@@ -221,108 +65,53 @@ const opciones: { value: SegmentoForm; label: string; hint: string; icon: string
     <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>Respuesta &lt; 24 h hábiles</li>
     <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>Datos confidenciales</li>
   </ul>
-</form>
+  <p class="lead__legal">Al enviar aceptas nuestra <a href="/privacidad/">Política de Privacidad</a>.</p>
+</div>
+
+<!-- Embed oficial de hapee: convierte el div en iframe con auto-alto y avisa el envío (postMessage). -->
+<script is:inline src="https://beta.hapee.ai/static/form-embed.js" defer></script>
 
 <script>
-  import { initLeadForms } from '../scripts/form';
-  initLeadForms();
+  import { onHapeeSubmit } from '../scripts/form';
+  onHapeeSubmit();
 </script>
 
 <style>
   .lead {
-    --lead-bg: var(--paper);
-    --lead-fg: var(--text);
-    --lead-muted: var(--text-3);
-    --lead-line: var(--line);
-    --lead-field: #fbfaf8;
     position: relative;
-    background: var(--lead-bg);
-    color: var(--lead-fg);
+    background: var(--paper);
+    color: var(--text);
     border-radius: var(--r-lg);
-    padding: clamp(20px, 3vw, 32px);
+    padding: clamp(18px, 2.6vw, 28px);
     box-shadow: var(--shadow-3);
-    border: 1px solid var(--lead-line);
+    border: 1px solid var(--line);
     scroll-margin-top: 96px;
   }
   .lead::before {
     content: ''; position: absolute; inset: -1px -1px auto -1px; height: 3px; border-radius: var(--r-lg) var(--r-lg) 0 0;
     background: linear-gradient(90deg, transparent, var(--signal-2) 30%, var(--signal) 70%, transparent);
   }
-  .lead__head { margin-bottom: 18px; }
-  .lead__title { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem); letter-spacing: -0.02em; line-height: 1.2; }
-  .lead__sub { color: var(--lead-muted); font-size: var(--fs-sm); margin-top: 4px; }
-  .lead__progress { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
-  .lead__bar { flex: 1; height: 4px; border-radius: 4px; background: var(--mist); overflow: hidden; }
-  .lead__bar-fill { display: block; height: 100%; width: 33.33%; background: linear-gradient(90deg, var(--signal), var(--signal-2)); border-radius: inherit; transition: width var(--dur-3) var(--ease-out); }
-  .lead__step-label { font-size: var(--fs-xs); color: var(--lead-muted); white-space: nowrap; }
-
-  .lead__step { border: 0; padding: 0; margin: 0; min-width: 0; }
-  :global(.js) .lead__step:not(.is-active) { display: none; }
-  :global(.js) .lead__step.is-active { animation: step-in var(--dur-2) var(--ease-out); }
-  @keyframes step-in { from { opacity: 0; transform: translateX(14px); } }
-  @media (prefers-reduced-motion: reduce) { :global(.js) .lead__step.is-active { animation: none; } }
-  .lead__legend { font-weight: 650; font-size: 1.02rem; margin-bottom: 12px; padding: 0; }
-
-  .lead__options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .opt { position: relative; display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px; border-radius: var(--r); border: 1.5px solid var(--lead-line); background: var(--lead-field); cursor: pointer; transition: border-color var(--dur-1), background-color var(--dur-1), transform var(--dur-1) var(--ease-out); }
-  .opt:hover { border-color: color-mix(in srgb, var(--signal-2) 55%, var(--lead-line)); }
-  .opt:active { transform: scale(0.985); }
-  .opt input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
-  .opt:has(input:focus-visible) { outline: 3px solid var(--signal-2); outline-offset: 2px; }
-  .opt:has(input:checked) { border-color: var(--signal-2); background: color-mix(in srgb, var(--signal-2) 9%, var(--lead-bg)); }
-  .opt__icon { flex-shrink: 0; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: var(--signal-soft); color: var(--signal-ink); }
-  .opt__icon svg { width: 20px; height: 20px; }
-  .opt:has(input:checked) .opt__icon { background: var(--signal-2); color: var(--ink); }
-  .opt__text { display: grid; line-height: 1.25; }
-  .opt__label { font-weight: 650; font-size: 0.95rem; }
-  .opt__hint { font-size: var(--fs-xs); color: var(--lead-muted); }
-  .opt--job { text-decoration: none; color: inherit; border-style: dashed; background: transparent; }
-  .opt--job .opt__icon { background: var(--mist); color: var(--text-3); }
-  .opt--job .opt__label { font-weight: 600; color: var(--text-2); }
-  .opt--job:hover { border-color: var(--text-3); }
-
-  .field { display: grid; gap: 6px; margin-bottom: 14px; }
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .field label, .field__label { font-weight: 600; font-size: var(--fs-sm); }
-  .field__opt { font-weight: 400; color: var(--lead-muted); }
-  .field__hint { font-size: var(--fs-xs); color: var(--lead-muted); }
-  .field input, .field select {
-    width: 100%; min-height: 54px; padding: 12px 14px;
-    border-radius: var(--r-sm); border: 1.5px solid var(--lead-line); background: var(--lead-field);
-    font-size: 1rem; /* ≥16px: evita el zoom de iOS */
-    transition: border-color var(--dur-1), box-shadow var(--dur-1);
+  .lead__head { margin-bottom: 14px; }
+  .lead__title { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem); letter-spacing: -0.02em; line-height: 1.2; color: var(--text); }
+  .lead__sub { color: var(--text-3); font-size: var(--fs-sm); margin-top: 4px; }
+  .lead__job {
+    display: flex; gap: 12px; align-items: center;
+    padding: 10px 12px; margin-bottom: 8px;
+    border: 1.5px dashed var(--line); border-radius: var(--r);
+    font-size: var(--fs-sm); color: var(--text-2); text-decoration: none; line-height: 1.35;
+    transition: border-color var(--dur-1), background-color var(--dur-1);
   }
-  .field input:focus, .field select:focus { outline: none; border-color: var(--signal-2); box-shadow: 0 0 0 4px rgb(255 94 23 / 0.18); background: var(--lead-bg); }
-  .field [aria-invalid='true'] { border-color: #c81e1e; }
-  .phone { display: flex; align-items: stretch; }
-  .phone__prefix { display: grid; place-items: center; padding: 0 12px; border: 1.5px solid var(--lead-line); border-right: 0; border-radius: var(--r-sm) 0 0 var(--r-sm); background: var(--mist); color: var(--text-2); font-size: 0.95rem; }
-  .phone input { border-radius: 0 var(--r-sm) var(--r-sm) 0; }
-
-  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
-  .pill { position: relative; }
-  .pill input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
-  .pill span { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; border-radius: var(--r-pill); border: 1.5px solid var(--lead-line); background: var(--lead-field); font-weight: 550; font-size: 0.94rem; cursor: pointer; transition: all var(--dur-1); }
-  .pill input:checked + span { border-color: var(--signal-2); background: var(--signal-2); color: var(--ink); }
-  .pill input:focus-visible + span { outline: 3px solid var(--signal-2); outline-offset: 2px; }
-
-  .lead__actions { margin-top: 16px; }
-  .lead__actions--split { display: grid; grid-template-columns: auto 1fr; gap: 10px; }
-  .lead__error { color: #b42318; font-size: var(--fs-sm); font-weight: 550; margin-top: 4px; }
-  .lead__legal { font-size: var(--fs-xs); color: var(--lead-muted); margin-top: 4px; }
-  .lead__legal a { color: inherit; }
-  .lead__status:empty { display: none; }
-  .lead__status { margin-top: 12px; font-size: var(--fs-sm); font-weight: 600; }
-  .lead__fail { margin-top: 14px; padding: 14px; border-radius: var(--r); background: #fff4f0; border: 1px solid rgb(250 54 10 / 0.3); font-size: var(--fs-sm); color: var(--text); }
-  .lead__fail-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  .lead__trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin: 18px 0 0; padding: 14px 0 0; border-top: 1px solid var(--lead-line); font-size: var(--fs-xs); color: var(--lead-muted); }
+  .lead__job:hover { border-color: var(--text-3); background: var(--bone); }
+  .lead__job strong { color: var(--text); }
+  .lead__job-icon { flex-shrink: 0; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--mist); color: var(--text-3); }
+  .lead__job-icon svg { width: 18px; height: 18px; }
+  /* Espacio reservado ≈ alto final del iframe: evita saltos (CLS) mientras carga el embed */
+  .lead__frame { min-height: 1010px; margin-inline: -6px; }
+  .lead__frame :global(iframe) { display: block; width: 100%; border: 0; }
+  .lead__noscript { padding: 16px; font-size: var(--fs-sm); }
+  .lead__trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin: 6px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); font-size: var(--fs-xs); color: var(--text-3); }
   .lead__trust li { display: inline-flex; align-items: center; gap: 6px; }
   .lead__trust svg { width: 14px; height: 14px; color: var(--ok); }
-  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-  [data-submit][aria-busy='true'] { opacity: 0.8; pointer-events: none; }
-
-  @media (max-width: 420px) {
-    .lead__options { grid-template-columns: 1fr; }
-    .opt { min-height: 58px; }
-    .field-row { grid-template-columns: 1fr; }
-  }
+  .lead__legal { font-size: var(--fs-xs); color: var(--text-3); text-align: center; margin-top: 6px; }
+  .lead__legal a { color: inherit; }
 </style>

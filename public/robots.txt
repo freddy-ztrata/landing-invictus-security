@@ -14,6 +14,5 @@ User-agent: Claude-User
 User-agent: Google-Extended
 User-agent: Applebot-Extended
 Allow: /
-Disallow: /api/
 
 Sitemap: https://invictussecurity.cl/sitemap-index.xml

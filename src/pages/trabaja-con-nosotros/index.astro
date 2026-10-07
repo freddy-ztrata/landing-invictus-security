@@ -5,6 +5,7 @@
  * Excluir esta URL de AI Max / PMax en Google Ads.
  */
 import Base from '../../layouts/Base.astro';
+import { HAPEE_FORM_POSTULANTES } from '../../data/hapee';
 ---
 <Base title="Trabaja con nosotros | Invictus Security" description="Postula para trabajar como guardia de seguridad en Invictus Security." path="/trabaja-con-nosotros/" noindex hideMobileBar minimalHeader>
   <section class="job">
@@ -24,12 +25,21 @@ import Base from '../../layouts/Base.astro';
 
       <h2 id="postulacion">Formulario de postulación</h2>
       <div class="job__form">
-        <div data-zentru-form="invictus_security/postulantes-trabaja-con-nosotros-web" data-mode="inline" data-height="760px"></div>
+        <div data-zentru-form={HAPEE_FORM_POSTULANTES} data-mode="inline" data-height="760px"></div>
         <noscript><p>Para postular activa JavaScript o abre el <a href="https://beta.hapee.ai/forms/f/invictus_security/postulantes-trabaja-con-nosotros-web">formulario de postulación</a>.</p></noscript>
       </div>
     </div>
   </section>
   <script is:inline src="https://beta.hapee.ai/static/form-embed.js" defer></script>
+  <script is:inline>
+    // Accesibilidad: el embed de hapee crea el iframe sin title.
+    (function () {
+      var box = document.querySelector('.job__form');
+      if (!box) return;
+      var set = function () { box.querySelectorAll('iframe:not([title])').forEach(function (f) { f.title = 'Formulario de postulación de Invictus Security'; }); };
+      new MutationObserver(set).observe(box, { childList: true, subtree: true });
+    })();
+  </script>
 </Base>
 <style>
   .job { padding-block: clamp(40px, 6vw, 88px); background: var(--paper); }

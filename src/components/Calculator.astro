@@ -146,13 +146,10 @@ const C = 2 * Math.PI * R;
         puestos: puestos >= 6 ? '6+' : puestos >= 4 ? '4-5' : String(puestos),
       };
       track('calculator_complete', { ...detail, total_guardias: $('[data-total]').textContent, interacted });
+      // El formulario es de hapee (iframe): no se puede precargar; llevamos al visitante a él.
       const form = document.getElementById('cotizar');
-      if (form) {
-        window.dispatchEvent(new CustomEvent('inv:prefill', { detail }));
-        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        location.assign(`/cotizar/?seg=${encodeURIComponent(detail.segmento)}`);
-      }
+      if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else location.assign('/cotizar/');
     });
 
     render();

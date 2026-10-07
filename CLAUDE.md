@@ -20,12 +20,12 @@ Production: `https://invictussecurity.cl/` (canonical, indexable). `www.` and th
 
 ```bash
 npm run build        # astro build + gzip precompression (scripts/precompress.mjs)
-npm run preview      # serves dist/ like nginx (301 /foo→/foo/, 404.html, mock POST /api/lead)
+npm run preview      # serves dist/ like nginx (301 /foo→/foo/, 404.html, gzip_static)
 npm test             # Playwright E2E (needs `npm run build` first; desktop + Pixel 7)
 node scripts/make-og.mjs   # regenerate public/img/og/*.jpg when hero photos change
 ```
 
-CI (`.github/workflows/ci.yml`) runs the E2E suite and builds the real Docker image, starts it with a mock webhook and checks headers, redirects, dotfile blocking and `/api/lead` (405/403/200/502/429) with curl. No Docker locally — rely on CI for nginx changes.
+CI (`.github/workflows/ci.yml`) runs the E2E suite and builds the real Docker image, starts it and checks headers, redirects (gclid kept), host canonicalisation and dotfile blocking with curl. No Docker locally — rely on CI for nginx changes.
 
 ## Structure
 
@@ -34,21 +34,24 @@ CI (`.github/workflows/ci.yml`) runs the E2E suite and builds the real Docker im
 - `src/data/schema.ts` — JSON-LD `@graph` builders. Business node is `LocalBusiness` + `ProfessionalService` (`SecurityService` does not exist in schema.org). No self-serving review markup.
 - `src/pages/` — `/`, `[segmento]/` (guardias-de-seguridad, seguridad-para-condominios, guardias-para-eventos, seguridad-para-empresas), `cotizar/`, `nosotros/`, `guia/cuantos-guardias-necesito/` (calculator), `guia/ley-21659-seguridad-privada/`, `trabaja-con-nosotros/`, `gracias/`, `privacidad/`, `404`.
 - `public/` — `robots.txt` (AI search bots explicitly allowed), `llms.txt`, favicons, OG images.
-- `nginx/templates/default.conf.template` + `nginx/snippets/security-headers.conf`; multi-stage `Dockerfile` (node:24-slim build → nginx:stable-alpine serving **only** `dist/`).
+- `src/data/hapee.ts` — slugs of the embedded hapee forms.
+- `nginx/default.conf` + `nginx/snippets/security-headers.conf`; multi-stage `Dockerfile` (node:24-slim build → nginx:stable-alpine serving **only** `dist/`). **No environment variables** — the site is 100 % static.
 
 ## Lead flow (the core of the site)
 
-1. **One form per page** (`src/components/LeadForm.astro`, id `cotizar`; every CTA points to `#cotizar`, or `/cotizar/` on pages without it). 3 steps: chips (segment) → comuna, cobertura, **plazo**, puestos/evento → nombre, teléfono (+56, normalized to E.164), email, **rol**, empresa. Honeypot field `website`.
-2. Filters: the step-1 card **"Busco empleo como guardia"** links to `/trabaja-con-nosotros/` (hapee form 146, never a lead). `plazo = "Solo estoy averiguando"` → `calidad: 'curioso'`.
-3. `src/scripts/form.ts` POSTs JSON to **`/api/lead`** → nginx proxies to the **hapee nuevo** inbound webhook (workflow 526) using the env var **`LEAD_WEBHOOK_URL`** (set in Dokploy → Environment; never in code — Dokploy writes `.env` into the build context). Default value makes nginx start and the endpoint return 502 → the form shows the fallback (retry / call / email).
-4. On 200 the form stores `sessionStorage.inv_lead = {id, ts, segmento, calidad, user_data}` and goes to `/gracias/?s=…`.
-5. `/gracias/` consumes the token (< 30 min; referrer fallback once per session) and pushes `generate_lead` (with `lead_quality`) to the dataLayer, loads GTM, and fires the **primary Ads conversion `AW-17648531850/OcKZCPrpu50cEIrzvN9B`** with `transaction_id` + Enhanced Conversions `user_data` — **only for `calificado`**. Curiosos are recorded but never counted in Ads. Reloads, direct visits and bots measure nothing. Never link to `/gracias/`. On non-production hostnames it only logs to the console.
+**All forms are hapee nuevo embeds (iframe) — client decision: no webhook, no own API.** Fields, notifications and pipeline are edited in hapee, not in this repo.
 
-hapee nuevo (MCP connector, **cliente 46**): pipeline **"Ventas web" (id 127)** — stages Nuevo 1032, Contactado 1033, Calificado 1034, Cotizado 1035, Ganado 1036, Perdido 1037, Descartado 1038. Workflow **526** branches: honeypot → tag `spam`; nombre contains `PRUEBA` → tag `prueba` (test path, no deal, no email); `curioso` → deal in Descartado; else deal in Nuevo + task "Llamar en < 1 h hábil" + email to comercial@invictussecurity.cl. Contact fields: ciudad, origen, empresa, cargo (rol), landing_page, utm_*, last_click_id(+tipo), custom `gclid`, `utm_term`, `necesidad` (summary).
+1. **One quote form per page** (`src/components/LeadForm.astro`, id `cotizar`; every CTA points to `#cotizar`, or `/cotizar/` on pages without it). It embeds hapee form **147 "Cotización web (invictussecurity.cl)"** (`data-zentru-form="invictus_security/cotizaci-n-web-invictussecurity-cl"` + `https://beta.hapee.ai/static/form-embed.js`). Fields: segmento, comuna, **plazo** (incl. "Solo estoy averiguando"), cobertura, nombre, teléfono, email, **rol**, empresa, mensaje. On submit hapee creates the contact (with gclid/UTM it reads from the page URL) and a deal in pipeline **"Ventas web" (127)**, stage Nuevo (1032), and emails comercial@invictussecurity.cl.
+2. Job seekers: the dashed card **"¿Buscas empleo como guardia?"** above the form links to `/trabaja-con-nosotros/` (hapee form **146**, never a lead or conversion). Curiosos are identified in hapee by the `plazo` field (they still count as an Ads conversion: the iframe is cross-origin, the site can't read answers — use offline conversion import of qualified deals to correct bidding).
+3. Attribution: hapee only reads gclid/gbraid/wbraid/utm from the URL of the page holding the form, so an inline script in `LeadForm.astro` re-adds the last stored touch (`src/scripts/attribution.ts`, localStorage, 90 days) to the URL via `history.replaceState` before the embed loads.
+4. `src/scripts/form.ts` listens for hapee's `zentru_form_submitted` postMessage (origin `https://beta.hapee.ai`, matching form slug), stores `sessionStorage.inv_lead = {id: "lead.<hapee submission>", ts, segmento}` and navigates to `/gracias/?s=…` after 700 ms. It also sets a `title` on the iframe (a11y).
+5. `/gracias/` consumes the token (< 30 min; referrer fallback once per session), pushes `generate_lead` to the dataLayer, loads GTM and fires the **primary Ads conversion `AW-17648531850/OcKZCPrpu50cEIrzvN9B`** with `transaction_id` = hapee submission id. Reloads, direct visits and bots measure nothing. Never link to `/gracias/`. On non-production hostnames it only logs to the console.
+
+hapee nuevo (MCP connector, **cliente 46**): pipeline **"Ventas web" (id 127)** — stages Nuevo 1032, Contactado 1033, Calificado 1034, Cotizado 1035, Ganado 1036, Perdido 1037, Descartado 1038. Workflow 526 (old inbound-webhook design) is unpublished and unused.
 
 ## Tracking
 
-- GTM `GTM-WNTMK96Q` loads only on hostname `invictussecurity.cl` (`src/layouts/Base.astro`). dataLayer events: `form_start`, `form_step`, `form_submit_error`, `generate_lead` (only /gracias/), `call_click`, `job_seeker_click`, `cta_click`, `calculator_complete`, `faq_open`, `web_vitals`.
+- GTM `GTM-WNTMK96Q` loads only on hostname `invictussecurity.cl` (`src/layouts/Base.astro`). dataLayer events: `form_start` (focus enters the hapee iframe), `form_submit`, `generate_lead` (only /gracias/), `call_click`, `job_seeker_click`, `cta_click`, `calculator_complete`, `faq_open`, `web_vitals`.
 - GTM still has an old secondary Ads conversion (`__awct` 3VxWCLOVo6AcEIrzvN9B, trigger "URL contains gracias") — should be paused. When GTM gets its own Ads tag on `generate_lead`, remove the inline gtag block in `src/pages/gracias/index.astro` to avoid double counting.
 - Attribution (`src/scripts/attribution.ts`): first/last touch of gclid/gbraid/wbraid + utm_* in localStorage (90 days), sent with every lead → hapee → offline conversion import.
 
@@ -57,8 +60,8 @@ hapee nuevo (MCP connector, **cliente 46**): pipeline **"Ventas web" (id 127)** 
 - Headers only at server level (maps for Cache-Control / X-Robots-Tag) — never `add_header` inside a location (it drops the security headers).
 - `/_astro/*` is hashed → 1 year immutable; other images 7 days; HTML revalidates.
 - Legacy redirects (old WordPress + old single-page landing) live in `map $uri $inv_legacy` and always keep `$is_args$args` (gclid).
-- `set_real_ip_from` for Traefik networks so `limit_req` on `/api/lead` is per visitor, not global.
-- `/api/lead` accepts only POST with `Origin` = invictussecurity.cl or staging.invictussecurity.cl.
+- `set_real_ip_from` for Traefik networks (real visitor IP in logs).
+- CSP: minimal enforced policy + full Report-Only allowlist; `beta.hapee.ai` must stay allowed in `frame-src`/`script-src` (form embeds).
 
 ## Content rules
 
