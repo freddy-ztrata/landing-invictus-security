@@ -12,7 +12,7 @@ import CoverageMap from '../components/CoverageMap.astro';
 import Testimonials from '../components/Testimonials.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
-import heroImg from '../assets/img/gen/hero-guardias-equipo.jpg';
+import heroImg from '../assets/img/gen/hero-guardias-centro.jpg';
 import { faqsHome } from '../data/faqs';
 import { nodoFaq, nodoPagina } from '../data/schema';
 import { SITE_URL } from '../data/empresa';
@@ -35,8 +35,10 @@ const description = 'Empresa de seguridad privada en Santiago y todo Chile: guar
     lead="Guardias de seguridad acreditados para condominios, empresas, bodegas y eventos en Santiago y regiones. Con contrato, seguros, reemplazos garantizados y un supervisor que responde por cada turno."
     bullets={['Personal con credencial vigente y seguros al día', 'Despliegue en 48 a 72 horas', 'Propuesta gratis en menos de 24 h hábiles']}
     image={heroImg}
-    imageAlt="Guardias de seguridad uniformados en el acceso de un edificio residencial de Santiago al anochecer, con la cordillera de los Andes al fondo"
-    imagePosition="78% 50%"
+    imageAlt="Dos guardias de seguridad uniformados en el acceso de un edificio residencial de Santiago al anochecer, con la cordillera de los Andes al fondo"
+    imagePosition="50% 45%"
+    mode="stage"
+    video={{ mp4: '/video/hero-guardias.mp4', av1: '/video/hero-guardias-av1.webm' }}
   />
   <TrustStrip />
   <Answer

@@ -77,8 +77,11 @@ const pasos = [
   .step h3 { margin-bottom: 6px; }
   .step p { color: var(--text-3); }
   @media (min-width: 961px) {
-    .step { opacity: 0.38; min-height: 30vh; align-content: center; }
-    .step.is-on { opacity: 1; }
+    /* Pasos inactivos atenuados por COLOR (no opacidad): siguen cumpliendo contraste AA */
+    .step { min-height: 30vh; align-content: center; }
+    .step h3 { color: var(--text-3); transition: color var(--dur-2); }
+    .step.is-on h3 { color: var(--text); }
+    .step.is-on p { color: var(--text-2); }
     .step.is-on .step__n { color: var(--signal-ink); }
   }
   @media (max-width: 960px) {

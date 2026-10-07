@@ -101,14 +101,31 @@ test('sin opción de empleo: ningún enlace a postulaciones', async ({ page }) =
   await expect(page.getByText(/buscas trabajo|busco empleo|postula/i)).toHaveCount(0);
 });
 
-test('el hero muestra la foto de los guardias sobre el pliegue', async ({ page }) => {
+test('home: escena de guardias a pantalla completa; el video solo carga en desktop', async ({ page }, info) => {
   await page.goto('/');
+  const poster = page.locator('.hero__stage .hero__poster');
+  await expect(poster).toBeVisible();
+  await expect(poster).toHaveAttribute('fetchpriority', 'high');
+  const box = await poster.boundingBox();
+  expect(box!.y).toBeLessThan(page.viewportSize()!.height);
+  expect(box!.height).toBeGreaterThan(300);
+  const video = page.locator('[data-hero-video]');
+  if (info.project.name === 'desktop') {
+    await expect(video).toHaveAttribute('data-loaded', '1', { timeout: 8000 });
+    await expect(video).toHaveAttribute('data-on', '', { timeout: 8000 });
+  } else {
+    await page.waitForTimeout(2500);
+    await expect(video).not.toHaveAttribute('data-loaded', '1');
+  }
+});
+
+test('segmento: foto en tarjeta sobre el pliegue', async ({ page }) => {
+  await page.goto('/guardias-de-seguridad/');
   const img = page.locator('.hero__visual img');
   await expect(img).toBeVisible();
   await expect(img).toHaveAttribute('fetchpriority', 'high');
   const box = await img.boundingBox();
-  const vh = page.viewportSize()!.height;
-  expect(box!.y).toBeLessThan(vh);
+  expect(box!.y).toBeLessThan(page.viewportSize()!.height);
   expect(box!.height).toBeGreaterThan(150);
 });
 

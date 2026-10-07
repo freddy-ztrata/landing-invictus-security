@@ -12,20 +12,29 @@ Production: `https://invictussecurity.cl/` (canonical, indexable). `www.` and th
 
 - **Astro 7**, static output, `trailingSlash: 'always'` + `build.format: 'directory'` (URLs like `/seguridad-para-condominios/`). `compressHTML: true` on purpose (the v7 default `'jsx'` eats spaces in Spanish copy).
 - **MPA on purpose — no `<ClientRouter/>`**: every navigation is a real load so GTM page_view stays correct. Page transitions use native cross-document View Transitions (`@view-transition` in `src/styles/base.css`).
-- Vanilla CSS (`@layer`, nesting, tokens in `src/styles/tokens.css`), vanilla TS islands in `src/scripts/`. No framework, no GSAP/Three.js (hero effect is a ~4 KB WebGL2 shader).
+- Vanilla CSS (`@layer`, nesting, tokens in `src/styles/tokens.css`), vanilla TS islands in `src/scripts/`. No framework, no WebGL/GSAP/Three.js (`gsap` and `ogl` in package.json are unused leftovers).
 - Fonts self-hosted via `@fontsource-variable` (Unbounded display, Geist text, Geist Mono HUD/numbers).
 - Images: AI-generated (Higgsfield) photos in `src/assets/img/gen/*.jpg`, processed by `astro:assets` (AVIF/WebP srcset). They are atmospheric only — never present them as the client's real staff (no captions like "nuestro equipo").
 
 ## Commands
 
 ```bash
+npm run dev          # astro dev (GTM never loads off the production hostname; /gracias/ only logs the conversion)
+npm run check        # astro check (types)
 npm run build        # astro build + gzip precompression (scripts/precompress.mjs)
-npm run preview      # serves dist/ like nginx (301 /foo→/foo/, 404.html, gzip_static)
-npm test             # Playwright E2E (needs `npm run build` first; desktop + Pixel 7)
+npm run preview      # serves dist/ like nginx on :4321 (301 /foo→/foo/, 404.html, gzip_static)
+npm test             # Playwright E2E against dist/ (run `npm run build` first; projects: desktop + mobile/Pixel 7)
+npx playwright test -g "calculadora" --project=desktop   # single test by title
 node scripts/make-og.mjs   # regenerate public/img/og/*.jpg when hero photos change
 ```
 
-CI (`.github/workflows/ci.yml`) runs the E2E suite and builds the real Docker image, starts it and checks headers, redirects (gclid kept), host canonicalisation and dotfile blocking with curl. No Docker locally — rely on CI for nginx changes.
+- Playwright starts `scripts/serve-dist.mjs` itself with `reuseExistingServer: false` → port 4321 must be free (stop `npm run preview` first).
+- Tests abort every request to `beta.hapee.ai` except tests whose title contains "embed real"; `simulateHapeeSubmit()` in `tests/site.spec.ts` fakes hapee's submit postMessage. Never submit the real form in production to test it (real lead + emails + Ads conversion).
+- CI (`.github/workflows/ci.yml`) runs the E2E suite and builds the real Docker image, starts it and checks headers, redirects (gclid kept), host canonicalisation and dotfile blocking with curl. No Docker locally — rely on CI for nginx changes.
+
+## Deployment
+
+Push to `main` → Dokploy auto-deploys (build type Dockerfile, ~2 min; nothing to configure in Dokploy, no env vars). The `rediseno` branch is kept in sync (`git push origin main:rediseno`). Verify with curl against production after the deploy.
 
 ## Structure
 
@@ -34,12 +43,17 @@ CI (`.github/workflows/ci.yml`) runs the E2E suite and builds the real Docker im
 - `src/data/schema.ts` — JSON-LD `@graph` builders. Business node is `LocalBusiness` + `ProfessionalService` (`SecurityService` does not exist in schema.org). No self-serving review markup.
 - `src/pages/` — `/`, `[segmento]/` (guardias-de-seguridad, seguridad-para-condominios, guardias-para-eventos, seguridad-para-empresas), `cotizar/`, `nosotros/`, `guia/cuantos-guardias-necesito/` (calculator), `guia/ley-21659-seguridad-privada/`, `gracias/`, `privacidad/`, `404`.
 - `public/` — `robots.txt` (AI search bots explicitly allowed), `llms.txt`, favicons, OG images.
-- `src/data/hapee.ts` — slugs of the embedded hapee forms.
+- `src/data/hapee.ts` — hapee origin + slug of the embedded form.
 - `nginx/default.conf` + `nginx/snippets/security-headers.conf`; multi-stage `Dockerfile` (node:24-slim build → nginx:stable-alpine serving **only** `dist/`). **No environment variables** — the site is 100 % static.
 
 ## Hero
 
-`src/components/Hero.astro`: dark "Centro de Mando" background (WebGL scanner + grid/glow) and the guards photo in a framed card (`.hero__visual`, LCP image with `fetchpriority=high`). It is NOT a full-bleed background because the form card covers the right column. Desktop: title + photo + bullets left, form right. Mobile: photo full-width on top → title → form → bullets. Home uses `hero-guardias-equipo.jpg` (guards on the right, `imagePosition` ≈ 78%).
+`src/components/Hero.astro` has two modes (the form card always sits in the right column, so the people in the photo must not end up behind it):
+
+- **`mode="stage"`** (home): full-bleed scene limited to the first viewport and faded out with a CSS mask. Desktop grid has three zones — headline | empty band | form — and the photo must have the people **in the horizontal centre** (`hero-guardias-centro.jpg`, two guards ≈ 42–60 % of the width). The poster is the LCP (`fetchpriority=high`; mobile gets a square centre crop via `getImage({ fit: 'cover' })`). A Higgsfield loop (`public/video/hero-guardias-av1.webm` + `.mp4`, first frame = poster) is attached by JS only on desktop, after `load` + idle, never with reduced-motion/Save-Data/2g-3g; it pauses off-screen.
+- **`mode="card"`** (segments, nosotros): photo in a framed card (`.hero__visual`) and the same photo blurred/darkened as background.
+
+New hero video: generate the still with people centred, animate with start = end frame (seamless), crossfade the seam with ffmpeg, encode H.264 MP4 (`+faststart`, no audio) and AV1 WebM.
 
 ## Lead flow (the core of the site)
 
@@ -66,6 +80,13 @@ hapee nuevo (MCP connector, **cliente 46**): pipeline **"Ventas web" (id 127)** 
 - Legacy redirects (old WordPress + old single-page landing) live in `map $uri $inv_legacy` and always keep `$is_args$args` (gclid).
 - `set_real_ip_from` for Traefik networks (real visitor IP in logs).
 - CSP: minimal enforced policy + full Report-Only allowlist; `beta.hapee.ai` must stay allowed in `frame-src`/`script-src` (form embeds).
+
+## Gotchas
+
+- `.astro` frontmatter can't `export const`; shared constants live in `src/data/*.ts`. Never import `src/scripts/*` (browser code touching `window`) from frontmatter — it runs at build time.
+- noindex pages must be listed in **both** `NOINDEX` in `astro.config.mjs` (sitemap filter) and the `X-Robots-Tag` map in `nginx/default.conf`.
+- `.lead__frame` `min-height` and the embed's `data-height` (1010px, `LeadForm.astro`) reserve the iframe's final height (CLS 0) — update both if the hapee form gets longer or shorter.
+- Files mix CRLF and LF: scripted string replacements must normalise `\r\n` first (the Edit tool is fine).
 
 ## Content rules
 
