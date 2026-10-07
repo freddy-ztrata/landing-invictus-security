@@ -1,0 +1,89 @@
+---
+/**
+ * "Así trabajamos": scroll story. En desktop la imagen queda fija (sticky) y cada paso se
+ * enciende al pasar por el centro de la pantalla. En móvil es una lista simple.
+ * Solo describe lo que el servicio incluye (sin funcionalidades no confirmadas).
+ */
+import { Picture } from 'astro:assets';
+import imgCentral from '../assets/img/gen/central-monitoreo.jpg';
+
+const pasos = [
+  { n: '01', titulo: 'Diagnóstico gratuito', texto: 'Nos cuentas tu necesidad y visitamos el recinto: accesos, puntos ciegos, horarios de riesgo y procedimientos actuales. Con eso definimos puestos y turnos.' },
+  { n: '02', titulo: 'Propuesta en 24 horas', texto: 'Recibes una propuesta clara: dotación, sistema de turnos, protocolos y alcance del servicio. Sin letra chica.' },
+  { n: '03', titulo: 'Despliegue en 48–72 horas', texto: 'Firmado el contrato, seleccionamos e instalamos a los guardias con su credencial vigente, uniforme y procedimientos de tu recinto.' },
+  { n: '04', titulo: 'Supervisión continua', texto: 'Un supervisor visita el puesto, controla rondas y presentación, y cubre ausencias con reemplazos. Tú recibes reportes y un contacto directo.' },
+];
+---
+<section class="section process" aria-labelledby="process-title">
+  <div class="container process__grid">
+    <div class="process__visual">
+      <div class="process__frame viewfinder">
+        <Picture src={imgCentral} formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes="(max-width: 960px) 100vw, 45vw" alt="Operador de seguridad supervisando cámaras de varios recintos en una sala de monitoreo" loading="lazy" decoding="async" />
+        <div class="process__hud mono" aria-hidden="true">
+          <span>PASO <b data-process-n>01</b> / 04</span>
+          <span class="process__rec"><i></i> EN TURNO</span>
+        </div>
+      </div>
+    </div>
+    <div class="process__steps">
+      <div class="section-head">
+        <span class="eyebrow">Así trabajamos</span>
+        <h2 id="process-title">De tu solicitud a guardias operando, <span class="accent">en 4 pasos</span></h2>
+      </div>
+      <ol class="steps" role="list">
+        {pasos.map((p) => (
+          <li class="step" data-step-n={p.n}>
+            <span class="step__n mono">{p.n}</span>
+            <div>
+              <h3>{p.titulo}</h3>
+              <p>{p.texto}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <a class="btn" href="#cotizar" data-track="cta" data-placement="process">Empezar con el paso 1</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const steps = document.querySelectorAll<HTMLElement>('.step');
+  const n = document.querySelector('[data-process-n]');
+  if ('IntersectionObserver' in window && steps.length) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        steps.forEach((s) => s.classList.toggle('is-on', s === e.target));
+        if (n) n.textContent = (e.target as HTMLElement).dataset.stepN || '01';
+      });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    steps.forEach((s) => io.observe(s));
+  }
+</script>
+
+<style>
+  .process { background: var(--paper); }
+  .process__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 88px); align-items: start; }
+  .process__visual { position: sticky; top: 100px; }
+  .process__frame { border-radius: var(--r-lg); overflow: hidden; aspect-ratio: 4 / 5; background: var(--ink); }
+  .process__frame :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .process__hud { position: absolute; inset: auto 16px 16px; z-index: 2; display: flex; justify-content: space-between; font-size: 0.72rem; letter-spacing: 0.12em; color: var(--on-dark); background: rgb(10 10 10 / 0.6); backdrop-filter: blur(8px); padding: 10px 14px; border-radius: var(--r-sm); border: 1px solid var(--line-dark); }
+  .process__hud b { color: var(--signal-2); font-weight: 600; }
+  .process__rec i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ef4444; margin-right: 6px; animation: blink 1.6s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0.2; } }
+  .steps { list-style: none; padding: 0; display: grid; gap: 8px; margin-bottom: 32px; }
+  .step { display: grid; grid-template-columns: 56px 1fr; gap: 16px; padding: 22px 0; border-top: 1px solid var(--line); transition: opacity var(--dur-3) var(--ease-out); }
+  .step__n { font-size: 1.1rem; color: var(--text-3); padding-top: 2px; transition: color var(--dur-2); }
+  .step h3 { margin-bottom: 6px; }
+  .step p { color: var(--text-3); }
+  @media (min-width: 961px) {
+    .step { opacity: 0.38; min-height: 30vh; align-content: center; }
+    .step.is-on { opacity: 1; }
+    .step.is-on .step__n { color: var(--signal-ink); }
+  }
+  @media (max-width: 960px) {
+    .process__grid { grid-template-columns: 1fr; }
+    .process__visual { position: relative; top: 0; }
+    .process__frame { aspect-ratio: 16 / 10; }
+  }
+</style>

@@ -1,0 +1,54 @@
+---
+/**
+ * Nosotros (E-E-A-T): quiénes somos, cómo trabajamos, cumplimiento y datos de la entidad.
+ * ⚠️ Pendiente del cliente: historia, año de fundación, RUT, N° de autorización y fotos reales
+ * del equipo (no usar imágenes generadas como si fueran el personal).
+ */
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import Answer from '../../components/Answer.astro';
+import Features from '../../components/Features.astro';
+import Credential from '../../components/Credential.astro';
+import CoverageMap from '../../components/CoverageMap.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import img from '../../assets/img/gen/central-monitoreo.jpg';
+import { SITE_URL } from '../../data/empresa';
+import { nodoBreadcrumb, nodoPagina } from '../../data/schema';
+
+const url = `${SITE_URL}/nosotros/`;
+const title = 'Nosotros: empresa de seguridad privada | Invictus Security';
+const description = 'Conoce a Invictus Security: empresa de seguridad privada con base en la Región Metropolitana, guardias acreditados, supervisión 24/7 y cumplimiento de la Ley 21.659.';
+const crumbs = [{ nombre: 'Inicio', url: `${SITE_URL}/` }, { nombre: 'Nosotros', url }];
+---
+<Base title={title} description={description} path="/nosotros/" schema={[nodoPagina({ url, titulo: title, descripcion: description, tipo: 'AboutPage' }), nodoBreadcrumb(crumbs)]}>
+  <Hero
+    eyebrow="Nosotros"
+    h1="Seguridad privada hecha con "
+    h1Accent="disciplina y cercanía"
+    lead="Somos una empresa de seguridad privada de la Región Metropolitana. Protegemos condominios, empresas, bodegas y eventos con guardias acreditados, supervisión constante y un trato directo con cada cliente."
+    bullets={['Supervisión en terreno y a distancia', 'Reemplazos garantizados', 'Cumplimiento laboral y de seguridad privada']}
+    image={img}
+    imageAlt="Sala de supervisión de seguridad con monitores de cámaras de varios recintos"
+    imagePosition="50% 40%"
+    breadcrumbs={crumbs}
+  />
+  <Answer
+    pregunta="¿Quiénes somos?"
+    respuesta="Invictus Security es una empresa de seguridad privada con sede en Peñaflor, Región Metropolitana. Diseñamos y operamos servicios de guardias de seguridad para comunidades, empresas e industrias, con un modelo basado en tres pilares: personal acreditado y bien seleccionado, supervisión continua de cada puesto y comunicación directa con el cliente."
+  />
+  <Features
+    eyebrow="Cómo trabajamos"
+    titulo="Lo que nos importa en cada servicio"
+    items={[
+      { titulo: 'Selección rigurosa', texto: 'Verificamos antecedentes, experiencia y credencial antes de asignar a un guardia a tu recinto.' },
+      { titulo: 'Capacitación continua', texto: 'Procedimientos de control de acceso, rondas, emergencias y trato con las personas, adaptados a cada recinto.' },
+      { titulo: 'Supervisión real', texto: 'Supervisores que visitan los puestos, controlan rondas y presentación, y responden ante el cliente.' },
+      { titulo: 'Continuidad del servicio', texto: 'Reemplazos ante ausencias para que ningún puesto quede descubierto.' },
+      { titulo: 'Cumplimiento', texto: 'Contratos, cotizaciones y seguros al día, y operación bajo la Ley 21.659 de Seguridad Privada.' },
+      { titulo: 'Transparencia', texto: 'Propuestas claras, reportes de novedades y un contacto directo para resolver cualquier tema.' },
+    ]}
+  />
+  <Credential />
+  <CoverageMap />
+  <CtaBand titulo="Conversemos sobre la seguridad de tu recinto" cta="Cotizar gratis" />
+</Base>

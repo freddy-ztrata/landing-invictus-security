@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import { segmentos } from '../data/segmentos';
+---
+<Base title="Página no encontrada | Invictus Security" description="La página que buscas no existe." path="/404/" noindex hideMobileBar>
+  <section class="nf on-dark">
+    <div class="container container--narrow nf__inner">
+      <p class="nf__code mono" aria-hidden="true">4<span>0</span>4</p>
+      <h1>Esta página salió de nuestro radar</h1>
+      <p>La dirección que buscas no existe o cambió. Estos son nuestros servicios:</p>
+      <ul role="list" class="nf__links">
+        {segmentos.map((s) => <li><a class="link-arrow" href={`/${s.slug}/`}>{s.nav}</a></li>)}
+      </ul>
+      <div class="nf__actions">
+        <a class="btn" href="/cotizar/">Cotizar gratis</a>
+        <a class="btn btn--ghost" href="/">Ir al inicio</a>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { background: var(--ink); color: var(--on-dark); padding-block: clamp(56px, 10vw, 140px); min-height: calc(100svh - 68px); }
+  .nf__inner { display: grid; gap: 18px; justify-items: start; }
+  .nf__code { font-size: clamp(5rem, 14vw, 9rem); line-height: 1; letter-spacing: -0.06em; color: var(--graphite-2); }
+  .nf__code span { color: var(--signal-2); }
+  .nf h1 { font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem); }
+  .nf p { color: var(--on-dark-2); }
+  .nf__links { list-style: none; padding: 0; display: grid; gap: 2px; }
+  .nf__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+</style>

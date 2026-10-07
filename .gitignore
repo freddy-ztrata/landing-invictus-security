@@ -1,6 +1,13 @@
 node_modules/
+dist/
+.astro/
+test-results/
+playwright-report/
 .agents/
 .claude/
+.env
+.env.*
 *.log
 .DS_Store
 Thumbs.db
+skills-lock.json

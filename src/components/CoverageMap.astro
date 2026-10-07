@@ -1,0 +1,113 @@
+---
+/**
+ * Mapa de cobertura estilo radar: comunas de la RM proyectadas desde sus coordenadas reales
+ * (equirectangular simple), barrido de radar en CSS y la lista de comunas en TEXTO (SEO local).
+ */
+import { Picture } from 'astro:assets';
+import { comunasRM, comunasFormulario, empresa } from '../data/empresa';
+import imgSantiago from '../assets/img/gen/santiago-noche-aerea.jpg';
+
+const W = 520;
+const H = 560;
+const lats = comunasRM.map((c) => c.lat);
+const lngs = comunasRM.map((c) => c.lng);
+const pad = 40;
+const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+const kx = Math.cos((((minLat + maxLat) / 2) * Math.PI) / 180);
+const spanX = (maxLng - minLng) * kx;
+const spanY = maxLat - minLat;
+const scale = Math.min((W - pad * 2) / spanX, (H - pad * 2) / spanY);
+const offX = (W - spanX * scale) / 2;
+const offY = (H - spanY * scale) / 2;
+const proj = (lat: number, lng: number) => ({
+  x: offX + (lng - minLng) * kx * scale,
+  y: offY + (maxLat - lat) * scale,
+});
+const pts = comunasRM.map((c) => ({ ...c, ...proj(c.lat, c.lng) }));
+const sede = proj(empresa.geo.lat, empresa.geo.lng);
+const centro = proj(-33.45, -70.66);
+// Peñaflor no lleva etiqueta propia: la cubre la de la sede.
+const etiquetas = new Set(['Santiago', 'Las Condes', 'Maipú', 'Puente Alto', 'Quilicura', 'Colina', 'La Florida', 'San Bernardo', 'Lo Barnechea']);
+const comunas = comunasFormulario.filter((c) => c !== 'Otra región');
+---
+<section class="section section--dark coverage" aria-labelledby="cov-title">
+  <div class="coverage__bg" aria-hidden="true">
+    <Picture src={imgSantiago} formats={['avif', 'webp']} widths={[960, 1600, 2400]} sizes="100vw" alt="" loading="lazy" decoding="async" />
+  </div>
+  <div class="container coverage__grid">
+    <div>
+      <div class="section-head">
+        <span class="eyebrow">Cobertura</span>
+        <h2 id="cov-title">Operamos en toda la <span class="accent">Región Metropolitana</span></h2>
+        <p>Nuestra base está en {empresa.direccion.comuna} y desplegamos guardias en toda la Región Metropolitana. Para contratos de mayor envergadura evaluamos servicios en otras regiones del país.</p>
+      </div>
+      <details class="coverage__list">
+        <summary>Ver comunas de la Región Metropolitana</summary>
+        <ul role="list">{comunas.map((c) => <li>{c}</li>)}</ul>
+      </details>
+      <a class="btn" href="#cotizar" data-track="cta" data-placement="coverage">Cotizar en mi comuna</a>
+    </div>
+
+    <figure class="radar" aria-label="Mapa estilizado de cobertura en la Región Metropolitana">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="radar-title">
+        <title id="radar-title">Comunas de la Región Metropolitana con cobertura de Invictus Security</title>
+        <defs>
+          <radialGradient id="sweep-g" cx="0" cy="0" r="1">
+            <stop offset="0" stop-color="#ff5e17" stop-opacity="0.45" />
+            <stop offset="1" stop-color="#ff5e17" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        {[70, 140, 210, 280].map((r) => <circle cx={centro.x} cy={centro.y} r={r} class="radar__ring" />)}
+        <line x1={centro.x - 280} y1={centro.y} x2={centro.x + 280} y2={centro.y} class="radar__axis" />
+        <line x1={centro.x} y1={centro.y - 280} x2={centro.x} y2={centro.y + 280} class="radar__axis" />
+        <g class="radar__sweep" style={`transform-origin:${centro.x}px ${centro.y}px`}>
+          <path d={`M${centro.x},${centro.y} L${centro.x + 280},${centro.y} A280,280 0 0,0 ${centro.x + 280 * Math.cos(-0.6)},${centro.y + 280 * Math.sin(-0.6)} Z`} fill="url(#sweep-g)" />
+        </g>
+        {pts.map((p, i) => (
+          <g class="radar__pt" style={`--d:${(i % 12) * 0.35}s`}>
+            <circle cx={p.x} cy={p.y} r="9" class="radar__pulse" />
+            <circle cx={p.x} cy={p.y} r="3.2" class="radar__dot"><title>{p.nombre}</title></circle>
+            {etiquetas.has(p.nombre) && <text x={p.x + 8} y={p.y + 4} class="radar__lbl">{p.nombre}</text>}
+          </g>
+        ))}
+        <g class="radar__hq">
+          <circle cx={sede.x} cy={sede.y} r="14" class="radar__hq-ring" />
+          <circle cx={sede.x} cy={sede.y} r="5.5" class="radar__hq-dot" />
+          <text x={sede.x + 12} y={sede.y + 22} class="radar__lbl radar__lbl--hq">SEDE · {empresa.direccion.comuna.toUpperCase()}</text>
+        </g>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .coverage { overflow: clip; isolation: isolate; }
+  .coverage__bg { position: absolute; inset: 0; z-index: -1; opacity: 0.32; }
+  .coverage__bg :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .coverage__bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--ink) 20%, rgb(10 10 10 / 0.6) 60%, rgb(10 10 10 / 0.75)), linear-gradient(0deg, var(--ink), transparent 30%, transparent 70%, var(--ink)); }
+  .coverage__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
+  .coverage__list { margin-bottom: 24px; border: 1px solid var(--line-dark); border-radius: var(--r); background: rgb(255 255 255 / 0.03); }
+  .coverage__list summary { cursor: pointer; padding: 14px 18px; font-weight: 600; min-height: 48px; color: var(--on-dark); }
+  .coverage__list ul { list-style: none; padding: 0 18px 16px; columns: 3 140px; column-gap: 16px; font-size: var(--fs-sm); color: var(--on-dark-2); }
+  .coverage__list li { break-inside: avoid; padding: 2px 0; }
+  .radar { margin: 0; }
+  .radar svg { width: 100%; height: auto; overflow: visible; }
+  .radar__ring { fill: none; stroke: rgb(255 255 255 / 0.09); }
+  .radar__axis { stroke: rgb(255 255 255 / 0.06); stroke-dasharray: 3 6; }
+  .radar__dot { fill: #ffd7c4; }
+  .radar__pulse { fill: rgb(255 94 23 / 0.25); transform-box: fill-box; transform-origin: center; }
+  .radar__lbl { fill: var(--on-dark-2); font: 500 10.5px var(--f-mono); letter-spacing: 0.04em; }
+  .radar__lbl--hq { fill: var(--signal-3); font-weight: 600; }
+  .radar__hq-dot { fill: var(--signal-2); }
+  .radar__hq-ring { fill: none; stroke: var(--signal-2); stroke-width: 1.5; }
+  @media (prefers-reduced-motion: no-preference) {
+    .radar__sweep { animation: sweep 7s linear infinite; }
+    .radar__pulse { animation: pulse 4.2s var(--d, 0s) ease-out infinite; }
+    .radar__hq-ring { animation: hq 2.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes sweep { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0% { transform: scale(0.4); opacity: 0.9; } 70%, 100% { transform: scale(2.2); opacity: 0; } }
+    @keyframes hq { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+  }
+  @media (max-width: 900px) { .coverage__grid { grid-template-columns: 1fr; } .radar { max-width: 460px; margin-inline: auto; } }
+</style>

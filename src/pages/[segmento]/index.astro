@@ -1,0 +1,71 @@
+---
+/**
+ * Landings de segmento (Ads + SEO): /guardias-de-seguridad/, /seguridad-para-condominios/,
+ * /guardias-para-eventos/, /seguridad-para-empresas/. H1 = intención del grupo de anuncios.
+ */
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import Hero from '../../components/Hero.astro';
+import TrustStrip from '../../components/TrustStrip.astro';
+import Answer from '../../components/Answer.astro';
+import Pains from '../../components/Pains.astro';
+import Features from '../../components/Features.astro';
+import Process from '../../components/Process.astro';
+import Calculator from '../../components/Calculator.astro';
+import Credential from '../../components/Credential.astro';
+import Testimonials from '../../components/Testimonials.astro';
+import Faq from '../../components/Faq.astro';
+import Bento from '../../components/Bento.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { segmentos, type Segmento } from '../../data/segmentos';
+import { SITE_URL } from '../../data/empresa';
+import { nodoBreadcrumb, nodoFaq, nodoPagina, nodoServicio } from '../../data/schema';
+
+export const getStaticPaths = (() => segmentos.map((s) => ({ params: { segmento: s.slug }, props: { s } }))) satisfies GetStaticPaths;
+
+const { s } = Astro.props as { s: Segmento };
+const url = `${SITE_URL}/${s.slug}/`;
+const crumbs = [
+  { nombre: 'Inicio', url: `${SITE_URL}/` },
+  { nombre: s.nav, url },
+];
+const ogSlug = s.slug.replace('seguridad-para-', '').replace('guardias-para-', '').replace('guardias-de-seguridad', 'guardias');
+---
+<Base
+  title={s.seoTitle}
+  description={s.seoDescription}
+  path={`/${s.slug}/`}
+  ogImage={`/img/og/${ogSlug}.jpg`}
+  schema={[
+    nodoPagina({ url, titulo: s.seoTitle, descripcion: s.seoDescription }),
+    nodoServicio({ nombre: s.nav, tipo: s.serviceType, url, descripcion: s.resumen }),
+    nodoFaq(s.faqs, url),
+    nodoBreadcrumb(crumbs),
+  ]}
+>
+  <Hero
+    eyebrow={s.eyebrow}
+    h1={s.h1}
+    h1Accent={s.h1Accent}
+    lead={s.lead}
+    bullets={s.bullets}
+    image={s.imagen}
+    imageAlt={s.imagenAlt}
+    imagePosition="60% 50%"
+    vtName={`seg-${s.slug}`}
+    segmento={s.formSegmento}
+    formTitle={s.ctaTexto}
+    breadcrumbs={crumbs}
+  />
+  <TrustStrip />
+  <Answer pregunta={`¿Qué incluye el servicio de ${s.serviceType.toLowerCase()}?`} respuesta={s.resumen} />
+  <Pains titulo="¿Te suena alguno de estos problemas?" items={s.dolores} />
+  <Features titulo={`Todo lo que incluye: ${s.nav.toLowerCase()}`} items={s.incluye} recintos={s.recintos} />
+  <Process />
+  {s.formSegmento !== 'evento' && <Calculator compacto />}
+  <Credential />
+  <Testimonials segmento={s.formSegmento === 'condominio' ? 'condominios' : s.formSegmento === 'evento' ? 'eventos' : 'empresas'} />
+  <Faq faqs={s.faqs} titulo={`Preguntas frecuentes: ${s.nav.toLowerCase()}`} />
+  <Bento excluir={s.slug} titulo="Otros servicios de seguridad privada" eyebrow="También hacemos" />
+  <CtaBand titulo={`${s.ctaTexto}: propuesta en menos de 24 horas`} cta={s.ctaTexto} />
+</Base>

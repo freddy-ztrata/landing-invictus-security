@@ -1,0 +1,40 @@
+---
+/**
+ * Testimonios desde empresa.ts. ⚠️ Los actuales vienen del sitio anterior y están marcados
+ * verificado:false hasta que el cliente los confirme por escrito (o se reemplacen por reseñas
+ * reales de Google). NO agregar markup de reseñas (Review/AggregateRating) propio.
+ */
+import { testimonios } from '../data/empresa';
+interface Props { segmento?: string }
+const { segmento } = Astro.props;
+const lista = [...testimonios].sort((a, b) => Number(b.segmento === segmento) - Number(a.segmento === segmento));
+---
+{lista.length > 0 && (
+  <section class="section section--bone" aria-labelledby="testi-title">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Clientes</span>
+        <h2 id="testi-title">Lo que dicen quienes ya <span class="accent">duermen tranquilos</span></h2>
+      </div>
+      <ul class="testi" role="list">
+        {lista.map((t) => (
+          <li class="testi__card reveal">
+            <svg class="testi__q" viewBox="0 0 32 32" aria-hidden="true"><path d="M10 8C6 10 4 14 4 19v5h9v-9H8c0-3 2-5 4-6zm16 0c-4 2-6 6-6 11v5h9v-9h-5c0-3 2-5 4-6z" fill="currentColor" /></svg>
+            <blockquote><p>{t.texto}</p></blockquote>
+            <p class="testi__who"><strong>{t.nombre}</strong><span>{t.cargo}</span></p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+<style>
+  .testi { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .testi__card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 28px; display: flex; flex-direction: column; gap: 18px; }
+  .testi__q { width: 30px; height: 30px; color: var(--signal-2); }
+  .testi blockquote { margin: 0; flex: 1; }
+  .testi blockquote p { font-size: 1.02rem; color: var(--text-2); }
+  .testi__who { display: grid; font-size: var(--fs-sm); }
+  .testi__who span { color: var(--text-3); }
+  @media (max-width: 900px) { .testi { grid-template-columns: 1fr; } }
+</style>

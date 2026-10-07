@@ -1,0 +1,22 @@
+---
+interface Props { items: { nombre: string; url: string }[]; tone?: 'dark' | 'light' }
+const { items, tone = 'light' } = Astro.props;
+---
+<nav class:list={['bc', `bc--${tone}`]} aria-label="Ruta de navegación">
+  <ol>
+    {items.map((it, i) => (
+      <li>
+        {i < items.length - 1 ? <a href={new URL(it.url).pathname}>{it.nombre}</a> : <span aria-current="page">{it.nombre}</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+<style>
+  .bc ol { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 0; font-size: var(--fs-xs); font-family: var(--f-mono); letter-spacing: 0.04em; }
+  .bc li + li::before { content: '/'; margin: 0 8px; opacity: 0.5; }
+  .bc a { color: inherit; text-decoration: none; opacity: 0.75; }
+  .bc a:hover { opacity: 1; text-decoration: underline; }
+  .bc--dark { color: var(--on-dark-2); }
+  .bc--light { color: var(--text-3); }
+  .bc [aria-current] { opacity: 1; }
+</style>

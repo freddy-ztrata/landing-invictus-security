@@ -1,0 +1,45 @@
+---
+/**
+ * Desvío de postulantes (noindex). Formulario "Postulantes" de hapee nuevo (form 146, cliente 46):
+ * los envíos NO entran al pipeline de ventas ni cuentan como conversión.
+ * Excluir esta URL de AI Max / PMax en Google Ads.
+ */
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Trabaja con nosotros | Invictus Security" description="Postula para trabajar como guardia de seguridad en Invictus Security." path="/trabaja-con-nosotros/" noindex hideMobileBar minimalHeader>
+  <section class="job">
+    <div class="container container--narrow">
+      <span class="eyebrow">Trabaja con nosotros</span>
+      <h1>¿Quieres trabajar como guardia de seguridad en Invictus?</h1>
+      <p class="job__lead">Completa el formulario de postulación con tus datos y experiencia. Revisamos cada postulación y te contactamos si tu perfil calza con alguna vacante.</p>
+      <p class="job__notice">Esta página es <strong>solo para postulaciones</strong>. Si necesitas <strong>contratar</strong> guardias para tu empresa, condominio o evento, <a href="/cotizar/">solicita tu cotización aquí</a>.</p>
+
+      <h2>Qué valoramos en un postulante</h2>
+      <ul class="job__list">
+        <li>Experiencia en seguridad privada (deseable, no excluyente).</li>
+        <li>Curso y credencial de seguridad privada vigentes, si los tienes (indícalo en el formulario).</li>
+        <li>Disponibilidad para trabajar en sistema de turnos.</li>
+        <li>Responsabilidad, puntualidad y buen trato con las personas.</li>
+      </ul>
+
+      <h2 id="postulacion">Formulario de postulación</h2>
+      <div class="job__form">
+        <div data-zentru-form="invictus_security/postulantes-trabaja-con-nosotros-web" data-mode="inline" data-height="760px"></div>
+        <noscript><p>Para postular activa JavaScript o abre el <a href="https://beta.hapee.ai/forms/f/invictus_security/postulantes-trabaja-con-nosotros-web">formulario de postulación</a>.</p></noscript>
+      </div>
+    </div>
+  </section>
+  <script is:inline src="https://beta.hapee.ai/static/form-embed.js" defer></script>
+</Base>
+<style>
+  .job { padding-block: clamp(40px, 6vw, 88px); background: var(--paper); }
+  .job .container > * + * { margin-top: 18px; }
+  .job h1 { font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem); }
+  .job h2 { font-size: 1.35rem; margin-top: 40px; }
+  .job__lead { font-size: var(--fs-lg); color: var(--text-2); }
+  .job__notice { padding: 16px 20px; border-radius: var(--r); background: #fff4f0; border: 1px solid rgb(250 54 10 / 0.25); }
+  .job__notice a { color: var(--signal-ink); font-weight: 700; }
+  .job__list { padding-left: 1.2em; display: grid; gap: 6px; color: var(--text-2); }
+  .job__form { padding: 12px; border-radius: var(--r-lg); background: var(--bone); border: 1px solid var(--line); }
+  .job__form :global(iframe) { border-radius: var(--r); background: #fff; }
+</style>

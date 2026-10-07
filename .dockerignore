@@ -1,5 +1,5 @@
-# Nada de esto debe llegar a la imagen: el Dockerfile copia solo lo publicable,
-# pero además lo excluimos del contexto de build (defensa en profundidad).
+# Solo entra al contexto de build lo que el Dockerfile copia. Defensa en profundidad:
+# la imagen final además solo contiene dist/ (nunca .git ni el .env de Dokploy).
 .git
 .gitignore
 .env
@@ -7,7 +7,12 @@
 *.md
 .agents
 .claude
+.astro
 node_modules
+dist
+tests
+test-results
+playwright-report
 skills-lock.json
 *.log
 .DS_Store

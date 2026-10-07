@@ -1,0 +1,103 @@
+---
+/**
+ * Guía AEO/GEO: Ley 21.659. ⚠️ Contenido informativo, pendiente de revisión legal del cliente
+ * (plan §8.10). Mantener la fecha "actualizado" al día cuando cambie la normativa.
+ */
+import Guide from '../../../layouts/Guide.astro';
+import type { Faq } from '../../../data/segmentos';
+
+const faqs: Faq[] = [
+  {
+    q: '¿Desde cuándo rige la Ley 21.659 de Seguridad Privada?',
+    a: 'Desde el 28 de noviembre de 2025. La ley se publicó el 21 de marzo de 2024 y entró en vigencia seis meses después de publicado su reglamento (Decreto 209, de mayo de 2025).',
+  },
+  {
+    q: '¿Quién fiscaliza a las empresas de seguridad privada?',
+    a: 'La regulación y las autorizaciones están a cargo del Ministerio de Seguridad Pública a través de la Subsecretaría de Prevención del Delito. Carabineros de Chile mantiene el rol de autoridad fiscalizadora.',
+  },
+  {
+    q: '¿La credencial OS-10 sigue sirviendo?',
+    a: 'Sí, de forma transitoria. Las autorizaciones del personal otorgadas con la normativa anterior mantienen su vigencia durante el período de transición, que la Ley 21.825 (mayo de 2026) amplió por dieciocho meses.',
+  },
+  {
+    q: '¿Un condominio puede contratar guardias directamente?',
+    a: 'Puede, pero asume todas las obligaciones de empleador y de cumplimiento de la normativa de seguridad privada. Por eso la mayoría de las comunidades contrata a una empresa de seguridad autorizada, que responde por la credencial, la capacitación, los turnos y los reemplazos del personal.',
+  },
+];
+
+const toc = [
+  { id: 'resumen', label: 'Qué es la Ley 21.659' },
+  { id: 'fechas', label: 'Fechas clave' },
+  { id: 'quien', label: 'Quién regula y quién fiscaliza' },
+  { id: 'cambios', label: 'Qué cambia para quien contrata' },
+  { id: 'condominios', label: 'Condominios y edificios' },
+  { id: 'empresas', label: 'Empresas y eventos' },
+  { id: 'checklist', label: 'Checklist para contratar' },
+  { id: 'fuentes', label: 'Fuentes oficiales' },
+];
+---
+<Guide
+  slug="ley-21659-seguridad-privada"
+  title="Ley 21.659 de Seguridad Privada: qué cambia (guía 2026)"
+  description="Qué es la Ley 21.659 de Seguridad Privada, desde cuándo rige, quién fiscaliza y qué deben revisar condominios y empresas al contratar guardias. Guía actualizada."
+  h1="Ley 21.659 de Seguridad Privada: qué cambia al contratar guardias"
+  resumen="La Ley 21.659 rige desde el 28 de noviembre de 2025 y ordena todo el sistema de seguridad privada en Chile bajo la Subsecretaría de Prevención del Delito, con Carabineros como fiscalizador. Para quien contrata, lo clave es trabajar con empresas y guardias autorizados y exigir su documentación al día."
+  actualizado="2026-10-07"
+  toc={toc}
+  faqs={faqs}
+>
+  <h2 id="resumen">Qué es la Ley 21.659</h2>
+  <p>La <strong>Ley 21.659 sobre Seguridad Privada</strong> reemplazó el antiguo marco disperso (el DL 3.607 y sus reglamentos) por una sola ley que regula a las empresas de seguridad, a su personal —vigilantes privados, guardias de seguridad, porteros, nocheros y rondines— y a las entidades que la ley obliga a tener medidas de seguridad, como bancos o transporte de valores.</p>
+  <p>La ley define la seguridad privada como un conjunto de actividades <em>preventivas, coadyuvantes y complementarias</em> de la seguridad pública, ejecutadas por personas naturales o jurídicas debidamente autorizadas.</p>
+
+  <h2 id="fechas">Fechas clave</h2>
+  <table>
+    <thead><tr><th>Fecha</th><th>Hito</th></tr></thead>
+    <tbody>
+      <tr><td>21 de marzo de 2024</td><td>Publicación de la Ley 21.659 en el Diario Oficial.</td></tr>
+      <tr><td>27 de mayo de 2025</td><td>Publicación del reglamento (Decreto 209). Desde aquí corren seis meses para la entrada en vigencia.</td></tr>
+      <tr><td>28 de noviembre de 2025</td><td>La Ley 21.659 entra en vigencia.</td></tr>
+      <tr><td>28 de mayo de 2026</td><td>Se publica la Ley 21.825, que amplía de 6 a 18 meses el plazo para los estudios de seguridad y prorroga por el mismo período la vigencia de la última autorización del personal.</td></tr>
+      <tr><td>28 de mayo de 2027</td><td>Nuevo plazo límite para presentar los estudios de seguridad de las entidades obligadas.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="quien">Quién regula y quién fiscaliza</h2>
+  <p>El Ministerio encargado de la Seguridad Pública, <strong>a través de la Subsecretaría de Prevención del Delito</strong>, autoriza, regula, supervigila y controla la seguridad privada. <strong>Carabineros de Chile</strong> —históricamente a través del departamento OS-10— mantiene el rol de autoridad fiscalizadora.</p>
+  <p class="callout">En la práctica, muchas personas siguen hablando de "guardias OS-10" o "curso OS-10". Es una forma coloquial de referirse a guardias acreditados; hoy el marco correcto es la Ley 21.659.</p>
+
+  <h2 id="cambios">Qué cambia para quien contrata</h2>
+  <ul>
+    <li><strong>Autorización obligatoria:</strong> las empresas de seguridad y su personal deben estar autorizados bajo el nuevo régimen (con la transición vigente para las autorizaciones anteriores).</li>
+    <li><strong>Formación y credencial:</strong> el personal que cumple funciones de seguridad debe tener la capacitación y la credencial que exige la ley. La ley también contempla a porteros, nocheros y rondines que realizan labores de seguridad.</li>
+    <li><strong>Más fiscalización:</strong> el sistema queda bajo una sola autoridad reguladora, con sanciones para quienes operen fuera de la norma.</li>
+  </ul>
+
+  <h2 id="condominios">Qué significa para condominios y edificios</h2>
+  <p>El comité y la administración deben asegurarse de que el personal que realiza funciones de seguridad cumpla la normativa. Contratar a una empresa autorizada traslada a ella la responsabilidad de acreditar, capacitar, cubrir turnos y reemplazar al personal. Además, conviene exigir mensualmente el <strong>certificado F30-1</strong> de cumplimiento de obligaciones laborales y previsionales de la Dirección del Trabajo.</p>
+  <p>¿No sabes cuántos guardias necesita tu comunidad? Usa la <a href="/guia/cuantos-guardias-necesito/">calculadora de dotación</a> o revisa nuestro servicio de <a href="/seguridad-para-condominios/">seguridad para condominios</a>.</p>
+
+  <h2 id="empresas">Qué significa para empresas y productoras de eventos</h2>
+  <p>Para una empresa, el riesgo es doble: el regulatorio (personal no autorizado) y el laboral. Según la <strong>Ley 20.123 de Subcontratación</strong>, la empresa mandante puede responder por las obligaciones laborales y previsionales del contratista. En eventos masivos, la autoridad puede además exigir un plan de seguridad con dotación y procedimientos definidos.</p>
+  <p>Revisa nuestros servicios de <a href="/seguridad-para-empresas/">seguridad para empresas</a> y de <a href="/guardias-para-eventos/">guardias para eventos</a>.</p>
+
+  <h2 id="checklist">Checklist: qué pedir antes de contratar una empresa de seguridad</h2>
+  <ol>
+    <li>Resolución de autorización vigente de la empresa.</li>
+    <li>Credenciales vigentes de los guardias que trabajarán en tu recinto.</li>
+    <li>Contratos de trabajo y certificado F30-1 de la Dirección del Trabajo.</li>
+    <li>Pólizas de seguro: vida, accidentes y responsabilidad civil.</li>
+    <li>Propuesta escrita con dotación, sistema de turnos, protocolos y reemplazos.</li>
+    <li>Un supervisor asignado y un canal de contacto directo.</li>
+  </ol>
+
+  <h2 id="fuentes">Fuentes oficiales</h2>
+  <ul class="sources">
+    <li><a href="https://bcn.cl/KJa1mG" rel="noopener" target="_blank">Ley 21.659 sobre Seguridad Privada — Biblioteca del Congreso Nacional</a></li>
+    <li><a href="https://www.bcn.cl/portal/leyfacil/recurso/seguridad-privada" rel="noopener" target="_blank">Ley Fácil: Seguridad privada — BCN</a></li>
+    <li><a href="https://www.diariooficial.interior.gob.cl/publicaciones/2024/03/21/43807/01/2468993.pdf" rel="noopener" target="_blank">Publicación de la Ley 21.659 — Diario Oficial (21-03-2024)</a></li>
+    <li><a href="https://www.diariooficial.interior.gob.cl/publicaciones/2025/05/27/44158/01/2649270.pdf" rel="noopener" target="_blank">Decreto 209, reglamento — Diario Oficial (27-05-2025)</a></li>
+    <li><a href="https://www.camara.cl/cms/2026/05/18/seguridad-privada-sala-aprobo-ampliar-plazo-para-implementacion-de-nueva-normativa/" rel="noopener" target="_blank">Ampliación de plazos (Ley 21.825) — Cámara de Diputadas y Diputados</a></li>
+  </ul>
+  <p class="sources"><em>Este contenido es informativo y no constituye asesoría legal. Ante dudas sobre tu caso, consulta la normativa vigente o a un abogado.</em></p>
+</Guide>

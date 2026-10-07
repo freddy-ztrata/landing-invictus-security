@@ -1,0 +1,204 @@
+---
+/**
+ * Planificador de dotación: cuántos guardias necesita un puesto según horario y días.
+ * Muestra DOTACIÓN, nunca precio (decisión del cliente). Jornada legal según Ley 21.561:
+ * 42 h semanales desde el 26-04-2026 y 40 h desde el 26-04-2028. Es una estimación: la
+ * dotación final depende del sistema de turnos autorizado y de la visita técnica.
+ * El estado inicial (1 puesto, 24 h, todos los días → 4 guardias) se renderiza en el HTML.
+ */
+interface Props { compacto?: boolean }
+const { compacto = false } = Astro.props;
+const jornada = new Date() >= new Date('2028-04-26') ? 40 : 42;
+const R = 88;
+const C = 2 * Math.PI * R;
+---
+<section class:list={['section', 'calc-wrap', compacto && 'calc-wrap--compact']} aria-labelledby="calc-title" id="calculadora">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Planificador de dotación</span>
+      <h2 id="calc-title">¿Cuántos guardias necesita <span class="accent">tu recinto</span>?</h2>
+      <p>Calcula en segundos cuántos guardias se requieren para cubrir tus puestos con la jornada legal vigente ({jornada} horas semanales). Después, cotiza esa dotación con un clic.</p>
+    </div>
+
+    <div class="calc" data-calc data-jornada={jornada}>
+      <form class="calc__inputs" aria-label="Datos para calcular la dotación" onsubmit="return false">
+        <fieldset>
+          <legend>Tipo de recinto</legend>
+          <div class="seg">
+            <label><input type="radio" name="c-recinto" value="condominio" checked /><span>Condominio</span></label>
+            <label><input type="radio" name="c-recinto" value="empresa" /><span>Empresa</span></label>
+            <label><input type="radio" name="c-recinto" value="otro" /><span>Otro</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Puestos a cubrir <span class="calc__hint">(accesos o puntos de vigilancia simultáneos)</span></legend>
+          <div class="stepper">
+            <button type="button" data-dec aria-label="Quitar un puesto">−</button>
+            <output name="puestos" class="mono" data-puestos aria-live="polite">1</output>
+            <button type="button" data-inc aria-label="Agregar un puesto">+</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Horario de cobertura</legend>
+          <div class="seg">
+            <label><input type="radio" name="c-horario" value="dia" /><span>Día · 12 h</span></label>
+            <label><input type="radio" name="c-horario" value="noche" /><span>Noche · 12 h</span></label>
+            <label><input type="radio" name="c-horario" value="24" checked /><span>24 horas</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Días por semana</legend>
+          <div class="seg">
+            <label><input type="radio" name="c-dias" value="5" /><span>Lun–Vie</span></label>
+            <label><input type="radio" name="c-dias" value="6" /><span>Lun–Sáb</span></label>
+            <label><input type="radio" name="c-dias" value="7" checked /><span>Todos</span></label>
+          </div>
+        </fieldset>
+      </form>
+
+      <div class="calc__out on-dark" aria-live="polite">
+        <div class="ring">
+          <svg viewBox="0 0 220 220" aria-hidden="true">
+            <circle cx="110" cy="110" r={R} class="ring__track" />
+            <circle cx="110" cy="110" r={R} class="ring__arc" data-arc
+              style={`stroke-dasharray:${C} ${C};stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:110px 110px`} />
+            {Array.from({ length: 24 }, (_, h) => {
+              const a = (h / 24) * Math.PI * 2 - Math.PI / 2;
+              const r1 = h % 6 === 0 ? 70 : 74;
+              return <line x1={110 + Math.cos(a) * r1} y1={110 + Math.sin(a) * r1} x2={110 + Math.cos(a) * 78} y2={110 + Math.sin(a) * 78} class="ring__tick" />;
+            })}
+            <text x="110" y="56" class="ring__lbl">00</text>
+            <text x="166" y="114" class="ring__lbl">06</text>
+            <text x="110" y="172" class="ring__lbl">12</text>
+            <text x="54" y="114" class="ring__lbl">18</text>
+          </svg>
+          <div class="ring__center">
+            <span class="ring__num mono" data-total>4</span>
+            <span class="ring__unit" data-total-label>guardias en total</span>
+          </div>
+        </div>
+        <dl class="calc__facts">
+          <div><dt>Horas por puesto / semana</dt><dd class="mono" data-horas>168 h</dd></div>
+          <div><dt>Guardias por puesto</dt><dd class="mono" data-por-puesto>4</dd></div>
+          <div><dt>Sistema de turnos típico</dt><dd data-turno>4x4 de 12 h (día y noche)</dd></div>
+        </dl>
+        <div class="calc__guards" data-guards aria-hidden="true"></div>
+        <p class="calc__note">Estimación referencial con jornada de {jornada} h semanales. La dotación final depende del sistema de turnos autorizado por la Dirección del Trabajo y de la visita técnica. Los reemplazos por vacaciones y licencias los cubrimos nosotros.</p>
+        <button type="button" class="btn btn--block" data-calc-cta>Cotizar esta dotación</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { track } from '../scripts/tracking';
+
+  document.querySelectorAll<HTMLElement>('[data-calc]').forEach((root) => {
+    const jornada = Number(root.dataset.jornada) || 42;
+    const C = 2 * Math.PI * 88;
+    const $ = <T extends Element>(s: string) => root.querySelector<T>(s)!;
+    let puestos = 1;
+    let interacted = false;
+
+    const val = (name: string) => (root.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value ?? '');
+
+    function render() {
+      const horario = val('c-horario');
+      const dias = Number(val('c-dias'));
+      const hDia = horario === '24' ? 24 : 12;
+      const horas = hDia * dias;
+      const porPuesto = Math.ceil(horas / jornada);
+      const total = porPuesto * puestos;
+
+      $('[data-puestos]').textContent = String(puestos);
+      $('[data-total]').textContent = String(total);
+      $('[data-total-label]').textContent = total === 1 ? 'guardia en total' : 'guardias en total';
+      $('[data-horas]').textContent = `${horas} h`;
+      $('[data-por-puesto]').textContent = String(porPuesto);
+      $('[data-turno]').textContent =
+        horario === '24' && dias === 7 ? '4x4 de 12 h (día y noche)' :
+        horario === '24' ? 'Turnos de 12 h día y noche' :
+        dias === 7 ? `Turnos rotativos de 12 h (${horario === 'dia' ? 'diurno' : 'nocturno'})` :
+        `Jornada ${horario === 'dia' ? 'diurna' : 'nocturna'} de lunes a ${dias === 5 ? 'viernes' : 'sábado'}`;
+
+      // Arco del anillo: día 08–20, noche 20–08, 24 h completo
+      const arc = $<SVGCircleElement>('[data-arc]');
+      const frac = horario === '24' ? 1 : 0.5;
+      const startHour = horario === 'noche' ? 20 : horario === 'dia' ? 8 : 0;
+      arc.style.strokeDasharray = `${C * frac} ${C}`;
+      arc.style.transform = `rotate(${-90 + (startHour / 24) * 360}deg)`;
+
+      // Avatares de guardias (máx. 40 visibles)
+      const g = $('[data-guards]');
+      const shown = Math.min(total, 40);
+      g.innerHTML = Array.from({ length: shown }, (_, i) => `<span style="--i:${i}"></span>`).join('') + (total > shown ? `<em>+${total - shown}</em>` : '');
+    }
+
+    root.addEventListener('change', () => { interacted = true; render(); });
+    $('[data-inc]').addEventListener('click', () => { puestos = Math.min(20, puestos + 1); interacted = true; render(); });
+    $('[data-dec]').addEventListener('click', () => { puestos = Math.max(1, puestos - 1); interacted = true; render(); });
+
+    $('[data-calc-cta]').addEventListener('click', () => {
+      const horario = val('c-horario');
+      const detail = {
+        segmento: val('c-recinto'),
+        cobertura: horario === '24' ? '24/7' : horario === 'dia' ? 'Día' : 'Noche',
+        puestos: puestos >= 6 ? '6+' : puestos >= 4 ? '4-5' : String(puestos),
+      };
+      track('calculator_complete', { ...detail, total_guardias: $('[data-total]').textContent, interacted });
+      const form = document.getElementById('cotizar');
+      if (form) {
+        window.dispatchEvent(new CustomEvent('inv:prefill', { detail }));
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        location.assign(`/cotizar/?seg=${encodeURIComponent(detail.segmento)}`);
+      }
+    });
+
+    render();
+  });
+</script>
+
+<style>
+  .calc-wrap { background: var(--bone); }
+  .calc { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 20px; align-items: stretch; }
+  .calc__inputs { display: grid; gap: 18px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-lg); padding: clamp(20px, 3vw, 32px); }
+  .calc fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .calc legend { font-weight: 650; margin-bottom: 10px; padding: 0; }
+  .calc__hint { font-weight: 400; color: var(--text-3); font-size: var(--fs-sm); }
+  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; padding: 5px; border-radius: var(--r); background: var(--bone); border: 1px solid var(--line); }
+  .seg label { position: relative; }
+  .seg input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .seg span { display: grid; place-items: center; min-height: 46px; padding: 6px 10px; border-radius: 11px; font-weight: 600; font-size: 0.92rem; text-align: center; transition: background-color var(--dur-1), color var(--dur-1), box-shadow var(--dur-1); }
+  .seg input:checked + span { background: var(--ink); color: var(--on-dark); box-shadow: var(--shadow-1); }
+  .seg input:focus-visible + span { outline: 3px solid var(--signal-2); outline-offset: 1px; }
+  .stepper { display: inline-grid; grid-template-columns: 54px 72px 54px; align-items: center; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--bone); }
+  .stepper button { height: 54px; font-size: 1.5rem; font-weight: 500; transition: background-color var(--dur-1); }
+  .stepper button:hover { background: var(--mist); }
+  .stepper output { text-align: center; font-size: 1.4rem; background: var(--paper); height: 54px; display: grid; place-items: center; }
+
+  .calc__out { position: relative; overflow: hidden; background: var(--ink); color: var(--on-dark); border-radius: var(--r-lg); padding: clamp(20px, 3vw, 32px); display: grid; gap: 18px; align-content: start; }
+  .calc__out::before { content: ''; position: absolute; inset: 0; background: radial-gradient(600px 300px at 80% 0%, rgb(250 54 10 / 0.18), transparent 60%); pointer-events: none; }
+  .ring { position: relative; width: min(240px, 70%); margin-inline: auto; }
+  .ring svg { width: 100%; height: auto; overflow: visible; }
+  .ring__track { fill: none; stroke: rgb(255 255 255 / 0.08); stroke-width: 14; }
+  .ring__arc { fill: none; stroke: var(--signal-2); stroke-width: 14; stroke-linecap: round; transition: stroke-dasharray 800ms var(--ease-out), transform 800ms var(--ease-out); filter: drop-shadow(0 0 10px rgb(255 94 23 / 0.5)); }
+  .ring__tick { stroke: rgb(255 255 255 / 0.25); stroke-width: 1.2; }
+  .ring__lbl { fill: var(--on-dark-3); font: 500 10px var(--f-mono); text-anchor: middle; }
+  .ring__center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+  .ring__num { font-size: clamp(2.6rem, 2rem + 2vw, 3.4rem); line-height: 1; color: var(--on-dark); }
+  .ring__unit { font-size: var(--fs-xs); color: var(--on-dark-3); margin-top: 4px; }
+  .calc__facts { display: grid; gap: 8px; margin: 0; position: relative; }
+  .calc__facts div { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line-dark); font-size: var(--fs-sm); }
+  .calc__facts dt { color: var(--on-dark-3); }
+  .calc__facts dd { margin: 0; color: var(--on-dark); text-align: right; }
+  .calc__guards { display: flex; flex-wrap: wrap; gap: 6px; min-height: 22px; position: relative; }
+  .calc__guards :global(span) { width: 16px; height: 22px; border-radius: 8px 8px 4px 4px; background: linear-gradient(180deg, var(--signal-2) 0 36%, transparent 36% 44%, rgb(255 255 255 / 0.85) 44%); animation: pop 420ms var(--ease-out) both; animation-delay: calc(var(--i) * 25ms); }
+  .calc__guards :global(em) { font-style: normal; font-family: var(--f-mono); font-size: var(--fs-xs); color: var(--on-dark-2); align-self: center; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(0.6); } }
+  @media (prefers-reduced-motion: reduce) { .calc__guards :global(span) { animation: none; } .ring__arc { transition: none; } }
+  .calc__note { font-size: var(--fs-xs); color: var(--on-dark-3); position: relative; }
+  .calc__out .btn { position: relative; }
+  @media (max-width: 900px) { .calc { grid-template-columns: 1fr; } }
+  @media (max-width: 420px) { .seg { grid-auto-flow: row; grid-auto-columns: auto; } }
+</style>

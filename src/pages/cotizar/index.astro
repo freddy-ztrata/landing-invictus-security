@@ -1,0 +1,41 @@
+---
+/** Página de formulario puro: sitelink "Cotizar" de Ads y destino de /contacto, /cotizacion… */
+import Base from '../../layouts/Base.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import { empresa, SITE_URL } from '../../data/empresa';
+import { nodoPagina } from '../../data/schema';
+
+const title = 'Cotiza Guardias de Seguridad Gratis | Invictus Security';
+const description = 'Solicita tu cotización de guardias de seguridad para condominio, empresa o evento. Gratis y sin compromiso: respuesta en menos de 24 horas hábiles.';
+---
+<Base title={title} description={description} path="/cotizar/" hideMobileBar schema={[nodoPagina({ url: `${SITE_URL}/cotizar/`, titulo: title, descripcion: description, tipo: 'ContactPage' })]}>
+  <section class="cot on-dark">
+    <div class="container cot__grid">
+      <div class="cot__copy">
+        <span class="eyebrow">Cotización gratuita</span>
+        <h1>Cotiza tu servicio de seguridad <span class="accent">en 2 minutos</span></h1>
+        <p class="cot__lead">Responde 3 preguntas y un especialista te contacta en menos de 24 horas hábiles con una propuesta a la medida de tu recinto.</p>
+        <ol class="cot__steps" role="list">
+          <li><span class="mono">01</span> Elige qué necesitas proteger</li>
+          <li><span class="mono">02</span> Cuéntanos del recinto</li>
+          <li><span class="mono">03</span> Recibe tu propuesta</li>
+        </ol>
+        <p class="cot__tel">¿Prefieres hablar? <a class="mono" href={`tel:${empresa.telefono}`} data-track="call" data-placement="cotizar">{empresa.telefonoVisible}</a> · {empresa.horarioComercial.dias}, {empresa.horarioComercial.abre}–{empresa.horarioComercial.cierra}</p>
+      </div>
+      <LeadForm titulo="Solicita tu cotización" />
+    </div>
+  </section>
+</Base>
+<style>
+  .cot { background: radial-gradient(900px 500px at 85% -10%, rgb(250 54 10 / 0.22), transparent 60%), var(--ink); color: var(--on-dark); padding-block: clamp(40px, 7vw, 104px); min-height: calc(100svh - 68px); display: flex; align-items: center; }
+  .cot__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
+  .cot__copy > * + * { margin-top: 20px; }
+  .cot h1 { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.4rem); }
+  .cot__lead { font-size: var(--fs-lg); color: var(--on-dark-2); }
+  .cot__steps { list-style: none; padding: 0; display: grid; gap: 10px; }
+  .cot__steps li { display: flex; gap: 14px; align-items: center; color: var(--on-dark); font-weight: 550; }
+  .cot__steps span { color: var(--signal-2); }
+  .cot__tel { color: var(--on-dark-3); font-size: var(--fs-sm); }
+  .cot__tel a { color: var(--on-dark); }
+  @media (max-width: 900px) { .cot__grid { grid-template-columns: 1fr; } .cot { min-height: auto; } }
+</style>

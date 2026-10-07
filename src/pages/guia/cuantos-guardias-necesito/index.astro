@@ -1,0 +1,108 @@
+---
+/**
+ * Guía AEO + calculadora de dotación. Reglas: jornada legal (Ley 21.561) y turnos; validar con
+ * el cliente si tiene autorización de la Dirección del Trabajo para sistemas excepcionales (§8.5).
+ */
+import Guide from '../../../layouts/Guide.astro';
+import Calculator from '../../../components/Calculator.astro';
+import type { Faq } from '../../../data/segmentos';
+
+const faqs: Faq[] = [
+  {
+    q: '¿Cuántos guardias se necesitan para un puesto 24/7?',
+    a: 'Normalmente 4 guardias por puesto. Un puesto 24/7 suma 168 horas semanales; con la jornada legal de 42 horas vigente desde abril de 2026, se cubre con 4 guardias rotando en turnos de 12 horas, más reemplazos para vacaciones y licencias.',
+  },
+  {
+    q: '¿Qué es el turno 4x4?',
+    a: 'Es un sistema de 4 días de trabajo seguidos de 4 días de descanso, normalmente con jornadas de 12 horas. Promedia 42 horas semanales, pero por superar las 10 horas diarias ordinarias requiere autorización expresa de la Dirección del Trabajo como sistema excepcional de jornada.',
+  },
+  {
+    q: '¿Cambia la dotación con la ley de 40 horas?',
+    a: 'Sí. La jornada máxima bajó a 44 horas en abril de 2024 y a 42 horas en abril de 2026, y llegará a 40 horas el 26 de abril de 2028. A menor jornada, se necesitan más horas-persona para cubrir el mismo puesto, sobre todo en servicios 24/7.',
+  },
+  {
+    q: '¿Cuántos guardias necesita un evento?',
+    a: 'No hay una cifra única: depende del aforo, del tipo de público, del recinto, de si se vende alcohol y de lo que exija la autoridad en el plan de seguridad. Por eso los eventos se dimensionan caso a caso en la cotización.',
+  },
+];
+
+const toc = [
+  { id: 'regla', label: 'La regla rápida' },
+  { id: 'jornada', label: 'Jornada legal 2024–2028' },
+  { id: 'turnos', label: 'Sistemas de turnos' },
+  { id: 'ejemplos', label: 'Ejemplos de dotación' },
+  { id: 'factores', label: 'Qué más influye' },
+  { id: 'fuentes', label: 'Fuentes' },
+];
+---
+<Guide
+  slug="cuantos-guardias-necesito"
+  title="¿Cuántos guardias necesito? Calculadora de dotación 2026"
+  description="Calcula cuántos guardias de seguridad necesita tu condominio o empresa según horario y días, con la jornada legal de 42 horas. Turnos 4x4, ejemplos y reglas."
+  h1="¿Cuántos guardias de seguridad necesito? Calculadora y guía"
+  resumen="Un puesto cubierto las 24 horas, los 7 días, necesita normalmente 4 guardias con la jornada legal de 42 horas semanales vigente desde abril de 2026. Un puesto de 12 horas de lunes a viernes necesita 2. Multiplica por el número de puestos (accesos o puntos de vigilancia simultáneos)."
+  actualizado="2026-10-07"
+  toc={toc}
+  faqs={faqs}
+>
+  <Calculator slot="wide" />
+
+  <h2 id="regla">La regla rápida</h2>
+  <p>La dotación se calcula por <strong>puesto</strong>: cada acceso o punto que debe estar vigilado al mismo tiempo. Para cada puesto:</p>
+  <ol>
+    <li>Suma las horas que debe estar cubierto en la semana (por ejemplo, 24 horas × 7 días = 168 horas).</li>
+    <li>Divide por la jornada legal semanal vigente (hoy, 42 horas).</li>
+    <li>Redondea hacia arriba: ese es el número mínimo de guardias por puesto.</li>
+    <li>Multiplica por el número de puestos.</li>
+  </ol>
+  <p class="callout"><strong>Ejemplo:</strong> un condominio con un acceso vehicular cubierto 24/7 necesita 168 ÷ 42 = <strong>4 guardias</strong>. Si además quiere un rondín nocturno de 12 horas todos los días, suma 84 ÷ 42 = <strong>2 guardias</strong> más.</p>
+
+  <h2 id="jornada">Jornada legal: de 45 a 40 horas (Ley 21.561)</h2>
+  <table>
+    <thead><tr><th>Desde</th><th>Jornada máxima semanal</th></tr></thead>
+    <tbody>
+      <tr><td>Antes del 26-04-2024</td><td>45 horas</td></tr>
+      <tr><td>26 de abril de 2024</td><td>44 horas</td></tr>
+      <tr><td>26 de abril de 2026</td><td>42 horas (vigente)</td></tr>
+      <tr><td>26 de abril de 2028</td><td>40 horas</td></tr>
+    </tbody>
+  </table>
+  <p>Cada reducción aumenta las horas-persona necesarias para cubrir el mismo puesto. Por eso conviene revisar la dotación de tu servicio en cada etapa de la ley.</p>
+
+  <h2 id="turnos">Sistemas de turnos más usados en seguridad privada</h2>
+  <ul>
+    <li><strong>4x4 de 12 horas:</strong> cuatro días de trabajo y cuatro de descanso. Promedia 42 horas semanales y es el más usado para puestos 24/7, pero requiere autorización de la Dirección del Trabajo como sistema excepcional.</li>
+    <li><strong>5x2:</strong> cinco días de trabajo y dos de descanso, típico de horarios de oficina o comercio.</li>
+    <li><strong>Turnos rotativos día/noche:</strong> combinan guardias diurnos y nocturnos para cubrir 24 horas con reemplazos programados.</li>
+  </ul>
+
+  <h2 id="ejemplos">Ejemplos de dotación (jornada de 42 horas)</h2>
+  <table>
+    <thead><tr><th>Cobertura del puesto</th><th>Horas/semana</th><th>Guardias por puesto</th></tr></thead>
+    <tbody>
+      <tr><td>24 h, todos los días</td><td>168</td><td>4</td></tr>
+      <tr><td>24 h, lunes a viernes</td><td>120</td><td>3</td></tr>
+      <tr><td>12 h noche, todos los días</td><td>84</td><td>2</td></tr>
+      <tr><td>12 h día, lunes a sábado</td><td>72</td><td>2</td></tr>
+      <tr><td>12 h día, lunes a viernes</td><td>60</td><td>2</td></tr>
+    </tbody>
+  </table>
+  <p>Son mínimos teóricos: además hay que cubrir vacaciones, licencias y capacitaciones. En Invictus Security esos reemplazos los gestionamos nosotros.</p>
+
+  <h2 id="factores">Qué más influye en la dotación</h2>
+  <ul>
+    <li><strong>Accesos:</strong> cada entrada vehicular o peatonal habilitada suele ser un puesto.</li>
+    <li><strong>Perímetro y extensión:</strong> condominios de casas o bodegas grandes pueden requerir rondines además de los puestos fijos.</li>
+    <li><strong>Horarios de riesgo:</strong> la mayoría de los robos ocurre de noche y en fines de semana.</li>
+    <li><strong>Tipo de recinto y flujo de personas:</strong> un centro logístico con camiones no se vigila igual que un edificio residencial.</li>
+  </ul>
+  <p>La forma más precisa de definirlo es una visita técnica. La hacemos sin costo: <a href="#cotizar">solicita tu cotización</a>.</p>
+
+  <h2 id="fuentes">Fuentes</h2>
+  <ul class="sources">
+    <li><a href="https://www.mintrab.gob.cl/40horas/" rel="noopener" target="_blank">Ley 40 horas — Ministerio del Trabajo y Previsión Social</a></li>
+    <li><a href="https://www.mintrab.gob.cl/ley-40-horas-conoce-las-principales-medidas-que-comienzan-a-regir-el-26-de-abril/" rel="noopener" target="_blank">Medidas que rigen desde el 26 de abril — Mintrab</a></li>
+    <li><a href="https://www.dt.gob.cl" rel="noopener" target="_blank">Dirección del Trabajo (sistemas excepcionales de jornada)</a></li>
+  </ul>
+  <p class="sources"><em>Cálculo referencial. La dotación final depende del sistema de turnos autorizado y de las condiciones de cada recinto.</em></p>
+</Guide>

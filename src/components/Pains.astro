@@ -1,0 +1,32 @@
+---
+import type { Item } from '../data/segmentos';
+interface Props { eyebrow?: string; titulo: string; texto?: string; items: Item[] }
+const { eyebrow = 'El problema', titulo, texto, items } = Astro.props;
+---
+<section class="section section--dark pains" aria-labelledby="pains-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">{eyebrow}</span>
+      <h2 id="pains-title">{titulo}</h2>
+      {texto && <p>{texto}</p>}
+    </div>
+    <ol class="pains__list" role="list">
+      {items.map((it, i) => (
+        <li class="reveal">
+          <span class="pains__n mono">{String(i + 1).padStart(2, '0')}</span>
+          <h3>{it.titulo}</h3>
+          <p>{it.texto}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+<style>
+  .pains__list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-dark); border: 1px solid var(--line-dark); border-radius: var(--r-lg); overflow: hidden; }
+  .pains__list li { background: var(--ink); padding: clamp(22px, 3vw, 36px); display: grid; gap: 12px; align-content: start; position: relative; }
+  .pains__list li::after { content: ''; position: absolute; left: 0; top: 0; height: 2px; width: 0; background: var(--signal-2); transition: width var(--dur-3) var(--ease-out); }
+  .pains__list li:hover::after { width: 100%; }
+  .pains__n { color: var(--signal-2); font-size: var(--fs-sm); }
+  .pains__list h3 { color: var(--on-dark); }
+  @media (max-width: 860px) { .pains__list { grid-template-columns: 1fr; } }
+</style>

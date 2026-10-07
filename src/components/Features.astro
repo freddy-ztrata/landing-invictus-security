@@ -1,0 +1,43 @@
+---
+import type { Item } from '../data/segmentos';
+interface Props { eyebrow?: string; titulo: string; texto?: string; items: Item[]; recintos?: string[] }
+const { eyebrow = 'Qué incluye', titulo, texto, items, recintos = [] } = Astro.props;
+---
+<section class="section feat" aria-labelledby="feat-title">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">{eyebrow}</span>
+      <h2 id="feat-title">{titulo}</h2>
+      {texto && <p>{texto}</p>}
+    </div>
+    <ul class="feat__grid" role="list">
+      {items.map((it) => (
+        <li class="feat__item reveal">
+          <span class="feat__mark" aria-hidden="true"></span>
+          <h3>{it.titulo}</h3>
+          <p>{it.texto}</p>
+        </li>
+      ))}
+    </ul>
+    {recintos.length > 0 && (
+      <div class="feat__recintos">
+        <p class="mono feat__rk">Recintos que protegemos</p>
+        <ul role="list">{recintos.map((r) => <li class="chip">{r}</li>)}</ul>
+      </div>
+    )}
+  </div>
+</section>
+<style>
+  .feat__grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .feat__item { position: relative; padding: 26px; border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--paper); transition: border-color var(--dur-2), transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2); }
+  .feat__item:hover { border-color: color-mix(in srgb, var(--signal-2) 45%, var(--line)); transform: translateY(-3px); box-shadow: var(--shadow-2); }
+  .feat__mark { display: block; width: 34px; height: 34px; border-radius: 10px; background: var(--signal-soft); margin-bottom: 16px; position: relative; }
+  .feat__mark::after { content: ''; position: absolute; inset: 11px; border: 2px solid var(--signal-ink); border-radius: 3px; }
+  .feat__item h3 { margin-bottom: 8px; }
+  .feat__item p { color: var(--text-3); font-size: 0.97rem; }
+  .feat__recintos { margin-top: 32px; }
+  .feat__rk { font-size: var(--fs-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin-bottom: 12px; }
+  .feat__recintos ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  @media (max-width: 960px) { .feat__grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 620px) { .feat__grid { grid-template-columns: 1fr; } }
+</style>

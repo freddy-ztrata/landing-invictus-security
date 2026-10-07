@@ -1,0 +1,66 @@
+---
+/**
+ * Cifras + garantías. Las cifras van ESCRITAS en el HTML (los bots de IA no ejecutan JS);
+ * la animación solo cuenta desde 0 de forma visual, una vez, y nunca con reduced-motion.
+ */
+import { cifras } from '../data/empresa';
+---
+<section class="trust" aria-label="Cifras y garantías">
+  <div class="container">
+    <ul class="trust__stats" role="list">
+      {cifras.map((c) => (
+        <li class="stat">
+          <span class="stat__num mono" data-count={c.valor} data-prefix={c.prefijo} data-suffix={c.sufijo}>{c.prefijo}{c.valor}{c.sufijo}</span>
+          <span class="stat__label">{c.etiqueta}</span>
+        </li>
+      ))}
+    </ul>
+    <ul class="trust__chips" role="list">
+      {['Seguros de vida, accidentes y responsabilidad civil', 'Contratos y cotizaciones al día', 'Reemplazos garantizados', 'Supervisor asignado a tu recinto', 'Cotización gratis en menos de 24 h hábiles'].map((t) => (
+        <li class="chip">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          {t}
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<script>
+  const nums = document.querySelectorAll<HTMLElement>('.stat__num[data-count]');
+  if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        const el = e.target as HTMLElement;
+        const to = Number(el.dataset.count);
+        const pre = el.dataset.prefix || '';
+        const suf = el.dataset.suffix || '';
+        const t0 = performance.now();
+        const step = (now: number) => {
+          const k = Math.min((now - t0) / 1400, 1);
+          el.textContent = `${pre}${Math.round(to * (1 - Math.pow(1 - k, 4)))}${suf}`;
+          if (k < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    }, { threshold: 0.6 });
+    nums.forEach((n) => io.observe(n));
+  }
+</script>
+
+<style>
+  .trust { background: var(--ink); color: var(--on-dark); padding: 8px 0 clamp(48px, 6vw, 72px); border-bottom: 1px solid var(--line-dark); }
+  .trust__stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line-dark); border-bottom: 1px solid var(--line-dark); }
+  .stat { padding: clamp(18px, 3vw, 28px) clamp(12px, 2vw, 24px); display: grid; gap: 6px; }
+  .stat + .stat { border-left: 1px solid var(--line-dark); }
+  .stat__num { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.4rem); font-weight: 500; letter-spacing: -0.04em; line-height: 1; color: var(--on-dark); font-variant-numeric: tabular-nums; }
+  .stat__label { font-size: var(--fs-sm); color: var(--on-dark-3); }
+  .trust__chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; justify-content: center; }
+  @media (max-width: 760px) {
+    .trust__stats { grid-template-columns: 1fr 1fr; }
+    .stat:nth-child(3) { border-left: 0; }
+    .stat:nth-child(n + 3) { border-top: 1px solid var(--line-dark); }
+  }
+</style>

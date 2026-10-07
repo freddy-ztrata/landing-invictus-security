@@ -1,0 +1,121 @@
+---
+/**
+ * Layout base: SEO, schema @graph, GTM, fuentes self-hosted, header/footer y barra móvil.
+ * MPA puro (sin ClientRouter): cada navegación es una carga real → page_view correcto en GTM.
+ */
+import '@fontsource-variable/unbounded';
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '../styles/base.css';
+import '../styles/tokens.css';
+import unboundedLatin from '@fontsource-variable/unbounded/files/unbounded-latin-wght-normal.woff2?url';
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileBar from '../components/MobileBar.astro';
+import { SITE_URL } from '../data/empresa';
+import { nodoNegocio, nodoWebsite } from '../data/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Ruta canónica con barra final, p. ej. "/guardias-de-seguridad/" */
+  path: string;
+  noindex?: boolean;
+  ogImage?: string; // ruta absoluta en public/, p. ej. "/img/og/condominios.jpg"
+  schema?: Record<string, unknown>[];
+  /** Ocultar la barra móvil (p. ej. en /cotizar/ y /gracias/) */
+  hideMobileBar?: boolean;
+  /** Header mínimo (sin navegación) para /gracias/ y /trabaja-con-nosotros/ */
+  minimalHeader?: boolean;
+  /** Medición: false en /gracias/ (allí se inyecta solo con token) */
+  loadGtm?: boolean;
+}
+
+const {
+  title,
+  description,
+  path,
+  noindex = false,
+  ogImage = '/img/og/home.jpg',
+  schema = [],
+  hideMobileBar = false,
+  minimalHeader = false,
+  loadGtm = true,
+} = Astro.props;
+
+const canonical = new URL(path, SITE_URL).href;
+const ogUrl = new URL(ogImage, SITE_URL).href;
+const graph = { '@context': 'https://schema.org', '@graph': [nodoNegocio(), nodoWebsite(), ...schema] };
+
+// Speculation Rules: prefetch al pasar el cursor/tocar (moderate); prerender solo en "conservative".
+// Nunca /gracias/ ni /api/.
+const speculation = {
+  prefetch: [{ where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/gracias/*' } }, { not: { href_matches: '/api/*' } }] }, eagerness: 'moderate' }],
+  prerender: [{ where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/gracias/*' } }, { not: { href_matches: '/api/*' } }, { not: { href_matches: '/cotizar/*' } }] }, eagerness: 'conservative' }],
+};
+---
+<!doctype html>
+<html lang="es-CL">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    {loadGtm && (
+      <script is:inline>
+        // GTM solo en producción: staging y local no ensucian GA4/Ads.
+        if (location.hostname === 'invictussecurity.cl') {
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-WNTMK96Q');
+        }
+      </script>
+    )}
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_CL" />
+    <meta property="og:site_name" content="Invictus Security" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/img/favicon-192.png" />
+
+    <link rel="preload" href={unboundedLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
+
+    <slot name="head" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(graph)} />
+    <script type="speculationrules" set:html={JSON.stringify(speculation)} />
+  </head>
+  <body>
+    {loadGtm && (
+      <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WNTMK96Q" height="0" width="0" style="display:none;visibility:hidden" title="GTM"></iframe></noscript>
+    )}
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <Header minimal={minimalHeader} />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Footer minimal={minimalHeader} />
+    {!hideMobileBar && <MobileBar />}
+    <script>
+      import '../scripts/attribution';
+      import '../scripts/tracking';
+    </script>
+  </body>
+</html>

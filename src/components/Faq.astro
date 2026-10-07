@@ -1,0 +1,46 @@
+---
+/**
+ * FAQ con <details name> nativo (acordeón exclusivo sin JS). Las respuestas están siempre
+ * en el HTML (las leen Google y los motores de IA). El schema FAQPage lo emite la página.
+ */
+import type { Faq } from '../data/segmentos';
+interface Props { faqs: readonly Faq[]; titulo?: string; eyebrow?: string; id?: string }
+const { faqs, titulo = 'Preguntas frecuentes', eyebrow = 'FAQ', id = 'faq' } = Astro.props;
+---
+<section class="section" aria-labelledby={`${id}-title`} id={id}>
+  <div class="container faq">
+    <div class="section-head">
+      <span class="eyebrow">{eyebrow}</span>
+      <h2 id={`${id}-title`}>{titulo}</h2>
+      <p>¿No encuentras tu respuesta? Escríbenos en el formulario y un especialista te contacta.</p>
+    </div>
+    <div class="faq__list">
+      {faqs.map((f, i) => (
+        <details name={id} data-faq open={i === 0}>
+          <summary><h3>{f.q}</h3><span class="faq__icon" aria-hidden="true"></span></summary>
+          <div class="faq__a"><p>{f.a}</p></div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+<style>
+  .faq { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .faq .section-head { position: sticky; top: 100px; }
+  .faq__list { border-top: 1px solid var(--line); }
+  details { border-bottom: 1px solid var(--line); }
+  summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 0; cursor: pointer; min-height: 56px; }
+  summary::-webkit-details-marker { display: none; }
+  summary h3 { font-size: 1.05rem; font-weight: 650; font-family: var(--f-text); }
+  summary:hover h3 { color: var(--signal-ink); }
+  .faq__icon { position: relative; width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--line); transition: transform var(--dur-2) var(--ease-out), background-color var(--dur-2); }
+  .faq__icon::before, .faq__icon::after { content: ''; position: absolute; inset: 50% auto auto 50%; width: 11px; height: 1.6px; background: currentColor; translate: -50% -50%; }
+  .faq__icon::after { rotate: 90deg; transition: rotate var(--dur-2) var(--ease-out); }
+  details[open] .faq__icon { background: var(--signal-2); border-color: var(--signal-2); color: var(--ink); }
+  details[open] .faq__icon::after { rotate: 0deg; }
+  .faq__a { padding: 0 44px 22px 0; color: var(--text-2); }
+  details::details-content { block-size: 0; overflow: clip; transition: block-size var(--dur-2) var(--ease-out), content-visibility var(--dur-2) allow-discrete; }
+  details[open]::details-content { block-size: auto; }
+  @media (prefers-reduced-motion: reduce) { details::details-content { transition: none; } }
+  @media (max-width: 900px) { .faq { grid-template-columns: 1fr; } .faq .section-head { position: static; } }
+</style>

@@ -1,0 +1,154 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/img/logo-invictus.png';
+import { empresa } from '../data/empresa';
+import { segmentos } from '../data/segmentos';
+
+interface Props { minimal?: boolean }
+const { minimal = false } = Astro.props;
+const path = Astro.url.pathname;
+---
+<header class="hdr" data-header>
+  <div class="container hdr__inner">
+    <a class="hdr__logo" href="/" aria-label="Invictus Security, ir al inicio">
+      <Image src={logo} alt="" width={352} format="webp" loading="eager" decoding="async" />
+    </a>
+
+    {!minimal && (
+      <nav class="hdr__nav" aria-label="Principal">
+        <ul role="list">
+          <li class="hdr__has-menu">
+            <button class="hdr__link" popovertarget="menu-servicios" type="button">
+              Servicios
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+            </button>
+            <div id="menu-servicios" popover class="hdr__pop">
+              <ul role="list">
+                {segmentos.map((s) => (
+                  <li><a href={`/${s.slug}/`} aria-current={path === `/${s.slug}/` ? 'page' : undefined}>{s.nav}</a></li>
+                ))}
+              </ul>
+            </div>
+          </li>
+          <li><a class="hdr__link" href="/guia/cuantos-guardias-necesito/" aria-current={path.startsWith('/guia/cuantos') ? 'page' : undefined}>Calculadora</a></li>
+          <li><a class="hdr__link" href="/guia/ley-21659-seguridad-privada/" aria-current={path.startsWith('/guia/ley') ? 'page' : undefined}>Ley 21.659</a></li>
+          <li><a class="hdr__link" href="/nosotros/" aria-current={path === '/nosotros/' ? 'page' : undefined}>Nosotros</a></li>
+        </ul>
+      </nav>
+    )}
+
+    <div class="hdr__actions">
+      {!minimal && <a class="hdr__job" href="/trabaja-con-nosotros/" data-track="job_seeker" data-placement="header">¿Buscas trabajo?</a>}
+      <a class="hdr__tel mono" href={`tel:${empresa.telefono}`} data-track="call" data-placement="header" aria-label={`Llamar al ${empresa.telefonoVisible}`}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" fill="none" stroke="currentColor" stroke-width="1.8" /></svg>
+        <span>{empresa.telefonoVisible}</span>
+      </a>
+      {!minimal && <a class="btn btn--sm hdr__cta" href="#cotizar" data-cta-cotizar data-track="cta" data-placement="header">Cotizar</a>}
+      {!minimal && (
+        <button class="hdr__burger" type="button" popovertarget="menu-movil" aria-label="Abrir menú">
+          <span></span><span></span>
+        </button>
+      )}
+    </div>
+  </div>
+
+  {!minimal && (
+    <div id="menu-movil" popover class="mnav">
+      <div class="mnav__head">
+        <span class="mono">Menú</span>
+        <button type="button" popovertarget="menu-movil" popovertargetaction="hide" class="mnav__close" aria-label="Cerrar menú">✕</button>
+      </div>
+      <ul role="list">
+        <li><a href="/">Inicio</a></li>
+        {segmentos.map((s) => <li><a href={`/${s.slug}/`}>{s.nav}</a></li>)}
+        <li><a href="/guia/cuantos-guardias-necesito/">Calculadora de guardias</a></li>
+        <li><a href="/guia/ley-21659-seguridad-privada/">Guía Ley 21.659</a></li>
+        <li><a href="/nosotros/">Nosotros</a></li>
+      </ul>
+      <a class="btn btn--block" href="/cotizar/" data-track="cta" data-placement="menu-movil">Cotizar gratis</a>
+      <a class="mnav__job" href="/trabaja-con-nosotros/" data-track="job_seeker" data-placement="menu-movil">¿Buscas trabajo como guardia? Postula aquí</a>
+    </div>
+  )}
+</header>
+
+<script>
+  // Si la página no tiene formulario, el CTA del header lleva a /cotizar/.
+  if (!document.getElementById('cotizar')) {
+    document.querySelectorAll<HTMLAnchorElement>('[data-cta-cotizar]').forEach((a) => (a.href = '/cotizar/'));
+  }
+  // Header compacto/sólido al hacer scroll.
+  const hdr = document.querySelector<HTMLElement>('[data-header]');
+  const onScroll = () => hdr?.toggleAttribute('data-scrolled', scrollY > 8);
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  // Cerrar el menú móvil al navegar dentro de la misma página.
+  document.querySelectorAll('#menu-movil a').forEach((a) => a.addEventListener('click', () => (document.getElementById('menu-movil') as HTMLElement & { hidePopover?: () => void })?.hidePopover?.()));
+</script>
+
+<style>
+  .hdr {
+    position: sticky; top: 0; z-index: 1000;
+    color: var(--on-dark);
+    background: rgb(10 10 10 / 0.72);
+    backdrop-filter: saturate(140%) blur(16px);
+    -webkit-backdrop-filter: saturate(140%) blur(16px);
+    border-bottom: 1px solid transparent;
+    transition: background-color var(--dur-2), border-color var(--dur-2);
+  }
+  .hdr[data-scrolled] { background: rgb(10 10 10 / 0.9); border-bottom-color: var(--line-dark); }
+  .hdr__inner { display: flex; align-items: center; gap: 24px; min-height: 68px; }
+  .hdr__logo { display: flex; align-items: center; min-height: 48px; flex-shrink: 0; }
+  .hdr__logo img { width: 168px; height: auto; filter: brightness(0) invert(1); }
+  .hdr__nav { margin-right: auto; }
+  .hdr__nav > ul { display: flex; gap: 4px; list-style: none; padding: 0; }
+  .hdr__link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: var(--r-sm); font-size: 0.93rem; font-weight: 550; color: var(--on-dark-2); text-decoration: none; transition: color var(--dur-1), background-color var(--dur-1); }
+  .hdr__link:hover, .hdr__link[aria-current='page'] { color: var(--on-dark); background: rgb(255 255 255 / 0.06); }
+  .hdr__link svg { width: 14px; height: 14px; }
+  .hdr__has-menu { position: relative; anchor-name: --servicios; }
+  .hdr__pop {
+    position: fixed; inset: auto; margin: 0;
+    position-anchor: --servicios; top: anchor(bottom); left: anchor(left);
+    translate: 0 8px;
+    min-width: 260px; padding: 8px; border-radius: var(--r);
+    background: var(--graphite); border: 1px solid var(--line-dark-2); box-shadow: var(--shadow-3); color: var(--on-dark);
+  }
+  /* Fallback si no hay CSS anchor positioning: centrado arriba */
+  @supports not (top: anchor(bottom)) { .hdr__pop { top: 72px; left: 50%; translate: -50% 0; } }
+  .hdr__pop ul { list-style: none; padding: 0; display: grid; }
+  .hdr__pop a { display: flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: var(--r-sm); text-decoration: none; font-weight: 550; }
+  .hdr__pop a:hover, .hdr__pop a[aria-current='page'] { background: rgb(255 255 255 / 0.07); color: var(--signal-3); }
+
+  .hdr__actions { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+  .hdr__job { font-size: 0.82rem; color: var(--on-dark-3); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; display: inline-flex; align-items: center; }
+  .hdr__job:hover { color: var(--on-dark); }
+  .hdr__tel { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 0.88rem; color: var(--on-dark); text-decoration: none; }
+  .hdr__tel svg { width: 16px; height: 16px; color: var(--signal-2); }
+  .hdr__burger { display: none; width: 44px; height: 44px; border-radius: var(--r-sm); border: 1px solid var(--line-dark-2); place-content: center; gap: 6px; }
+  .hdr__burger span { display: block; width: 18px; height: 2px; background: var(--on-dark); border-radius: 2px; }
+
+  .mnav { inset: 0 0 auto auto; height: 100dvh; width: min(380px, 100vw); margin: 0; padding: 20px; border: 0; background: var(--ink); color: var(--on-dark); display: none; }
+  .mnav:popover-open { display: flex; flex-direction: column; gap: 14px; }
+  .mnav::backdrop { background: rgb(0 0 0 / 0.55); backdrop-filter: blur(4px); }
+  @media (prefers-reduced-motion: no-preference) {
+    .mnav:popover-open { animation: mnav-in var(--dur-2) var(--ease-out); }
+    @keyframes mnav-in { from { translate: 30px 0; opacity: 0; } }
+  }
+  .mnav__head { display: flex; justify-content: space-between; align-items: center; color: var(--on-dark-3); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.12em; }
+  .mnav__close { width: 44px; height: 44px; font-size: 1.2rem; color: var(--on-dark); }
+  .mnav ul { list-style: none; padding: 0; display: grid; }
+  .mnav li a { display: flex; align-items: center; min-height: 52px; font-family: var(--f-display); font-size: 1.15rem; text-decoration: none; border-bottom: 1px solid var(--line-dark); }
+  .mnav__job { margin-top: auto; font-size: var(--fs-sm); color: var(--on-dark-3); text-align: center; min-height: 44px; display: grid; place-items: center; }
+
+  @media (max-width: 1080px) { .hdr__job { display: none; } }
+  @media (max-width: 960px) {
+    .hdr__nav { display: none; }
+    .hdr__burger { display: grid; }
+    .hdr__inner { gap: 12px; }
+  }
+  @media (max-width: 560px) {
+    .hdr__tel span { display: none; }
+    .hdr__tel { width: 44px; justify-content: center; border: 1px solid var(--line-dark-2); border-radius: var(--r-sm); }
+    .hdr__logo img { width: 136px; }
+    .hdr__cta { display: none; }
+  }
+</style>

@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import TrustStrip from '../components/TrustStrip.astro';
+import Answer from '../components/Answer.astro';
+import Pains from '../components/Pains.astro';
+import Bento from '../components/Bento.astro';
+import Process from '../components/Process.astro';
+import Calculator from '../components/Calculator.astro';
+import Credential from '../components/Credential.astro';
+import CoverageMap from '../components/CoverageMap.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Faq from '../components/Faq.astro';
+import CtaBand from '../components/CtaBand.astro';
+import heroImg from '../assets/img/gen/hero-condominio-andes.jpg';
+import { faqsHome } from '../data/faqs';
+import { nodoFaq, nodoPagina } from '../data/schema';
+import { SITE_URL } from '../data/empresa';
+
+const url = `${SITE_URL}/`;
+const title = 'Empresa de Seguridad Privada en Santiago | Invictus Security';
+const description = 'Empresa de seguridad privada en Santiago y todo Chile: guardias acreditados para condominios, empresas y eventos, con supervisión 24/7. Cotiza gratis en 24 h.';
+---
+<Base
+  title={title}
+  description={description}
+  path="/"
+  ogImage="/img/og/home.jpg"
+  schema={[nodoPagina({ url, titulo: title, descripcion: description }), nodoFaq(faqsHome, url)]}
+>
+  <Hero
+    eyebrow="Empresa de seguridad privada · Santiago"
+    h1="Empresa de seguridad privada "
+    h1Accent="con supervisión real 24/7"
+    lead="Guardias de seguridad acreditados para condominios, empresas, bodegas y eventos en Santiago y regiones. Con contrato, seguros, reemplazos garantizados y un supervisor que responde por cada turno."
+    bullets={['Personal con credencial vigente y seguros al día', 'Despliegue en 48 a 72 horas', 'Propuesta gratis en menos de 24 h hábiles']}
+    image={heroImg}
+    imageAlt="Guardia de seguridad custodiando el acceso de un condominio en Santiago al anochecer, con la cordillera de los Andes al fondo"
+    imagePosition="72% 55%"
+  />
+  <TrustStrip />
+  <Answer
+    pregunta="¿Qué es Invictus Security?"
+    respuesta="Invictus Security es una empresa de seguridad privada con base en la Región Metropolitana que provee guardias de seguridad acreditados para condominios, empresas, bodegas, industrias y eventos. Cada servicio incluye supervisión en terreno, reemplazos ante ausencias y protocolos acordados con el cliente, y opera bajo la Ley 21.659 de Seguridad Privada. La cotización es gratuita y se entrega en menos de 24 horas hábiles."
+  />
+  <Pains
+    titulo="Un robo o un incidente cuesta mucho más que un buen servicio de seguridad"
+    texto="Estos son los tres problemas que más escuchamos de quienes cambian de empresa de seguridad:"
+    items={[
+      { titulo: 'Guardias que no llegan', texto: 'Ausencias y turnos sin cubrir dejan el recinto expuesto. Nosotros garantizamos reemplazos para que el puesto nunca quede vacío.' },
+      { titulo: 'Personal sin credencial', texto: 'Guardias no acreditados exponen tu organización a sanciones. Todo nuestro personal trabaja con credencial vigente, contrato y seguros.' },
+      { titulo: 'Nadie supervisa', texto: 'Sin rondas registradas ni reportes, pagas por un servicio que no puedes controlar. Asignamos un supervisor y te entregamos registro de cada turno.' },
+    ]}
+  />
+  <Bento />
+  <Process />
+  <Calculator compacto />
+  <Credential />
+  <CoverageMap />
+  <Testimonials />
+  <Faq faqs={faqsHome} titulo="Dudas frecuentes sobre seguridad privada" />
+  <CtaBand />
+</Base>

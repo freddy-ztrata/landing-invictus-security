@@ -1,0 +1,76 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/img/logo-invictus.png';
+import { empresa } from '../data/empresa';
+import { segmentos } from '../data/segmentos';
+
+interface Props { minimal?: boolean }
+const { minimal = false } = Astro.props;
+const anio = new Date().getFullYear();
+---
+<footer class="ftr on-dark">
+  <div class="container">
+    {!minimal && (
+      <div class="ftr__grid">
+        <div class="ftr__brand">
+          <Image src={logo} alt="Invictus Security" width={352} format="webp" loading="lazy" />
+          <p>Empresa de seguridad privada con base en la Región Metropolitana. Guardias de seguridad para condominios, empresas, bodegas, industrias y eventos, con supervisión 24/7.</p>
+          <dl class="ftr__facts">
+            <div><dt>Sede</dt><dd>{empresa.direccion.calle}, {empresa.direccion.comuna}, {empresa.direccion.region}</dd></div>
+            <div><dt>Operación</dt><dd>{empresa.operacion}</dd></div>
+            <div><dt>Atención comercial</dt><dd>{empresa.horarioComercial.dias}, {empresa.horarioComercial.abre}–{empresa.horarioComercial.cierra}</dd></div>
+            {empresa.rut && <div><dt>RUT</dt><dd>{empresa.rut}</dd></div>}
+          </dl>
+        </div>
+        <nav aria-label="Servicios">
+          <p class="ftr__h">Servicios</p>
+          <ul role="list">
+            {segmentos.map((s) => <li><a href={`/${s.slug}/`}>{s.nav}</a></li>)}
+            <li><a href="/cotizar/">Cotizar servicio</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="Recursos">
+          <p class="ftr__h">Recursos</p>
+          <ul role="list">
+            <li><a href="/guia/cuantos-guardias-necesito/">¿Cuántos guardias necesito?</a></li>
+            <li><a href="/guia/ley-21659-seguridad-privada/">Guía Ley 21.659</a></li>
+            <li><a href="/nosotros/">Nosotros</a></li>
+            <li><a href="/trabaja-con-nosotros/" data-track="job_seeker" data-placement="footer">Trabaja con nosotros</a></li>
+          </ul>
+        </nav>
+        <div>
+          <p class="ftr__h">Contacto</p>
+          <ul role="list" class="ftr__contact">
+            <li><a href={`tel:${empresa.telefono}`} data-track="call" data-placement="footer" class="mono">{empresa.telefonoVisible}</a></li>
+            <li><a href={`mailto:${empresa.email}`}>{empresa.email}</a></li>
+          </ul>
+          <a class="btn btn--sm" href="/cotizar/" data-track="cta" data-placement="footer">Cotizar gratis</a>
+        </div>
+      </div>
+    )}
+    <div class="ftr__bottom">
+      <span>© {anio} {empresa.nombre}. Todos los derechos reservados.</span>
+      <span><a href="/privacidad/">Política de Privacidad</a></span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr { background: var(--ink); color: var(--on-dark-2); padding: clamp(48px, 7vw, 88px) 0 calc(28px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line-dark); }
+  .ftr__grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: clamp(24px, 4vw, 56px); padding-bottom: 40px; border-bottom: 1px solid var(--line-dark); }
+  .ftr__brand img { width: 168px; height: auto; filter: brightness(0) invert(1); margin-bottom: 16px; }
+  .ftr__brand p { font-size: var(--fs-sm); max-width: 42ch; }
+  .ftr__facts { margin-top: 18px; display: grid; gap: 8px; font-size: var(--fs-xs); }
+  .ftr__facts div { display: grid; grid-template-columns: 130px 1fr; gap: 8px; }
+  .ftr__facts dt { font-family: var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--on-dark-3); }
+  .ftr__facts dd { margin: 0; color: var(--on-dark-2); }
+  .ftr__h { font-family: var(--f-mono); font-size: var(--fs-xs); letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-dark-3); margin-bottom: 12px; }
+  .ftr ul { list-style: none; padding: 0; display: grid; gap: 2px; }
+  .ftr ul a { display: inline-flex; align-items: center; min-height: 40px; color: var(--on-dark-2); text-decoration: none; font-size: var(--fs-sm); }
+  .ftr ul a:hover { color: var(--signal-3); }
+  .ftr__contact { margin-bottom: 14px; }
+  .ftr__bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-top: 22px; font-size: var(--fs-xs); color: var(--on-dark-3); }
+  .ftr__bottom a { color: inherit; display: inline-flex; min-height: 44px; align-items: center; }
+  @media (max-width: 960px) { .ftr__grid { grid-template-columns: 1fr 1fr; } .ftr__brand { grid-column: 1 / -1; } }
+  @media (max-width: 520px) { .ftr__grid { grid-template-columns: 1fr; } .ftr__facts div { grid-template-columns: 1fr; gap: 0; } }
+</style>

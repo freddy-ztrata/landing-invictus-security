@@ -1,0 +1,48 @@
+---
+/**
+ * Bloque "respuesta primero" (AEO/GEO): una definición citable de 2–3 oraciones + datos clave
+ * de la entidad, idénticos en sitio, schema y Google Business Profile.
+ */
+import { empresa } from '../data/empresa';
+interface Props { pregunta: string; respuesta: string; mostrarDatos?: boolean }
+const { pregunta, respuesta, mostrarDatos = true } = Astro.props;
+const datos = [
+  ['Empresa', empresa.nombre],
+  ['Servicio', 'Guardias de seguridad privada'],
+  ['Sede', `${empresa.direccion.comuna}, ${empresa.direccion.region}`],
+  ['Cobertura', 'Región Metropolitana y regiones (según contrato)'],
+  ['Operación', empresa.operacion],
+  ['Cotización', `Gratis, en ${empresa.respuestaCotizacion}`],
+  ['Inicio del servicio', empresa.despliegue],
+  ['Marco legal', 'Ley 21.659 de Seguridad Privada'],
+  ...(empresa.rut ? [['RUT', empresa.rut]] : []),
+  ...(empresa.anioFundacion ? [['Desde', String(empresa.anioFundacion)]] : []),
+] as [string, string][];
+---
+<section class="section answer" aria-labelledby="answer-title">
+  <div class="container answer__grid">
+    <div class="answer__q">
+      <span class="eyebrow">En resumen</span>
+      <h2 id="answer-title">{pregunta}</h2>
+      <p class="answer__a">{respuesta}</p>
+    </div>
+    {mostrarDatos && (
+      <dl class="answer__facts" aria-label="Datos clave de Invictus Security">
+        {datos.map(([k, v]) => <div><dt class="mono">{k}</dt><dd>{v}</dd></div>)}
+      </dl>
+    )}
+  </div>
+</section>
+<style>
+  .answer { background: var(--paper); }
+  .answer__grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .answer__q h2 { margin: 14px 0 18px; }
+  .answer__a { font-size: clamp(1.05rem, 0.98rem + 0.4vw, 1.25rem); color: var(--text-2); line-height: 1.7; }
+  .answer__facts { margin: 0; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--bone); }
+  .answer__facts div { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 13px 18px; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+  .answer__facts div:last-child { border-bottom: 0; }
+  .answer__facts dt { font-size: var(--fs-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); padding-top: 2px; }
+  .answer__facts dd { margin: 0; font-weight: 550; }
+  @media (max-width: 900px) { .answer__grid { grid-template-columns: 1fr; } }
+  @media (max-width: 420px) { .answer__facts div { grid-template-columns: 1fr; gap: 2px; } }
+</style>
