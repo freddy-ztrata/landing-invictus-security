@@ -50,10 +50,10 @@ const cardWidths = [480, 720, 960, 1280, 1600].filter((w) => w <= image.width);
 const cardSizes = '(max-width: 960px) 100vw, 46vw';
 
 const [avif, webp, mAvif, mWebp, fallback, ambient] = await Promise.all([
-  getImage({ src: image, widths: stage ? deskWidths : cardWidths, format: 'avif', quality: 50 }),
-  getImage({ src: image, widths: stage ? deskWidths : cardWidths, format: 'webp', quality: 70 }),
-  stage ? squareSet('avif', 50) : Promise.resolve(''),
-  stage ? squareSet('webp', 70) : Promise.resolve(''),
+  getImage({ src: image, widths: stage ? deskWidths : cardWidths, format: 'avif', quality: stage ? 62 : 50 }),
+  getImage({ src: image, widths: stage ? deskWidths : cardWidths, format: 'webp', quality: stage ? 80 : 70 }),
+  stage ? squareSet('avif', 62) : Promise.resolve(''),
+  stage ? squareSet('webp', 80) : Promise.resolve(''),
   getImage({ src: image, width: stage ? 1600 : 1280, format: 'jpg', quality: 74 }),
   stage ? Promise.resolve(null) : getImage({ src: image, width: 480, format: 'webp', quality: 45 }),
 ]);

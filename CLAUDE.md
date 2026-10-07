@@ -41,6 +41,7 @@ Push to `main` → Dokploy auto-deploys (build type Dockerfile, ~2 min; nothing 
 - `src/data/empresa.ts` — **single source of truth** for entity facts (NAP, hours, figures, testimonials, comunas). Items with `verificado: false` came from the old site and are pending written confirmation from the client; fields that are `null` (RUT, razón social, authorization number, sameAs) render only when filled.
 - `src/data/segmentos.ts` — the 4 segment landings (copy, FAQs, images, schema). Each H1 matches a Google Ads ad group. Keep copy/FAQs unique per page (doorway-page risk).
 - `src/data/schema.ts` — JSON-LD `@graph` builders. Business node is `LocalBusiness` + `ProfessionalService` (`SecurityService` does not exist in schema.org). No self-serving review markup.
+- `src/layouts/Base.astro` — wraps every page: meta/OG, JSON-LD `@graph` (business + website nodes always; pages add nodes via the `schema` prop), GTM hostname gate, font preloads, Speculation Rules (prefetch/prerender exclude `/gracias/`, and `/cotizar/` from prerender — keep it that way so the conversion page is never pre-rendered), header/footer/`MobileBar` (props `noindex`, `minimalHeader`, `hideMobileBar`). `Guide.astro` is the layout for `/guia/*` (breadcrumbs, FAQ schema, form).
 - `src/pages/` — `/`, `[segmento]/` (guardias-de-seguridad, seguridad-para-condominios, guardias-para-eventos, seguridad-para-empresas), `cotizar/`, `nosotros/`, `guia/cuantos-guardias-necesito/` (calculator), `guia/ley-21659-seguridad-privada/`, `gracias/`, `privacidad/`, `404`.
 - `public/` — `robots.txt` (AI search bots explicitly allowed), `llms.txt`, favicons, OG images.
 - `src/data/hapee.ts` — hapee origin + slug of the embedded form.
@@ -53,7 +54,7 @@ Push to `main` → Dokploy auto-deploys (build type Dockerfile, ~2 min; nothing 
 - **`mode="stage"`** (home): full-bleed scene limited to the first viewport and faded out with a CSS mask. Desktop grid has three zones — headline | empty band | form — and the photo must have the people **in the horizontal centre** (`hero-guardias-centro.jpg`, two guards ≈ 42–60 % of the width). The poster is the LCP (`fetchpriority=high`; mobile gets a square centre crop via `getImage({ fit: 'cover' })`). A Higgsfield loop (`public/video/hero-guardias-av1.webm` + `.mp4`, first frame = poster) is attached by JS only on desktop, after `load` + idle, never with reduced-motion/Save-Data/2g-3g; it pauses off-screen.
 - **`mode="card"`** (segments, nosotros): photo in a framed card (`.hero__visual`) and the same photo blurred/darkened as background.
 
-New hero video: generate the still with people centred, animate with start = end frame (seamless), crossfade the seam with ffmpeg, encode H.264 MP4 (`+faststart`, no audio) and AV1 WebM.
+The hero video is a **cinemagraph built with ffmpeg from the Higgsfield still**, not an AI-animated video: AI image-to-video (Seedance) distorted the small faces/eyes and ignored environment motion, so the guards stay untouched (sharp) and only the scene moves — two vertically-periodic rain layers (`scroll`, `screen` blend) and a sine `displace` on the wet floor (masked to exclude the guards via a background-removal cut-out). Every motion is periodic in the 6 s loop, so it loops with no crossfade, and the video has the poster's exact geometry (1920×1086 = 2688×1520 aspect) → no jump when it fades in. Encodes: AV1 WebM CRF 37 (~1.8 MB) + H.264 MP4 CRF 26 `+faststart` (~3.4 MB), no audio.
 
 ## Lead flow (the core of the site)
 
@@ -70,6 +71,7 @@ hapee nuevo (MCP connector, **cliente 46**): pipeline **"Ventas web" (id 127)** 
 ## Tracking
 
 - GTM `GTM-WNTMK96Q` loads only on hostname `invictussecurity.cl` (`src/layouts/Base.astro`). dataLayer events: `form_start` (focus enters the hapee iframe), `form_submit`, `generate_lead` (only /gracias/), `call_click`, `cta_click`, `calculator_complete`, `faq_open`, `web_vitals`.
+- The site has no gtag of its own outside `/gracias/`; GA4 and Ads come from the GTM container. Verified in production on 2026-10-07: page_view to GA4 `G-VWCD5DSP40` **and** a second GA4 property `G-8939QHYH3V` (configured in GTM, origin unclear), plus Ads remarketing `AW-17648531850`.
 - GTM still has an old secondary Ads conversion (`__awct` 3VxWCLOVo6AcEIrzvN9B, trigger "URL contains gracias") — should be paused. When GTM gets its own Ads tag on `generate_lead`, remove the inline gtag block in `src/pages/gracias/index.astro` to avoid double counting.
 - Attribution (`src/scripts/attribution.ts`): first/last touch of gclid/gbraid/wbraid + utm_* in localStorage (90 days), sent with every lead → hapee → offline conversion import.
 

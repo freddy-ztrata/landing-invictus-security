@@ -152,5 +152,6 @@ test('embed real: el formulario de hapee carga en la página', async ({ page }) 
   await page.goto('/cotizar/');
   const frame = page.frameLocator(`#cotizar iframe[data-zentru-iframe-id="${HAPEE_FORM}"]`);
   await expect(frame.locator('select').first()).toBeVisible({ timeout: 20000 });
-  await expect(frame.getByRole('button', { name: /enviar/i })).toBeVisible();
+  // El texto del botón se edita en hapee ("Enviar", "Solicitar cotización"...): basta con que exista un submit.
+  await expect(frame.locator('button[type="submit"], input[type="submit"]').first()).toBeVisible();
 });
