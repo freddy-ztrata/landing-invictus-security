@@ -47,7 +47,7 @@ const {
   </script>
 
   <div class="lead__frame">
-    <div data-zentru-form={HAPEE_FORM} data-mode="inline" data-height="1010px"></div>
+    <div data-zentru-form={HAPEE_FORM} data-mode="inline" data-height="630px"></div>
     <noscript>
       <p class="lead__noscript">Para cotizar en línea activa JavaScript, o llámanos al <a href={`tel:${empresa.telefono}`}>{empresa.telefonoVisible}</a> · <a href={`mailto:${empresa.email}`}>{empresa.email}</a></p>
     </noscript>
@@ -88,7 +88,7 @@ const {
   .lead__title { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem); letter-spacing: -0.02em; line-height: 1.2; color: var(--text); }
   .lead__sub { color: var(--text-3); font-size: var(--fs-sm); margin-top: 4px; }
   /* Espacio reservado ≈ alto final del iframe: evita saltos (CLS) mientras carga el embed */
-  .lead__frame { min-height: 1010px; margin-inline: -6px; }
+  .lead__frame { min-height: 630px; margin-inline: -6px; }
   .lead__frame :global(iframe) { display: block; width: 100%; border: 0; }
   .lead__noscript { padding: 16px; font-size: var(--fs-sm); }
   .lead__trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin: 6px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); font-size: var(--fs-xs); color: var(--text-3); }

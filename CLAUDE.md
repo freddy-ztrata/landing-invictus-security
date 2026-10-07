@@ -87,7 +87,7 @@ hapee nuevo (MCP connector, **cliente 46**): pipeline **"Ventas web" (id 127)** 
 
 - `.astro` frontmatter can't `export const`; shared constants live in `src/data/*.ts`. Never import `src/scripts/*` (browser code touching `window`) from frontmatter — it runs at build time.
 - noindex pages must be listed in **both** `NOINDEX` in `astro.config.mjs` (sitemap filter) and the `X-Robots-Tag` map in `nginx/default.conf`.
-- `.lead__frame` `min-height` and the embed's `data-height` (1010px, `LeadForm.astro`) reserve the iframe's final height (CLS 0) — update both if the hapee form gets longer or shorter.
+- `.lead__frame` `min-height` and the embed's `data-height` (630px, `LeadForm.astro`) reserve the iframe's final height (CLS 0) — update both if the hapee form gets longer or shorter. **Never reserve MORE than the form's real height**: the hapee embed grows the iframe to fit but never shrinks it (the form measures `documentElement.scrollHeight`, which can't go below the iframe's own height), so an oversized reserve leaves a blank band. Since 2026-10-07 the form is two columns (≈627px at every width ≥ 300px); its look & feel lives in hapee, form 147 → Estilos (Invictus tokens + "CSS personalizado"), not in this repo.
 - Files mix CRLF and LF: scripted string replacements must normalise `\r\n` first (the Edit tool is fine).
 
 ## Content rules
