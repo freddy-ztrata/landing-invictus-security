@@ -69,7 +69,8 @@
   .section { padding-block: var(--section-y); position: relative; }
   .section--bone { background: var(--bone); }
   .section--dark { background: var(--ink); color: var(--on-dark); }
-  .section--dark :where(p, li) { color: var(--on-dark-2); }
+  /* Texto claro en secciones oscuras, salvo dentro de tarjetas claras (formulario) */
+  .section--dark :where(p, li):not(:where(.lead, .lead *)) { color: var(--on-dark-2); }
 
   .eyebrow {
     display: inline-flex; align-items: center; gap: 10px;

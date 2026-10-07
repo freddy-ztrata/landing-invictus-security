@@ -48,7 +48,8 @@ const opciones: { value: SegmentoForm; label: string; hint: string; icon: string
   </div>
 
   <!-- PASO 1 -->
-  <fieldset class="lead__step" data-step="1">
+  <!-- is-active desde el HTML: si lo pusiera solo el JS, el formulario aparecería colapsado y saltaría (CLS) -->
+  <fieldset class="lead__step is-active" data-step="1">
     <legend class="lead__legend">¿Qué necesitas proteger?</legend>
     <div class="lead__options">
       {opciones.map((o) => (

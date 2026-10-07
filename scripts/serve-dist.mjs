@@ -35,6 +35,12 @@ createServer(async (req, res) => {
     p = join(p, 'index.html');
   }
   try {
+    // Como nginx gzip_static: si existe el .gz precomprimido y el cliente acepta gzip, se usa.
+    if (/\bgzip\b/.test(req.headers['accept-encoding'] || '') && (await tryFile(p + '.gz')) === p + '.gz') {
+      const gz = await readFile(p + '.gz');
+      res.writeHead(200, { 'Content-Type': TYPES[extname(p)] || 'application/octet-stream', 'Content-Encoding': 'gzip', Vary: 'Accept-Encoding' }).end(gz);
+      return;
+    }
     const data = await readFile(p);
     res.writeHead(200, { 'Content-Type': TYPES[extname(p)] || 'application/octet-stream' }).end(data);
   } catch {
