@@ -44,12 +44,12 @@ export const segmentos: Segmento[] = [
     slug: 'guardias-de-seguridad',
     nav: 'Guardias de seguridad',
     formSegmento: null,
-    seoTitle: 'Guardias de Seguridad en Santiago | Invictus Security',
+    seoTitle: 'Empresa de Guardias de Seguridad en Santiago | Invictus',
     seoDescription: 'Empresa de guardias de seguridad con personal acreditado, supervisión 24/7 y seguros. Turnos de día, noche o 24/7 en Santiago y regiones. Cotiza en 24 h.',
     eyebrow: 'Empresa de guardias de seguridad',
     h1: 'Guardias de seguridad para tu recinto, ',
     h1Accent: 'con supervisión real 24/7',
-    lead: 'Contrata guardias de seguridad privada acreditados, con contrato, seguros y un supervisor que responde por cada turno. Para condominios, empresas, bodegas, colegios y eventos en Santiago y regiones.',
+    lead: 'Contrata guardias y personal de seguridad privada acreditados, con contrato, seguros y un supervisor que responde por cada turno. Para condominios, empresas, bodegas, colegios y eventos en Santiago y regiones.',
     bullets: [
       'Personal con credencial vigente y capacitación al día',
       'Turnos de día, noche o 24/7 con reemplazos garantizados',
@@ -82,7 +82,7 @@ export const segmentos: Segmento[] = [
         a: 'El guardia de seguridad protege personas y bienes sin portar armas de fuego, y es el servicio que contratan condominios, empresas y eventos. El vigilante privado puede portar armas y está reservado a entidades que la ley obliga a tener sistemas de seguridad, como bancos o transporte de valores.',
       },
       {
-        q: '¿Qué tiene que tener un guardia para trabajar legalmente?',
+        q: '¿Qué requisitos legales debe cumplir el guardia que contrato?',
         a: 'Debe contar con la credencial y la capacitación exigidas por la normativa de seguridad privada, y trabajar con contrato a través de una empresa autorizada. Desde el 28 de noviembre de 2025 rige la Ley 21.659, que regula la Subsecretaría de Prevención del Delito; Carabineros mantiene la fiscalización.',
       },
       {
@@ -106,17 +106,17 @@ export const segmentos: Segmento[] = [
     nav: 'Condominios y edificios',
     formSegmento: 'condominio',
     seoTitle: 'Seguridad para Condominios y Edificios | Invictus',
-    seoDescription: 'Guardias de seguridad para condominios y edificios en Santiago: control de acceso, rondas y reportes a la administración. Personal acreditado. Cotiza gratis.',
+    seoDescription: 'Empresa de seguridad para condominios y edificios en Santiago: guardias acreditados, control de acceso, rondas y reportes al comité. Cotiza gratis.',
     eyebrow: 'Seguridad para condominios',
     h1: 'Guardias de seguridad para condominios y edificios ',
     h1Accent: 'en Santiago',
-    lead: 'Control de acceso, rondas nocturnas y reportes claros para la administración y el comité. Guardias acreditados, supervisados y con reemplazos garantizados para que tu comunidad duerma tranquila.',
+    lead: 'Seguridad residencial con control de acceso, rondas nocturnas y reportes claros para la administración y el comité. Guardias acreditados, supervisados y con reemplazos garantizados para que tu comunidad duerma tranquila.',
     bullets: [
       'Control de visitas, deliveries y estacionamientos',
       'Rondas perimetrales nocturnas con registro',
       'Reportes para el administrador y el comité',
     ],
-    resumen: 'Invictus Security entrega guardias de seguridad para condominios de casas y edificios en Santiago y la Región Metropolitana. El servicio incluye control de acceso de visitas y proveedores, rondas perimetrales, registro de novedades y un supervisor que responde ante la administración. La cotización es gratuita y considera el tamaño del condominio, los accesos y los horarios de mayor riesgo.',
+    resumen: 'Invictus Security es una empresa de seguridad privada para condominios: entrega guardias de seguridad para condominios de casas y edificios en Santiago y la Región Metropolitana. El servicio incluye control de acceso de visitas y proveedores, rondas perimetrales, registro de novedades y un supervisor que responde ante la administración. La cotización es gratuita y considera el tamaño del condominio, los accesos y los horarios de mayor riesgo.',
     imagen: imgCondominio,
     imagenAlt: 'Guardia de seguridad en la conserjería de un edificio residencial de Santiago revisando cámaras de acceso',
     dolores: [
@@ -147,7 +147,7 @@ export const segmentos: Segmento[] = [
         a: 'Un acceso cubierto 24/7 requiere normalmente 4 guardias en turnos rotativos de 12 horas. Condominios con varios accesos, muchas casas o perímetros extensos pueden necesitar más puestos o rondas adicionales. Lo definimos en una visita técnica gratuita.',
       },
       {
-        q: '¿Qué debe revisar el comité antes de contratar una empresa de seguridad?',
+        q: '¿Qué debe revisar el comité antes de contratar una empresa de seguridad para condominios?',
         a: 'Que la empresa esté autorizada según la Ley 21.659, que sus guardias tengan credencial vigente, contrato y cotizaciones al día, y que exista un seguro. También conviene pedir el certificado F30-1 de cumplimiento laboral de la Dirección del Trabajo y un contrato con procedimientos y niveles de servicio por escrito.',
       },
       {
@@ -166,7 +166,7 @@ export const segmentos: Segmento[] = [
     slug: 'guardias-para-eventos',
     nav: 'Eventos',
     formSegmento: 'evento',
-    seoTitle: 'Guardias de Seguridad para Eventos | Invictus Security',
+    seoTitle: 'Guardias para Eventos en Santiago | Invictus Security',
     seoDescription: 'Guardias de seguridad para eventos, conciertos, matrimonios y ferias: control de acceso, revisión y manejo de público. Equipos coordinados. Cotiza en 24 h.',
     eyebrow: 'Seguridad para eventos',
     h1: 'Guardias de seguridad para eventos, ',
@@ -177,7 +177,7 @@ export const segmentos: Segmento[] = [
       'Equipos dimensionados según aforo y riesgo',
       'Jefe de seguridad coordinado con tu producción',
     ],
-    resumen: 'Invictus Security provee guardias de seguridad para eventos en Santiago y regiones: conciertos, festivales, eventos corporativos, matrimonios y ferias. El equipo se dimensiona según el aforo, el tipo de público y el recinto, y lo coordina un jefe de seguridad que trabaja con la producción desde el montaje hasta el desarme. La cotización es gratuita.',
+    resumen: 'Invictus Security provee guardias para eventos en Santiago y regiones: conciertos, festivales, eventos corporativos, matrimonios y ferias. El personal de seguridad para eventos se dimensiona según el aforo, el tipo de público y el recinto, y lo coordina un jefe de seguridad que trabaja con la producción desde el montaje hasta el desarme. La cotización es gratuita.',
     imagen: imgEvento,
     imagenAlt: 'Personal de seguridad controlando el acceso de público en la entrada de un festival de música nocturno',
     dolores: [

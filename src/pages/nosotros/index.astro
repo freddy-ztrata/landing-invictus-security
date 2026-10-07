@@ -17,7 +17,7 @@ import { nodoBreadcrumb, nodoPagina } from '../../data/schema';
 
 const url = `${SITE_URL}/nosotros/`;
 const title = 'Nosotros: empresa de seguridad privada | Invictus Security';
-const description = 'Conoce a Invictus Security: empresa de seguridad privada con base en la Región Metropolitana, guardias acreditados, supervisión 24/7 y cumplimiento de la Ley 21.659.';
+const description = 'Conoce a Invictus Security: empresa de seguridad privada de la Región Metropolitana con guardias acreditados, supervisión 24/7 y apego a la Ley 21.659.';
 const crumbs = [{ nombre: 'Inicio', url: `${SITE_URL}/` }, { nombre: 'Nosotros', url }];
 ---
 <Base title={title} description={description} path="/nosotros/" schema={[nodoPagina({ url, titulo: title, descripcion: description, tipo: 'AboutPage' }), nodoBreadcrumb(crumbs)]}>

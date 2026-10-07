@@ -32,7 +32,11 @@ test.describe('Todas las páginas', () => {
       const title = await page.title();
       expect(title.length).toBeGreaterThan(10);
       expect(title.length).toBeLessThanOrEqual(65);
-      expect(await page.locator('link[rel=canonical]').getAttribute('href')).toBe(`https://invictussecurity.cl${path}`);
+      const noindex = await page.locator('meta[name=robots][content*=noindex]').count();
+      if (noindex) await expect(page.locator('link[rel=canonical]')).toHaveCount(0);
+      else expect(await page.locator('link[rel=canonical]').getAttribute('href')).toBe(`https://invictussecurity.cl${path}`);
+      const desc = await page.locator('meta[name=description]').getAttribute('content');
+      expect(desc!.length).toBeLessThanOrEqual(155);
       for (const raw of await page.locator('script[type="application/ld+json"]').allTextContents()) {
         expect(() => JSON.parse(raw)).not.toThrow();
       }

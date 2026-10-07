@@ -15,7 +15,7 @@ export const faqsHome: Faq[] = [
     a: 'Sí, durante el período de transición. Con la Ley 21.659 la regulación pasó a la Subsecretaría de Prevención del Delito y Carabineros (OS-10) quedó como fiscalizador. Las autorizaciones obtenidas con la normativa anterior mantienen su vigencia de forma transitoria; la Ley 21.825 de 2026 amplió esos plazos.',
   },
   {
-    q: '¿Cómo saber si una empresa de seguridad cumple la ley?',
+    q: '¿Cómo saber si una empresa de seguridad en Chile cumple la ley?',
     a: 'Pide su resolución de autorización vigente, las credenciales de los guardias que trabajarán en tu recinto, sus contratos y el certificado F30-1 de cumplimiento laboral de la Dirección del Trabajo, además de las pólizas de seguro. Una empresa seria entrega esta documentación sin problemas.',
   },
   {

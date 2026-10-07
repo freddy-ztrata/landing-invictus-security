@@ -55,7 +55,7 @@ const [avif, webp, mAvif, mWebp, fallback, ambient] = await Promise.all([
   stage ? squareSet('avif', 62) : Promise.resolve(''),
   stage ? squareSet('webp', 80) : Promise.resolve(''),
   getImage({ src: image, width: stage ? 1600 : 1280, format: 'jpg', quality: 74 }),
-  stage ? Promise.resolve(null) : getImage({ src: image, width: 480, format: 'webp', quality: 45 }),
+  stage ? Promise.resolve(null) : getImage({ src: image, width: 48, format: 'webp', quality: 60 }), // miniatura: Chrome no la cuenta como LCP (baja entropía)
 ]);
 const lat = empresa.geo.lat.toFixed(4);
 const lng = empresa.geo.lng.toFixed(4);
@@ -64,8 +64,8 @@ const lng = empresa.geo.lng.toFixed(4);
   {stage ? (
     <div class="hero__stage">
       <picture>
-        <source media="(max-width: 960px)" type="image/avif" srcset={mAvif} sizes="100vw" />
-        <source media="(max-width: 960px)" type="image/webp" srcset={mWebp} sizes="100vw" />
+        <source media="(max-width: 599px)" type="image/avif" srcset={mAvif} sizes="100vw" />
+        <source media="(max-width: 599px)" type="image/webp" srcset={mWebp} sizes="100vw" />
         <source type="image/avif" srcset={avif.srcSet.attribute} sizes="100vw" />
         <source type="image/webp" srcset={webp.srcSet.attribute} sizes="100vw" />
         <img
@@ -334,6 +334,8 @@ const lng = empresa.geo.lng.toFixed(4);
     }
     .hero__video { display: none; }
     .hero__shade { background: linear-gradient(180deg, rgb(10 10 10 / 0.25) 0%, transparent 18%); }
+    /* Tablet vertical: foto completa en 4:3 (la cuadrada empujaba el formulario muy abajo) */
+    @media (min-width: 600px) { .hero__stage { aspect-ratio: 4 / 3; max-height: 60svh; } }
 
     /* card: tarjeta a todo el ancho arriba */
     .hero__visual { order: 0; margin-inline: calc(var(--gutter) * -1); border-radius: 0; border-inline: 0; border-top: 0; aspect-ratio: 16 / 10; }

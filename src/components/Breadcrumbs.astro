@@ -13,7 +13,10 @@ const { items, tone = 'light' } = Astro.props;
 </nav>
 <style>
   .bc ol { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 0; font-size: var(--fs-xs); font-family: var(--f-mono); letter-spacing: 0.04em; }
+  .bc li { min-width: 0; }
   .bc li + li::before { content: '/'; margin: 0 8px; opacity: 0.5; }
+  /* La última miga (página actual) no salta de línea: se recorta con … */
+  .bc li:last-child { flex: 1 1 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bc a { color: inherit; text-decoration: none; opacity: 0.75; }
   .bc a:hover { opacity: 1; text-decoration: underline; }
   .bc--dark { color: var(--on-dark-2); }
