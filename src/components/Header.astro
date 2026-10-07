@@ -1,7 +1,6 @@
 ---
 import { Image } from 'astro:assets';
 import logo from '../assets/img/logo-invictus.png';
-import { empresa } from '../data/empresa';
 import { segmentos } from '../data/segmentos';
 
 interface Props { minimal?: boolean }
@@ -11,7 +10,7 @@ const path = Astro.url.pathname;
 <header class="hdr" data-header>
   <div class="container hdr__inner">
     <a class="hdr__logo" href="/" aria-label="Invictus Security, ir al inicio">
-      <Image src={logo} alt="" width={352} format="webp" loading="eager" decoding="async" />
+      <Image src={logo} alt="" width={480} format="webp" loading="eager" decoding="async" />
     </a>
 
     {!minimal && (
@@ -39,11 +38,7 @@ const path = Astro.url.pathname;
 
     <div class="hdr__actions">
       {!minimal && <a class="hdr__job" href="/trabaja-con-nosotros/" data-track="job_seeker" data-placement="header">¿Buscas trabajo?</a>}
-      <a class="hdr__tel mono" href={`tel:${empresa.telefono}`} data-track="call" data-placement="header" aria-label={`Llamar al ${empresa.telefonoVisible}`}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" fill="none" stroke="currentColor" stroke-width="1.8" /></svg>
-        <span>{empresa.telefonoVisible}</span>
-      </a>
-      {!minimal && <a class="btn btn--sm hdr__cta" href="#cotizar" data-cta-cotizar data-track="cta" data-placement="header">Cotizar</a>}
+      {!minimal && <a class="btn hdr__cta" href="#cotizar" data-cta-cotizar data-track="cta" data-placement="header">Cotizar</a>}
       {!minimal && (
         <button class="hdr__burger" type="button" popovertarget="menu-movil" aria-label="Abrir menú">
           <span></span><span></span>
@@ -96,9 +91,9 @@ const path = Astro.url.pathname;
     transition: background-color var(--dur-2), border-color var(--dur-2);
   }
   .hdr[data-scrolled] { background: rgb(10 10 10 / 0.9); border-bottom-color: var(--line-dark); }
-  .hdr__inner { display: flex; align-items: center; gap: 24px; min-height: 68px; }
+  .hdr__inner { display: flex; align-items: center; gap: 24px; min-height: 76px; }
   .hdr__logo { display: flex; align-items: center; min-height: 48px; flex-shrink: 0; }
-  .hdr__logo img { width: 168px; height: auto; filter: brightness(0) invert(1); }
+  .hdr__logo img { width: 232px; height: auto; filter: brightness(0) invert(1); }
   .hdr__nav { margin-right: auto; }
   .hdr__nav > ul { display: flex; gap: 4px; list-style: none; padding: 0; }
   .hdr__link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: var(--r-sm); font-size: 0.93rem; font-weight: 550; color: var(--on-dark-2); text-decoration: none; transition: color var(--dur-1), background-color var(--dur-1); }
@@ -121,8 +116,8 @@ const path = Astro.url.pathname;
   .hdr__actions { display: flex; align-items: center; gap: 14px; margin-left: auto; }
   .hdr__job { font-size: 0.82rem; color: var(--on-dark-3); text-decoration: underline; text-underline-offset: 3px; min-height: 44px; display: inline-flex; align-items: center; }
   .hdr__job:hover { color: var(--on-dark); }
-  .hdr__tel { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 0.88rem; color: var(--on-dark); text-decoration: none; }
-  .hdr__tel svg { width: 16px; height: 16px; color: var(--signal-2); }
+  /* CTA principal del header, grande (el teléfono quedó en el hero, la barra móvil y el footer) */
+  .hdr__cta { min-height: 52px; padding: 14px 30px; font-size: 1.02rem; box-shadow: 0 8px 24px -10px var(--signal-glow); }
   .hdr__burger { display: none; width: 44px; height: 44px; border-radius: var(--r-sm); border: 1px solid var(--line-dark-2); place-content: center; gap: 6px; }
   .hdr__burger span { display: block; width: 18px; height: 2px; background: var(--on-dark); border-radius: 2px; }
 
@@ -146,9 +141,14 @@ const path = Astro.url.pathname;
     .hdr__inner { gap: 12px; }
   }
   @media (max-width: 560px) {
-    .hdr__tel span { display: none; }
-    .hdr__tel { width: 44px; justify-content: center; border: 1px solid var(--line-dark-2); border-radius: var(--r-sm); }
-    .hdr__logo img { width: 136px; }
-    .hdr__cta { display: none; }
+    .hdr__inner { min-height: 68px; }
+    .hdr__logo img { width: 168px; }
+    .hdr__cta { min-height: 46px; padding: 10px 18px; font-size: 0.95rem; }
+  }
+  @media (max-width: 380px) {
+    .hdr__inner { gap: 8px; }
+    .hdr__actions { gap: 8px; }
+    .hdr__logo img { width: 138px; }
+    .hdr__cta { padding: 10px 14px; font-size: 0.9rem; }
   }
 </style>
