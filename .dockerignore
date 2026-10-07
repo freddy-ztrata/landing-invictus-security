@@ -1,0 +1,14 @@
+# Nada de esto debe llegar a la imagen: el Dockerfile copia solo lo publicable,
+# pero además lo excluimos del contexto de build (defensa en profundidad).
+.git
+.gitignore
+.env
+.env.*
+*.md
+.agents
+.claude
+node_modules
+skills-lock.json
+*.log
+.DS_Store
+Thumbs.db
