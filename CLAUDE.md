@@ -45,6 +45,7 @@ Push to `main` → Dokploy auto-deploys (build type Dockerfile, ~2 min; nothing 
 - `src/pages/` — `/`, `[segmento]/` (guardias-de-seguridad, seguridad-para-condominios, guardias-para-eventos, seguridad-para-empresas), `cotizar/`, `nosotros/`, `guia/cuantos-guardias-necesito/` (calculator), `guia/ley-21659-seguridad-privada/`, `gracias/`, `privacidad/`, `404`.
 - `public/` — `robots.txt` (AI search bots explicitly allowed), `llms.txt`, favicons, OG images.
 - `src/data/hapee.ts` — hapee origin + slug of the embedded form.
+- Sitemap: `@astrojs/sitemap` writes `sitemap-index.xml` (declared in `robots.txt`); nginx serves the same file at `/sitemap.xml` with 200 via internal rewrite (no 301 — Search Console reported "Couldn't fetch" on the redirect).
 - `nginx/default.conf` + `nginx/snippets/security-headers.conf`; multi-stage `Dockerfile` (node:24-slim build → nginx:stable-alpine serving **only** `dist/`). **No environment variables** — the site is 100 % static.
 
 ## Hero
