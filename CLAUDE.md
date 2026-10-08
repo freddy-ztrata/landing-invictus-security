@@ -90,6 +90,12 @@ hapee nuevo (MCP connector, **cliente 46**): pipeline **"Ventas web" (id 127)** 
 - `.lead__frame` `min-height` and the embed's `data-height` (630px, `LeadForm.astro`) reserve the iframe's final height (CLS 0) — update both if the hapee form gets longer or shorter. **Never reserve MORE than the form's real height**: the hapee embed grows the iframe to fit but never shrinks it (the form measures `documentElement.scrollHeight`, which can't go below the iframe's own height), so an oversized reserve leaves a blank band. Since 2026-10-07 the form is two columns (≈627px at every width ≥ 300px); its look & feel lives in hapee, form 147 → Estilos (Invictus tokens + "CSS personalizado"), not in this repo.
 - Files mix CRLF and LF: scripted string replacements must normalise `\r\n` first (the Edit tool is fine).
 
+## Ads landing-page checklist (Giorgina, 2026-10-05 — re-verified on the Astro site 2026-10-08)
+
+- Every tap target is **≥ 44 px** high (footer links, breadcrumbs, `.lead__legal` privacy link, guide TOC, `tel:` links). Keep that when restyling; measure on a 375 px viewport.
+- A `.section-cta` ("Solicita tu presupuesto gratis", `data-cta-cotizar`) closes **Servicios (Bento)**, **Cumplimiento (Credential)** and **Testimonios**, besides the CTAs in Process, CoverageMap, CtaBand, header and `MobileBar`. On pages without `#cotizar` the header script rewrites `[data-cta-cotizar]` to `/cotizar/`.
+- The old GHL form `bdjfSIhq3trsUkZf9IgB` (typos "guardios"/"rago") is no longer embedded anywhere; the site uses hapee form 147 only.
+
 ## Content rules
 
 - **Never publish prices** (client decision). Price questions are answered with "what determines the cost" + quote in 24 h.

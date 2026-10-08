@@ -85,6 +85,8 @@
   .section-head p { font-size: var(--fs-lg); color: var(--text-3); }
   .section--dark .section-head p { color: var(--on-dark-2); }
   .section-head--center { margin-inline: auto; text-align: center; }
+  /* CTA al cierre de una sección (Ads: que el formulario esté a un toque desde cualquier bloque) */
+  .section-cta { display: flex; justify-content: center; margin-top: clamp(28px, 4vw, 44px); }
   .section-head--center .eyebrow { justify-content: center; }
 
   .accent { color: var(--signal-ink); }
