@@ -42,7 +42,14 @@ export function onHapeeSubmit() {
       sessionStorage.setItem(TOKEN_KEY, JSON.stringify({ id, ts: Date.now(), segmento }));
     } catch { /* sin storage: /gracias/ usa el respaldo por referrer */ }
     track('form_submit', { form: 'hapee-cotizacion', segmento, page: location.pathname });
-    // Breve pausa para que se vea el "¡Enviado!" de hapee y salga el evento.
-    setTimeout(() => location.assign(`/gracias/${segmento ? `?s=${encodeURIComponent(segmento)}` : ''}`), 700);
+    // Convención Digitals: dg_formulario por gtag (GA4 + Ads) y recién después /gracias/, para no
+    // perder el evento si la navegación corta el request. Breve pausa para que se vea el
+    // "¡Enviado!" de hapee. Sin helper (no debería pasar), navega igual.
+    const gracias = `/gracias/${segmento ? `?s=${encodeURIComponent(segmento)}` : ''}`;
+    setTimeout(() => {
+      const send = (window as Window & { dgSendEvent?: (url: string, ev: string, p: Record<string, unknown>) => void }).dgSendEvent;
+      if (send) send(gracias, 'dg_formulario', { form_id: 'hapee-147', segmento, page: location.pathname });
+      else location.assign(gracias);
+    }, 700);
   });
 }

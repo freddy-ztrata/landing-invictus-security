@@ -83,7 +83,36 @@ const speculation = {
         // GTM solo en producción: staging y local no ensucian GA4/Ads.
         if (location.hostname === 'invictussecurity.cl') {
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-WNTMK96Q');
+          // gtag.js (mismo GA4 + Ads que el contenedor) SOLO para los eventos dg_* de la convención
+          // Digitals (dg_formulario, dg_whatsapp): GTM no define gtag(). send_page_view:false para no
+          // duplicar el page_view que ya manda GTM.
+          var gs = document.createElement('script'); gs.async = true;
+          gs.src = 'https://www.googletagmanager.com/gtag/js?id=G-VWCD5DSP40';
+          document.head.appendChild(gs);
         }
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', 'G-VWCD5DSP40', { send_page_view: false });
+        gtag('config', 'AW-17648531850');
+        // Envía un evento dg_* y recién después navega a la URL (o solo envía, si url es null).
+        // Un solo helper con el nombre del evento como parámetro. Si gtag no responde
+        // (bloqueado, sin red, fuera de producción) navega igual a los 2 s.
+        window.dgSendEvent = function (url, eventName, params) {
+          var navigated = false;
+          var go = function () {
+            if (navigated) return;
+            navigated = true;
+            if (typeof url === 'string') location.assign(url);
+          };
+          var payload = params || {};
+          payload.event_callback = go;
+          payload.event_timeout = 2000;
+          gtag('event', eventName || 'dg_event', payload);
+          setTimeout(go, 2000);
+          return false;
+        };
       </script>
     )}
     <title>{title}</title>

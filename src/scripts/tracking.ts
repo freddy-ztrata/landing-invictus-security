@@ -21,6 +21,13 @@ document.addEventListener('click', (e) => {
   if (!el) return;
   const kind = el.dataset.track;
   if (kind === 'call') track('call_click', { contact_method: 'phone', placement: el.dataset.placement || '' });
+  else if (kind === 'whatsapp') {
+    // Convención Digitals: dg_whatsapp por gtag. Hoy no hay CTA de WhatsApp (decisión del cliente);
+    // queda listo por si se reincorpora: <a href="https://wa.me/…" target="_blank" data-track="whatsapp">.
+    track('whatsapp_click', { contact_method: 'whatsapp', placement: el.dataset.placement || '' });
+    const send = (window as Window & { dgSendEvent?: (url: null, ev: string, p: Record<string, unknown>) => void }).dgSendEvent;
+    send?.(null, 'dg_whatsapp', { contact_method: 'whatsapp', placement: el.dataset.placement || '' });
+  }
   else if (kind === 'cta') track('cta_click', { placement: el.dataset.placement || '', label: el.textContent?.trim().slice(0, 60) || '' });
 });
 
