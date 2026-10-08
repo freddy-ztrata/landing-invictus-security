@@ -32,6 +32,12 @@ const pasos = [
         sessionStorage.removeItem('inv_lead');
         counted = sessionStorage.getItem('inv_counted') === '1';
       } catch (e) {}
+      if (lead && lead.spam) {
+        // hapee descartó el envío (honeypot/spam): no se mide y tampoco aplica el respaldo por referrer.
+        try { sessionStorage.setItem('inv_counted', '1'); } catch (e) {}
+        console.info('[gracias] envío descartado por hapee (spam): sin conversión');
+        return;
+      }
       var fresh = !!(lead && lead.id && lead.ts && (Date.now() - lead.ts) < 30 * 60 * 1000);
       if (!fresh && !counted) {
         var ref = document.referrer || '';

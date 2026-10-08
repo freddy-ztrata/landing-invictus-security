@@ -171,3 +171,18 @@ test('convención dg_: dg_formulario sale por gtag antes de ir a /gracias/', asy
   expect(events).toContain('dg_formulario');
   await page.waitForURL('**/gracias/**');
 });
+
+test('envío descartado por hapee (eventId null, honeypot): llega a /gracias/ pero no mide', async ({ page }) => {
+  const logs: string[] = [];
+  page.on('console', (m) => logs.push(m.text()));
+  await page.goto('/cotizar/');
+  await page.evaluate(([o, f]) => {
+    window.dispatchEvent(new MessageEvent('message', { origin: o, data: { type: 'zentru_form_submitted', formId: f, eventId: null } }));
+  }, ['https://beta.hapee.ai', HAPEE_FORM]);
+  await page.waitForURL('**/gracias/');
+  await page.waitForLoadState('networkidle');
+  expect(logs.some((l) => l.includes('descartado por hapee'))).toBe(true);
+  expect(logs.some((l) => l.includes('conversión simulada'))).toBe(false);
+  const dl = await page.evaluate(() => ((window as any).dataLayer || []).map((e: any) => e && e.event).filter(Boolean));
+  expect(dl).not.toContain('generate_lead');
+});

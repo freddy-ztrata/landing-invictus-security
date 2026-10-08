@@ -37,10 +37,17 @@ export function onHapeeSubmit() {
     if (!msg || typeof msg !== 'object' || msg.type !== 'zentru_form_submitted' || msg.formId !== HAPEE_FORM || done) return;
     done = true;
     const segmento = host.dataset.segmento || '';
-    const id = msg.eventId || `hp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    // eventId null = hapee respondió "ok" pero descartó el envío (honeypot / spam): no crea el lead.
+    // Se lleva igual a /gracias/ (no delatar al bot) pero marcado para que NO mida nada.
+    const spam = !msg.eventId;
+    const id = msg.eventId || `spam-${Date.now()}`;
     try {
-      sessionStorage.setItem(TOKEN_KEY, JSON.stringify({ id, ts: Date.now(), segmento }));
+      sessionStorage.setItem(TOKEN_KEY, JSON.stringify({ id, ts: Date.now(), segmento, spam }));
     } catch { /* sin storage: /gracias/ usa el respaldo por referrer */ }
+    if (spam) {
+      setTimeout(() => location.assign('/gracias/'), 700);
+      return;
+    }
     track('form_submit', { form: 'hapee-cotizacion', segmento, page: location.pathname });
     // Convención Digitals: dg_formulario por gtag (GA4 + Ads) y recién después /gracias/, para no
     // perder el evento si la navegación corta el request. Breve pausa para que se vea el
