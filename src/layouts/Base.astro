@@ -140,8 +140,8 @@ const speculation = {
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
 
-    <link rel="preload" href={unboundedLatin} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={unboundedLatin} as="font" type="font/woff2" crossorigin media="(min-width: 961px)" />
+    <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin media="(min-width: 961px)" />
     <style is:inline set:html={fontFaces}></style>
 
     <slot name="head" />
