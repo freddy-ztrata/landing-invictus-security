@@ -112,7 +112,11 @@ test('home: escena de guardias a pantalla completa; el video solo carga en deskt
   await expect(poster).toHaveAttribute('fetchpriority', 'high');
   const box = await poster.boundingBox();
   expect(box!.y).toBeLessThan(page.viewportSize()!.height);
-  expect(box!.height).toBeGreaterThan(300);
+  expect(box!.height).toBeGreaterThan(info.project.name === 'desktop' ? 300 : 150);
+  if (info.project.name === 'mobile') {
+    await expect(page.locator('.hero__quick .btn')).toBeInViewport();
+    await expect(page.locator('.hero__confidence')).toBeInViewport();
+  }
   const video = page.locator('[data-hero-video]');
   if (info.project.name === 'desktop') {
     await expect(video).toHaveAttribute('data-loaded', '1', { timeout: 8000 });

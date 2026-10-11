@@ -18,7 +18,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test
+      - run: npm test
 
   nginx:
     name: Docker + nginx (headers, redirecciones, seguridad)
@@ -64,7 +64,10 @@ jobs:
           check "legacy landing vieja" "/" "$(loc "$B/invictus-landing.html")"
           check "legacy /gracias.html" "/gracias/" "$(loc "$B/gracias.html")"
           check "wp-admin 410" 410 "$(code $B/wp-admin/)"
-          check "sitemap.xml → índice" "/sitemap-index.xml" "$(loc "$B/sitemap.xml")"
+          # Alias interno: 200 y el mismo XML; nunca un redirect externo.
+          check "sitemap.xml sirve 200" 200 "$(code "$B/sitemap.xml")"
+          check "sitemap.xml sin Location" "" "$(loc "$B/sitemap.xml")"
+          check "sitemap.xml equivale al índice" "$(curl -fsS "$B/sitemap-index.xml")" "$(curl -fsS "$B/sitemap.xml")"
           check "host www → apex" "https://invictussecurity.cl/?a=1" "$(loc -H 'Host: www.invictussecurity.cl' "$B/?a=1")"
           check "host seguridad. → apex" "https://invictussecurity.cl/x/" "$(loc -H 'Host: seguridad.invictussecurity.cl' "$B/x/")"
 

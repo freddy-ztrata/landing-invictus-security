@@ -86,6 +86,7 @@ const lng = empresa.geo.lng.toFixed(4);
           loop
           playsinline
           preload="none"
+          data-poster={fallback.src}
           disablepictureinpicture
           aria-hidden="true"
           tabindex="-1"
@@ -137,6 +138,10 @@ const lng = empresa.geo.lng.toFixed(4);
         </h1>
       </div>
       <p class="hero__lead">{lead}</p>
+      <div class="hero__quick">
+        <a class="btn" href="#cotizar" data-cta-cotizar data-track="cta" data-placement="hero">Cotizar gratis</a>
+        <p class="hero__confidence">Supervisión 24/7 · Cotización sin costo</p>
+      </div>
     </div>
     <div class="hero__form">
       <LeadForm segmento={segmento} titulo={formTitle} />
@@ -180,6 +185,7 @@ const lng = empresa.geo.lng.toFixed(4);
     const load = () => {
       if (lowData || !ok.matches || video.dataset.loaded) return;
       video.dataset.loaded = '1';
+      video.poster = video.dataset.poster || '';
       const { av1, mp4 } = video.dataset;
       if (av1) video.append(Object.assign(document.createElement('source'), { src: av1, type: 'video/webm; codecs="av01.0.08M.08"' }));
       if (mp4) video.append(Object.assign(document.createElement('source'), { src: mp4, type: 'video/mp4' }));
@@ -218,7 +224,8 @@ const lng = empresa.geo.lng.toFixed(4);
   /* La escena ocupa el primer pantallazo y se funde a negro; el formulario sigue sobre negro. */
   .hero__stage {
     position: absolute; inset: 0 0 auto; z-index: -1; overflow: hidden; background: var(--ink);
-    height: clamp(620px, calc(100svh - 76px), 1080px);
+    height: 880px;
+    width: min(100%, 1600px); margin-inline: auto;
     /* Se funde a transparente (sobre el negro de la sección): sin borde visible donde termina */
     -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent);
     mask-image: linear-gradient(180deg, #000 78%, transparent);
@@ -234,7 +241,7 @@ const lng = empresa.geo.lng.toFixed(4);
   }
   /* Tres zonas: titular | personas (franja libre) | formulario */
   .hero--stage .hero__grid {
-    grid-template-columns: minmax(0, 1.05fr) minmax(180px, 0.8fr) minmax(340px, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 0.7fr) minmax(380px, 440px);
     grid-template-areas: 'intro . form' 'extra . form';
     column-gap: 16px;
   }
@@ -277,6 +284,7 @@ const lng = empresa.geo.lng.toFixed(4);
     align-items: start;
     padding-top: 18px;
   }
+  .hero__quick { display: none; }
   .hero__intro { grid-area: intro; display: flex; flex-direction: column; gap: 26px; }
   .hero__form { grid-area: form; }
   .hero__extra { grid-area: extra; display: grid; gap: 20px; align-content: start; }
@@ -310,6 +318,10 @@ const lng = empresa.geo.lng.toFixed(4);
     @keyframes poster-in { from { scale: 1.04; } }
   }
 
+  @media (min-width: 961px) {
+    .hero--stage { padding-block: 32px 48px; }
+  }
+
   /* Desktop angosto: la franja central se achica; el titular manda */
   @media (max-width: 1140px) and (min-width: 961px) {
     .hero--stage .hero__grid { grid-template-columns: minmax(0, 1.1fr) minmax(90px, 0.45fr) minmax(320px, 1fr); }
@@ -318,27 +330,32 @@ const lng = empresa.geo.lng.toFixed(4);
   /* Móvil: foto arriba a todo el ancho → titular → formulario → bullets */
   @media (max-width: 960px) {
     .hero { padding-top: 0; }
+    .hero__quick { display: grid; gap: 12px; order: 4; justify-items: start; }
+    .hero__confidence { font-size: 0.875rem; color: var(--on-dark-2); }
+    .hero__text > *, .hero__lead, .hero__extra > *, .hero__visual, .hero__form, .hero__poster { animation: none; }
+
     .hero__hud { display: none; }
     .hero .hero__grid { grid-template-columns: 1fr; grid-template-areas: 'intro' 'form' 'extra'; grid-template-rows: auto; row-gap: 22px; padding-top: 0; }
-    .hero__intro { gap: 20px; }
+    .hero__intro { gap: 14px; }
     .hero__text { order: 1; gap: 14px; }
-    .hero h1 { font-size: clamp(1.75rem, 1.1rem + 3.4vw, 2.6rem); }
+    .hero h1 { font-size: clamp(1.65rem, 6.8vw, 2.3rem); }
     .hero__lead { font-size: 1rem; }
     .hero .eyebrow { letter-spacing: 0.08em; }
 
     /* stage: escena cuadrada arriba que se funde con el titular */
     .hero__stage {
-      position: relative; inset: auto; height: auto; aspect-ratio: 1 / 1; max-height: 70svh; margin-bottom: -64px;
+      position: relative; inset: auto; height: 180px; aspect-ratio: auto; max-height: 24svh; margin-bottom: -20px;
       -webkit-mask-image: linear-gradient(180deg, #000 66%, transparent);
       mask-image: linear-gradient(180deg, #000 66%, transparent);
     }
     .hero__video { display: none; }
+    .hero__poster { object-position: 50% 30% !important; }
     .hero__shade { background: linear-gradient(180deg, rgb(10 10 10 / 0.25) 0%, transparent 18%); }
     /* Tablet vertical: foto completa en 4:3 (la cuadrada empujaba el formulario muy abajo) */
     @media (min-width: 600px) { .hero__stage { aspect-ratio: 4 / 3; max-height: 60svh; } }
 
     /* card: tarjeta a todo el ancho arriba */
-    .hero__visual { order: 0; margin-inline: calc(var(--gutter) * -1); border-radius: 0; border-inline: 0; border-top: 0; aspect-ratio: 16 / 10; }
+    .hero__visual { order: 0; margin-inline: calc(var(--gutter) * -1); border-radius: 0; border-inline: 0; border-top: 0; aspect-ratio: auto; height: 170px; }
     .hero__visual::before { top: 14px; left: 14px; }
   }
 </style>
