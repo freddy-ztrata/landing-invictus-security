@@ -49,7 +49,7 @@ export function onHapeeSubmit() {
       return;
     }
     track('form_submit', { form: 'hapee-cotizacion', segmento, page: location.pathname });
-    // dg_formulario (convención Digitals) se dispara en /gracias/ con este mismo token, NO aquí:
+    // dg_envio_formulario (convención Digitals) se dispara en /gracias/ con este mismo token, NO aquí:
     // el formulario de hapee redirige la ventana a /gracias/ ~300 ms después del aviso y GA4 no
     // alcanzaba a despachar el evento antes de la descarga (prueba real del 2026-10-13).
     const gracias = `/gracias/${segmento ? `?s=${encodeURIComponent(segmento)}` : ''}`;

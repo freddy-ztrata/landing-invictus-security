@@ -164,13 +164,13 @@ test('embed real: el formulario de hapee carga en la página', async ({ page }) 
   await expect(frame.locator('button[type="submit"], input[type="submit"]').first()).toBeVisible();
 });
 
-test('convención dg_: dg_formulario se dispara en /gracias/ con el token del envío', async ({ page }) => {
+test('convención dg_: dg_envio_formulario se dispara en /gracias/ con el token del envío', async ({ page }) => {
   const logs: string[] = [];
   page.on('console', (m) => logs.push(m.text()));
   await page.goto('/cotizar/');
   await simulateHapeeSubmit(page);
   await page.waitForURL('**/gracias/**');
-  await expect.poll(() => logs.find((l) => l.includes('conversión simulada')) || '').toContain('dg_formulario');
+  await expect.poll(() => logs.find((l) => l.includes('conversión simulada')) || '').toContain('dg_envio_formulario');
 });
 
 test('envío descartado por hapee (eventId null, honeypot): llega a /gracias/ pero no mide', async ({ page }) => {

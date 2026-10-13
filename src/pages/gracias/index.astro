@@ -5,7 +5,7 @@
  * Medición condicionada: al enviarse el formulario de hapee (iframe), src/scripts/form.ts deja en
  * sessionStorage `inv_lead` { id: "lead.<envío de hapee>", ts, segmento }. Si existe (< 30 min):
  *   1) dataLayer: generate_lead { lead_id, segmento } (para GTM / GA4)
- *   1b) gtag: dg_formulario (convención Digitals) a GA4 G-VWCD5DSP40 + Ads
+ *   1b) gtag: dg_envio_formulario (convención Digitals) a GA4 G-VWCD5DSP40 + Ads
  *   2) GTM (solo en producción)
  *   3) gtag: conversión PRIMARIA de Ads (OcKZ…) con transaction_id = id del envío en hapee.
  * Respaldo: sin token pero llegando desde el propio sitio → cuenta una vez por sesión.
@@ -51,7 +51,7 @@ const pasos = [
       try { sessionStorage.setItem('inv_counted', '1'); } catch (e) {}
       window.__invLead = lead;
       if (location.hostname !== 'invictussecurity.cl') {
-        console.info('[gracias] conversión simulada (no es producción) id=' + lead.id + ' eventos: generate_lead, dg_formulario, conversion');
+        console.info('[gracias] conversión simulada (no es producción) id=' + lead.id + ' eventos: generate_lead, dg_envio_formulario, conversion');
         return;
       }
 
@@ -69,9 +69,9 @@ const pasos = [
         gtag('js', new Date());
         gtag('config', 'AW-17648531850');
         gtag('config', 'G-VWCD5DSP40', { send_page_view: false });
-        // Convención Digitals: dg_formulario (GA4 + Ads), una vez por envío real de hapee.
+        // Convención Digitals: dg_envio_formulario (GA4 + Ads), una vez por envío real de hapee.
         // send_to explícito: GTM ya registró G-VWCD5DSP40 y, sin send_to, gtag solo lo mandaba a Ads.
-        gtag('event', 'dg_formulario', { send_to: ['G-VWCD5DSP40', 'AW-17648531850'], form_id: 'hapee-147', lead_id: lead.id, segmento: lead.segmento || '' });
+        gtag('event', 'dg_envio_formulario', { send_to: ['G-VWCD5DSP40', 'AW-17648531850'], form_id: 'hapee-147', lead_id: lead.id, segmento: lead.segmento || '' });
         gtag('event', 'conversion', { send_to: 'AW-17648531850/OcKZCPrpu50cEIrzvN9B', transaction_id: lead.id });
       }
       // Si la página se pre-renderizara, medir solo al activarse.
