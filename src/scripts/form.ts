@@ -49,13 +49,10 @@ export function onHapeeSubmit() {
       return;
     }
     track('form_submit', { form: 'hapee-cotizacion', segmento, page: location.pathname });
-    // Convención Digitals: dg_formulario por gtag (GA4 + Ads) EN EL ACTO. El formulario de hapee
-    // también está configurado para redirigir a /gracias/ al enviar (desde el iframe navega la
-    // ventana completa) y esa redirección cortaba el envío diferido: por eso no se espera.
-    // gtag usa sendBeacon, así que el hit sobrevive a la navegación.
+    // dg_formulario (convención Digitals) se dispara en /gracias/ con este mismo token, NO aquí:
+    // el formulario de hapee redirige la ventana a /gracias/ ~300 ms después del aviso y GA4 no
+    // alcanzaba a despachar el evento antes de la descarga (prueba real del 2026-10-13).
     const gracias = `/gracias/${segmento ? `?s=${encodeURIComponent(segmento)}` : ''}`;
-    const send = (window as Window & { dgSendEvent?: (url: string | null, ev: string, p: Record<string, unknown>) => void }).dgSendEvent;
-    send?.(null, 'dg_formulario', { form_id: 'hapee-147', segmento, page: location.pathname });
     // Respaldo por si hapee no redirige: breve pausa para que se vea el "¡Enviado!" y a /gracias/.
     setTimeout(() => { if (location.pathname.indexOf('/gracias') !== 0) location.assign(gracias); }, 700);
   });

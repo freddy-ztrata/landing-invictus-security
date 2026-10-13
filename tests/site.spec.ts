@@ -164,14 +164,13 @@ test('embed real: el formulario de hapee carga en la página', async ({ page }) 
   await expect(frame.locator('button[type="submit"], input[type="submit"]').first()).toBeVisible();
 });
 
-test('convención dg_: dg_formulario sale por gtag en el acto, antes de ir a /gracias/', async ({ page }) => {
+test('convención dg_: dg_formulario se dispara en /gracias/ con el token del envío', async ({ page }) => {
+  const logs: string[] = [];
+  page.on('console', (m) => logs.push(m.text()));
   await page.goto('/cotizar/');
   await simulateHapeeSubmit(page);
-  // dg_formulario sale EN EL ACTO (hapee también redirige a /gracias/ y cortaría un envío diferido):
-  // justo después del aviso ya está en el dataLayer, antes de cualquier navegación.
-  const events = await page.evaluate(() => ((window as any).dataLayer as IArguments[]).filter((a) => a && a[0] === 'event').map((a) => a[1]));
-  expect(events).toContain('dg_formulario');
   await page.waitForURL('**/gracias/**');
+  await expect.poll(() => logs.find((l) => l.includes('conversión simulada')) || '').toContain('dg_formulario');
 });
 
 test('envío descartado por hapee (eventId null, honeypot): llega a /gracias/ pero no mide', async ({ page }) => {
