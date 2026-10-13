@@ -70,7 +70,8 @@ const pasos = [
         gtag('config', 'AW-17648531850');
         gtag('config', 'G-VWCD5DSP40', { send_page_view: false });
         // Convención Digitals: dg_formulario (GA4 + Ads), una vez por envío real de hapee.
-        gtag('event', 'dg_formulario', { form_id: 'hapee-147', lead_id: lead.id, segmento: lead.segmento || '' });
+        // send_to explícito: GTM ya registró G-VWCD5DSP40 y, sin send_to, gtag solo lo mandaba a Ads.
+        gtag('event', 'dg_formulario', { send_to: ['G-VWCD5DSP40', 'AW-17648531850'], form_id: 'hapee-147', lead_id: lead.id, segmento: lead.segmento || '' });
         gtag('event', 'conversion', { send_to: 'AW-17648531850/OcKZCPrpu50cEIrzvN9B', transaction_id: lead.id });
       }
       // Si la página se pre-renderizara, medir solo al activarse.

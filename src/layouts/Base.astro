@@ -107,6 +107,8 @@ const speculation = {
             if (typeof url === 'string') location.assign(url);
           };
           var payload = params || {};
+          // send_to explícito: GTM también registra G-VWCD5DSP40 y, sin send_to, el evento podía no llegar a GA4.
+          if (!payload.send_to) payload.send_to = ['G-VWCD5DSP40', 'AW-17648531850'];
           payload.event_callback = go;
           payload.event_timeout = 2000;
           gtag('event', eventName || 'dg_event', payload);
