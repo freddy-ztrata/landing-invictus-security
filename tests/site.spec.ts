@@ -164,13 +164,11 @@ test('embed real: el formulario de hapee carga en la página', async ({ page }) 
   await expect(frame.locator('button[type="submit"], input[type="submit"]').first()).toBeVisible();
 });
 
-test('convención dg_: dg_formulario sale por gtag antes de ir a /gracias/', async ({ page }) => {
+test('convención dg_: dg_formulario sale por gtag en el acto, antes de ir a /gracias/', async ({ page }) => {
   await page.goto('/cotizar/');
   await simulateHapeeSubmit(page);
-  // Fuera de producción gtag.js no carga: el helper navega recién a los 2 s de respaldo,
-  // así que a 1,2 s seguimos en /cotizar/ con el evento ya en el dataLayer.
-  await page.waitForTimeout(1200);
-  await expect(page).toHaveURL(/\/cotizar\/$/);
+  // dg_formulario sale EN EL ACTO (hapee también redirige a /gracias/ y cortaría un envío diferido):
+  // justo después del aviso ya está en el dataLayer, antes de cualquier navegación.
   const events = await page.evaluate(() => ((window as any).dataLayer as IArguments[]).filter((a) => a && a[0] === 'event').map((a) => a[1]));
   expect(events).toContain('dg_formulario');
   await page.waitForURL('**/gracias/**');
