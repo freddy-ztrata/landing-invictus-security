@@ -105,31 +105,56 @@ test('sin opción de empleo: ningún enlace a postulaciones', async ({ page }) =
   await expect(page.getByText(/buscas trabajo|busco empleo|postula/i)).toHaveCount(0);
 });
 
-test('home: escena de guardias a pantalla completa; el video solo carga en desktop', async ({ page }, info) => {
+test('home: foto real a pantalla completa con art-direction móvil; sin video en esta fase', async ({ page }, info) => {
   await page.goto('/');
-  const poster = page.locator('.hero__stage .hero__poster');
+  const poster = page.locator('.hero__stage .hero__poster:visible');
   await expect(poster).toBeVisible();
   await expect(poster).toHaveAttribute('fetchpriority', 'high');
+  // Un solo candidato LCP con prioridad alta
+  await expect(page.locator('img[fetchpriority="high"]:visible')).toHaveCount(1);
   const box = await poster.boundingBox();
   expect(box!.y).toBeLessThan(page.viewportSize()!.height);
   expect(box!.height).toBeGreaterThan(info.project.name === 'desktop' ? 300 : 150);
+  const src = await poster.evaluate((img: HTMLImageElement) => img.currentSrc);
+  expect(src).toMatch(info.project.name === 'desktop' ? /invictus-hero-flota/ : /invictus-camioneta-atardecer/);
   if (info.project.name === 'mobile') {
     await expect(page.locator('.hero__quick .btn')).toBeInViewport();
     await expect(page.locator('.hero__confidence')).toBeInViewport();
   }
-  const video = page.locator('[data-hero-video]');
-  if (info.project.name === 'desktop') {
-    await expect(video).toHaveAttribute('data-loaded', '1', { timeout: 8000 });
-    await expect(video).toHaveAttribute('data-on', '', { timeout: 8000 });
-  } else {
-    await page.waitForTimeout(2500);
-    await expect(video).not.toHaveAttribute('data-loaded', '1');
+  await expect(page.locator('[data-hero-video]')).toHaveCount(0);
+  // Cada variante del art-direction lleva el alt de SU foto
+  const alt = await poster.getAttribute('alt');
+  expect(alt).toMatch(info.project.name === 'desktop' ? /motocicletas/ : /Camioneta de patrulla .* al atardecer/);
+  // La variante oculta no descarga su foto (usa el GIF vacío)
+  const hidden = page.locator('.hero__stage .hero__poster:not(:visible)');
+  expect(await hidden.evaluate((img: HTMLImageElement) => img.currentSrc)).toMatch(/^data:image\/gif/);
+});
+
+test('fotos reales: galería "En terreno" en Nosotros y banda en Eventos', async ({ page }) => {
+  await page.goto('/nosotros/');
+  const gal = page.locator('#en-terreno');
+  await expect(gal.getByRole('heading', { level: 2 })).toBeVisible();
+  expect(await gal.locator('.gallery__item').count()).toBeGreaterThanOrEqual(4);
+  await expect(gal.locator('img[src*="/img/gen/"], img[src*="central-monitoreo"]')).toHaveCount(0);
+  await page.goto('/guardias-para-eventos/');
+  const ev = page.locator('#eventos-en-terreno');
+  await expect(ev.locator('img').first()).toHaveAttribute('src', /invictus-evento-escenario/);
+  // Toda foto con marca de tercero visible lleva el sello de vista previa
+  const conMarca = page.locator('.gallery__fig:has(.brand-seal)');
+  for (const f of await conMarca.all()) await expect(f.locator('.brand-seal')).toHaveText(/pendiente de autorización/i);
+});
+
+test('fotos reales: ninguna página usa fotos IA de img/gen ni el video', async ({ page }) => {
+  for (const path of ['/', '/guardias-de-seguridad/', '/seguridad-para-condominios/', '/guardias-para-eventos/', '/seguridad-para-empresas/', '/nosotros/']) {
+    await page.goto(path);
+    const html = await page.content();
+    expect(html, path).not.toMatch(/central-monitoreo|hero-guardias-(centro|equipo)|condominio-conserjeria|empresa-bodega-acceso|evento-control-acceso|ppi-escolta|santiago-noche-aerea|hero-guardias-v2/);
   }
 });
 
 test('segmento: foto en tarjeta sobre el pliegue', async ({ page }) => {
   await page.goto('/guardias-de-seguridad/');
-  const img = page.locator('.hero__visual img');
+  const img = page.locator('.hero__visual img:visible');
   await expect(img).toBeVisible();
   await expect(img).toHaveAttribute('fetchpriority', 'high');
   const box = await img.boundingBox();

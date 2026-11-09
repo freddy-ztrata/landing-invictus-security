@@ -5,7 +5,9 @@
  */
 import { Picture } from 'astro:assets';
 import { segmentos } from '../data/segmentos';
-import imgPpi from '../assets/img/gen/ppi-escolta-ejecutiva.jpg';
+import { SELLO_MARCA, USO } from '../data/fotos-reales';
+
+const ppi = USO.bentoPpi;
 
 interface Props { excluir?: string; titulo?: string; eyebrow?: string }
 const { excluir, titulo = 'Seguridad privada para cada tipo de recinto', eyebrow = 'Servicios' } = Astro.props;
@@ -31,9 +33,10 @@ const lista = segmentos.filter((s) => s.slug !== excluir);
                 alt={s.imagenAlt}
                 loading="lazy"
                 decoding="async"
-                style={`view-transition-name: seg-${s.slug}`}
+                style={`view-transition-name: seg-${s.slug};object-position:${s.imagenPos}`}
               />
             </span>
+            {s.imagenMarca && <span class="brand-seal" title={`Marca visible: ${s.imagenMarca}`}>{SELLO_MARCA}</span>}
             <span class="card__body">
               <span class="card__kicker mono">{String(i + 1).padStart(2, '0')} / {s.eyebrow}</span>
               <span class="card__title">{s.nav}</span>
@@ -46,8 +49,9 @@ const lista = segmentos.filter((s) => s.slug !== excluir);
       <li class="card card--ppi reveal">
         <a href="/seguridad-para-empresas/" class="card__link">
           <span class="card__media viewfinder">
-            <Picture src={imgPpi} formats={['avif', 'webp']} widths={[480, 720, 960]} sizes="(max-width: 760px) 100vw, 33vw" alt="Escolta de protección ejecutiva abriendo la puerta de un vehículo en el distrito financiero de Santiago" loading="lazy" decoding="async" />
+            <Picture src={ppi.src} formats={['avif', 'webp']} widths={[480, 720, 960]} sizes="(max-width: 760px) 100vw, 33vw" alt={ppi.alt} loading="lazy" decoding="async" style={`object-position:${ppi.pos}`} />
           </span>
+          {ppi.marca && <span class="brand-seal" title={`Marca visible: ${ppi.marca}`}>{SELLO_MARCA}</span>}
           <span class="card__body">
             <span class="card__kicker mono">PPI / Escoltas</span>
             <span class="card__title">Protección de personas</span>

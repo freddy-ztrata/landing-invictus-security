@@ -14,7 +14,10 @@ Production: `https://invictussecurity.cl/` (canonical, indexable). `www.` and th
 - **MPA on purpose — no `<ClientRouter/>`**: every navigation is a real load so GTM page_view stays correct. Page transitions use native cross-document View Transitions (`@view-transition` in `src/styles/base.css`).
 - Vanilla CSS (`@layer`, nesting, tokens in `src/styles/tokens.css`), vanilla TS islands in `src/scripts/`. No framework, no WebGL/GSAP/Three.js (`gsap` and `ogl` in package.json are unused leftovers).
 - Fonts self-hosted via `@fontsource-variable` (Unbounded display, Geist text, Geist Mono HUD/numbers).
-- Images: AI-generated (Higgsfield) photos in `src/assets/img/gen/*.jpg`, processed by `astro:assets` (AVIF/WebP srcset). They are atmospheric only — never present them as the client's real staff (no captions like "nuestro equipo").
+- Images (all processed by `astro:assets`, AVIF/WebP srcset):
+  - **`src/assets/img/real/invictus-*.jpg` — REAL photos of the client's staff and fleet** (branch `fotos-reales`). With these it is fine to say "equipo/flota Invictus"; alts must stay descriptive and true (no invented names/roles, no "central de monitoreo"/conserjería that the photo doesn't show). **`src/data/fotos-reales.ts` is the single source**: imports, alts, `object-position`, which photo goes where (`USO`), and the **third-party-brand flag**.
+  - **`INCLUDE_THIRD_PARTY_BRAND_PHOTOS`** (in `fotos-reales.ts`): `true` = preview — photos listed in `FOTOS_CON_MARCA` (Caja Los Andes, PDI, DKMS, Tailings/GEOVIA/Dassault, San Cristóbal, Copec) render with a yellow `.brand-seal` "Marca de tercero — pendiente de autorización". **Set it to `false` before production** unless the client confirms written authorisation: those photos disappear and each section falls back to a clean photo (`fotoOr()`, `fotosPermitidas()`; `limpia()` fails the build if a branded photo is wired without fallback).
+  - `src/assets/img/gen/*.jpg` — AI-generated (Higgsfield) **fallback/rollback only** (not referenced right now; don't delete yet). Never present AI images as the client's real staff.
 
 ## Commands
 
@@ -25,7 +28,7 @@ npm run build        # astro build + gzip precompression (scripts/precompress.mj
 npm run preview      # serves dist/ like nginx on :4321 (301 /foo→/foo/, 404.html, gzip_static)
 npm test             # Playwright E2E against dist/ (run `npm run build` first; projects: desktop + mobile/Pixel 7)
 npx playwright test -g "calculadora" --project=desktop   # single test by title
-node scripts/make-og.mjs   # regenerate public/img/og/*.jpg when hero photos change
+node scripts/make-og.mjs   # regenerate public/img/og/*.jpg when hero photos change (real photos, never branded ones)
 ```
 
 - Playwright starts `scripts/serve-dist.mjs` itself with `reuseExistingServer: false` → port 4321 must be free (stop `npm run preview` first).
@@ -52,10 +55,11 @@ Push to `main` → Dokploy auto-deploys (build type Dockerfile, ~2 min; nothing 
 
 `src/components/Hero.astro` has two modes (the form card always sits in the right column, so the people in the photo must not end up behind it):
 
-- **`mode="stage"`** (home): full-bleed scene limited to the first viewport and faded out with a CSS mask. Desktop grid has three zones — headline | empty band | form — and the photo must have the people **in the horizontal centre** (`hero-guardias-centro.jpg`, two guards ≈ 42–60 % of the width). The poster is the LCP (`fetchpriority=high`; mobile gets a square centre crop via `getImage({ fit: 'cover' })`). A Higgsfield loop (`public/video/hero-guardias-v2-av1.webm` + `-v2.mp4`, first frame = poster; bump the `-vN` suffix when replacing it — `/video/*` is cached 7 days) is attached by JS only on desktop, after `load` + idle, never with reduced-motion/Save-Data/2g-3g; it pauses off-screen.
-- **`mode="card"`** (segments, nosotros): photo in a framed card (`.hero__visual`) and the same photo blurred/darkened as background.
+- **`mode="stage"`** (home): full-bleed scene limited to the first viewport and faded out with a CSS mask. Desktop grid has three zones — headline | empty band | form. Home uses the real `invictus-hero-flota.jpg` (desktop, `object-position: 100% 55%` so the centre guard + motorbike sit in the free band) and **art-direction** `imageMobile` = `invictus-camioneta-atardecer.jpg` (vertical, full image, framed with `--pos-m`; no forced square crop). The poster is the LCP (`fetchpriority=high`, the only high-priority image) with a slow CSS **Ken Burns** (off with reduced-motion). **No video in this phase**: the `video` prop is no longer passed (the code and `public/video/hero-guardias-v2-*` stay for rollback). Optional `video` = Higgsfield loop attached by JS only on desktop, after `load` + idle, never with reduced-motion/Save-Data/2g-3g; bump the `-vN` suffix when replacing it (`/video/*` is cached 7 days).
+- **`mode="card"`** (segments, nosotros): photo in a framed card (`.hero__visual`) and the same photo blurred/darkened as background (light parallax via `src/scripts/parallax.ts`, `[data-parallax]`, max 12 px, off with reduced-motion/Save-Data). Props `imageMobile` (art-direction ≤ 960 px), `imageBrand` (shows `.brand-seal`) and `tag` (label on the photo).
+- Galleries: `src/components/Gallery.astro` (native scroll-snap strip + prev/next buttons, no lightbox) — `/nosotros/` "En terreno" and the events band on `/guardias-para-eventos/`. Scroll reveal uses the CSS `.reveal` utility (view timelines).
 
-The hero video is a **cinemagraph built with ffmpeg from the Higgsfield still**, not an AI-animated video: AI image-to-video (Seedance) distorted the small faces/eyes and ignored environment motion, so the guards stay untouched (sharp) and only the scene moves — two vertically-periodic rain layers (`scroll`, `screen` blend) and a sine `displace` on the wet floor (masked to exclude the guards via a background-removal cut-out). Every motion is periodic in the 6 s loop, so it loops with no crossfade, and the video has the poster's exact geometry (1920×1086 = 2688×1520 aspect) → no jump when it fades in. Encodes: AV1 WebM CRF 37 (~1.8 MB) + H.264 MP4 CRF 26 `+faststart` (~3.4 MB), no audio.
+The (currently unused) hero video is a **cinemagraph built with ffmpeg from the Higgsfield still**, not an AI-animated video: AI image-to-video (Seedance) distorted the small faces/eyes and ignored environment motion, so the guards stay untouched (sharp) and only the scene moves — two vertically-periodic rain layers (`scroll`, `screen` blend) and a sine `displace` on the wet floor (masked to exclude the guards via a background-removal cut-out). Every motion is periodic in the 6 s loop, so it loops with no crossfade, and the video has the poster's exact geometry (1920×1086 = 2688×1520 aspect) → no jump when it fades in. Encodes: AV1 WebM CRF 37 (~1.8 MB) + H.264 MP4 CRF 26 `+faststart` (~3.4 MB), no audio.
 
 ## Lead flow (the core of the site)
 

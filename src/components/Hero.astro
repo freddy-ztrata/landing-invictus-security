@@ -4,8 +4,10 @@
  * Dos modos según la foto:
  *   - 'stage': foto/video A PANTALLA COMPLETA. La foto debe tener a las personas AL CENTRO del
  *     encuadre: en desktop quedan visibles en la franja libre entre el titular (izq.) y el
- *     formulario (der.). El video (loop sin sonido) se carga solo en desktop, después del LCP;
- *     la foto es su primer cuadro, así que el cambio no se nota. En móvil: foto cuadrada arriba.
+ *     formulario (der.). Con `imageMobile` hay art-direction (<picture>): en móvil va esa foto
+ *     (vertical) sin recorte forzado; sin ella, recorte cuadrado de la principal. Ken Burns
+ *     suave en CSS (off con reduced-motion). El video (opcional; loop sin sonido) se carga solo
+ *     en desktop, después del LCP; la foto es su primer cuadro.
  *   - 'card': para fotos con el sujeto a un lado. La foto va en una tarjeta enmarcada y el
  *     fondo es la misma foto desenfocada y oscurecida.
  */
@@ -15,6 +17,7 @@ import LeadForm from './LeadForm.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import { empresa } from '../data/empresa';
 import type { SegmentoForm } from '../data/segmentos';
+import { SELLO_MARCA } from '../data/fotos-reales';
 
 interface Props {
   eyebrow: string;
@@ -26,6 +29,16 @@ interface Props {
   imageAlt: string;
   /** object-position de la foto (dónde están las personas en el encuadre) */
   imagePosition?: string;
+  /** Art-direction: foto para móvil (≤ 960 px), p. ej. vertical. */
+  imageMobile?: ImageMetadata;
+  /** Alt de la foto móvil (es OTRA foto: cada variante lleva su propio alt). */
+  imageMobileAlt?: string;
+  /** object-position en móvil (con o sin imageMobile) */
+  imageMobilePosition?: string;
+  /** Marcas de terceros visibles en la foto → sello "pendiente de autorización" (vista previa). */
+  imageBrand?: string | null;
+  /** Texto de la etiqueta sobre la foto (modo card). */
+  tag?: string;
   mode?: 'stage' | 'card';
   /** Solo 'stage': loop de video para desktop (rutas en public/). `image` debe ser su primer cuadro. */
   video?: { mp4: string; av1?: string };
@@ -34,16 +47,36 @@ interface Props {
   formTitle?: string;
   breadcrumbs?: { nombre: string; url: string }[];
 }
-const { eyebrow, h1, h1Accent, lead, bullets = [], image, imageAlt, imagePosition = '70% 50%', mode = 'card', video, vtName, segmento = null, formTitle, breadcrumbs } = Astro.props;
+const { eyebrow, h1, h1Accent, lead, bullets = [], image, imageAlt, imagePosition = '70% 50%', imageMobile, imageMobileAlt, imageMobilePosition, imageBrand = null, tag = 'Operación 24/7', mode = 'card', video, vtName, segmento = null, formTitle, breadcrumbs } = Astro.props;
 const stage = mode === 'stage';
 const vtStyle = vtName ? `view-transition-name:${vtName};` : '';
 
-// --- stage: desktop a todo el ancho + recorte cuadrado (centrado) para móvil
+// --- stage: desktop a todo el ancho + (móvil) foto propia o recorte cuadrado (centrado)
 const deskWidths = [960, 1280, 1600, 1920, 2560].filter((w) => w <= image.width);
 const mobWidths = [480, 720, 832].filter((w) => w <= image.height);
 const squareSet = (format: 'avif' | 'webp', quality: number) =>
   Promise.all(mobWidths.map((w) => getImage({ src: image, width: w, height: w, fit: 'cover', position: 'center', format, quality })))
     .then((list) => list.map((r, i) => `${r.src} ${mobWidths[i]}w`).join(', '));
+// Art-direction móvil: la foto completa (sin recorte en build), el encuadre lo da object-position.
+const artWidths = imageMobile ? [480, 720, 960, 1200].filter((w) => w <= imageMobile.width) : [];
+const artSet = (format: 'avif' | 'webp', quality: number) =>
+  getImage({ src: imageMobile!, widths: artWidths, format, quality }).then((r) => r.srcSet.attribute);
+const mobileSet = (format: 'avif' | 'webp', quality: number) =>
+  imageMobile ? artSet(format, quality) : stage ? squareSet(format, quality) : Promise.resolve('');
+// Móvil: con foto propia aplica a todo el layout móvil (≤ 960); el recorte cuadrado, solo < 600.
+const mobileMedia = imageMobile ? '(max-width: 960px)' : '(max-width: 599px)';
+const mobW = imageMobile ? imageMobile.width : undefined;
+const mobH = imageMobile ? imageMobile.height : undefined;
+const sello = imageBrand ? SELLO_MARCA : null;
+// Con foto móvil distinta se renderizan DOS <img> (cada una con su alt; <source> no admite alt).
+// Cada <picture> lleva una <source> con un GIF vacío para el rango donde NO se muestra:
+// el navegador no descarga la foto oculta y el lector de pantalla solo ve la visible.
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+const DESK_ONLY = '(max-width: 960px)';
+const MOB_ONLY = '(min-width: 961px)';
+const mobAlt = imageMobileAlt ?? imageAlt;
+// Encuadre móvil: explícito, o el de la foto móvil, o (card) el mismo de desktop.
+const posM = imageMobilePosition ?? (imageMobile ? '50% 40%' : stage ? '50% 30%' : imagePosition);
 
 // --- card: tarjeta + fondo desenfocado
 const cardWidths = [480, 720, 960, 1280, 1600].filter((w) => w <= image.width);
@@ -52,33 +85,52 @@ const cardSizes = '(max-width: 960px) 100vw, 46vw';
 const [avif, webp, mAvif, mWebp, fallback, ambient] = await Promise.all([
   getImage({ src: image, widths: stage ? deskWidths : cardWidths, format: 'avif', quality: stage ? 62 : 50 }),
   getImage({ src: image, widths: stage ? deskWidths : cardWidths, format: 'webp', quality: stage ? 80 : 70 }),
-  stage ? squareSet('avif', 45) : Promise.resolve(''),
-  stage ? squareSet('webp', 80) : Promise.resolve(''),
+  mobileSet('avif', imageMobile ? 50 : 45),
+  mobileSet('webp', imageMobile ? 72 : 80),
   getImage({ src: image, width: stage ? 1600 : 1280, format: 'jpg', quality: 74 }),
   stage ? Promise.resolve(null) : getImage({ src: image, width: 48, format: 'webp', quality: 60 }), // miniatura: Chrome no la cuenta como LCP (baja entropía)
 ]);
+const mFallback = imageMobile ? await getImage({ src: imageMobile, width: Math.min(960, imageMobile.width), format: 'jpg', quality: 74 }) : null;
 const lat = empresa.geo.lat.toFixed(4);
 const lng = empresa.geo.lng.toFixed(4);
 ---
 <section class:list={['hero', 'on-dark', stage ? 'hero--stage' : 'hero--card']} aria-labelledby="hero-title">
   {stage ? (
     <div class="hero__stage">
+      {imageMobile && (
+        <picture>
+          <source media={MOB_ONLY} srcset={BLANK} />
+          <source type="image/avif" srcset={mAvif} sizes="100vw" />
+          <source type="image/webp" srcset={mWebp} sizes="100vw" />
+          <img
+            class="hero__poster hero__img--mob"
+            src={mFallback!.src}
+            alt={mobAlt}
+            width={mobW}
+            height={mobH}
+            fetchpriority="high"
+            decoding="async"
+            style={`--pos-m:${posM};${vtStyle}`}
+          />
+        </picture>
+      )}
       <picture>
-        <source media="(max-width: 599px)" type="image/avif" srcset={mAvif} sizes="100vw" />
-        <source media="(max-width: 599px)" type="image/webp" srcset={mWebp} sizes="100vw" />
+        {imageMobile ? <source media={DESK_ONLY} srcset={BLANK} /> : <source media={mobileMedia} type="image/avif" srcset={mAvif} sizes="100vw" />}
+        {!imageMobile && <source media={mobileMedia} type="image/webp" srcset={mWebp} sizes="100vw" />}
         <source type="image/avif" srcset={avif.srcSet.attribute} sizes="100vw" />
         <source type="image/webp" srcset={webp.srcSet.attribute} sizes="100vw" />
         <img
-          class="hero__poster"
+          class:list={['hero__poster', imageMobile && 'hero__img--desk']}
           src={fallback.src}
           alt={imageAlt}
           width={image.width}
           height={image.height}
           fetchpriority="high"
           decoding="async"
-          style={`object-position:${imagePosition};${vtStyle}`}
+          style={`object-position:${imagePosition};--pos-m:${posM};${vtStyle}`}
         />
       </picture>
+      {sello && <span class="brand-seal" title={`Marca visible: ${imageBrand}`}>{sello}</span>}
       {video && (
         <video
           class="hero__video"
@@ -100,7 +152,7 @@ const lng = empresa.geo.lng.toFixed(4);
     </div>
   ) : (
     <div class="hero__ambient" aria-hidden="true">
-      <img src={ambient!.src} alt="" width={ambient!.attributes.width} height={ambient!.attributes.height} decoding="async" fetchpriority="low" />
+      <img src={ambient!.src} alt="" width={ambient!.attributes.width} height={ambient!.attributes.height} decoding="async" fetchpriority="low" data-parallax="10" />
     </div>
   )}
   <div class="hero__grain" aria-hidden="true"></div>
@@ -114,20 +166,40 @@ const lng = empresa.geo.lng.toFixed(4);
     <div class="hero__intro">
       {!stage && (
         <figure class="hero__visual viewfinder">
+          {imageMobile && (
+            <picture>
+              <source media={MOB_ONLY} srcset={BLANK} />
+              <source type="image/avif" srcset={mAvif} sizes="100vw" />
+              <source type="image/webp" srcset={mWebp} sizes="100vw" />
+              <img
+                class="hero__img--mob"
+                src={mFallback!.src}
+                alt={mobAlt}
+                width={mobW}
+                height={mobH}
+                fetchpriority="high"
+                decoding="async"
+                style={`--pos-m:${posM};${vtStyle}`}
+              />
+            </picture>
+          )}
           <picture>
+            {imageMobile && <source media={DESK_ONLY} srcset={BLANK} />}
             <source type="image/avif" srcset={avif.srcSet.attribute} sizes={cardSizes} />
             <source type="image/webp" srcset={webp.srcSet.attribute} sizes={cardSizes} />
             <img
+              class:list={[imageMobile && 'hero__img--desk']}
               src={fallback.src}
               alt={imageAlt}
               width={image.width}
               height={image.height}
               fetchpriority="high"
               decoding="async"
-              style={`object-position:${imagePosition};${vtStyle}`}
+              style={`object-position:${imagePosition};--pos-m:${posM};${vtStyle}`}
             />
           </picture>
-          <span class="hero__tag mono" aria-hidden="true"><i class="hud__dot"></i> Operación 24/7</span>
+          <span class="hero__tag mono" aria-hidden="true"><i class="hud__dot"></i> {tag}</span>
+          {sello && <span class="brand-seal" title={`Marca visible: ${imageBrand}`}>{sello}</span>}
         </figure>
       )}
       <div class="hero__text">
@@ -167,6 +239,8 @@ const lng = empresa.geo.lng.toFixed(4);
 </section>
 
 <script>
+  import '../scripts/parallax';
+
   // Reloj real de Santiago para el HUD (no es un dato inventado).
   const clock = document.querySelector<HTMLTimeElement>('[data-clock]');
   if (clock) {
@@ -276,6 +350,9 @@ const lng = empresa.geo.lng.toFixed(4);
     font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-dark);
   }
 
+  /* Art-direction con dos <img>: solo una se muestra (y solo esa descarga su foto) */
+  .hero__img--mob { display: none; }
+
   /* ---------- común ---------- */
   .hero__grid {
     display: grid;
@@ -312,10 +389,12 @@ const lng = empresa.geo.lng.toFixed(4);
     .hero__lead { animation-delay: 200ms; }
     .hero__visual { animation: visual-in 1100ms var(--ease-out) both; }
     .hero__form { animation: hero-in 1000ms 160ms var(--ease-out) both; }
-    .hero__poster { animation: poster-in 1600ms var(--ease-out) both; }
+    /* Ken Burns: acercamiento lento y continuo sobre el poster (transform ≠ scale de poster-in) */
+    .hero__poster { animation: poster-in 1600ms var(--ease-out) both, ken-burns 16s 1.6s ease-in-out infinite alternate; transform-origin: 46% 55%; will-change: transform; }
     @keyframes hero-in { from { opacity: 0.001; translate: 0 18px; } }
     @keyframes visual-in { from { opacity: 0.001; scale: 0.985; } }
     @keyframes poster-in { from { scale: 1.04; } }
+    @keyframes ken-burns { from { transform: scale(1) translate3d(0, 0, 0); } to { transform: scale(1.07) translate3d(-1.2%, -0.6%, 0); } }
   }
 
   @media (min-width: 961px) {
@@ -332,7 +411,9 @@ const lng = empresa.geo.lng.toFixed(4);
     .hero { padding-top: 0; }
     .hero__quick { display: grid; gap: 12px; order: 4; justify-items: start; }
     .hero__confidence { font-size: 0.875rem; color: var(--on-dark-2); }
-    .hero__text > *, .hero__lead, .hero__extra > *, .hero__visual, .hero__form, .hero__poster { animation: none; }
+    .hero__text > *, .hero__lead, .hero__extra > *, .hero__visual, .hero__form { animation: none; }
+    /* Móvil: sin entrada (LCP), pero sí Ken Burns si no hay reduced-motion */
+    .hero__poster { animation-name: none, ken-burns; }
 
     .hero__hud { display: none; }
     .hero .hero__grid { grid-template-columns: 1fr; grid-template-areas: 'intro' 'form' 'extra'; grid-template-rows: auto; row-gap: 22px; padding-top: 0; }
@@ -344,12 +425,14 @@ const lng = empresa.geo.lng.toFixed(4);
 
     /* stage: escena cuadrada arriba que se funde con el titular */
     .hero__stage {
-      position: relative; inset: auto; height: 180px; aspect-ratio: auto; max-height: 24svh; margin-bottom: -20px;
+      position: relative; inset: auto; height: 220px; aspect-ratio: auto; max-height: 28svh; margin-bottom: -20px;
       -webkit-mask-image: linear-gradient(180deg, #000 66%, transparent);
       mask-image: linear-gradient(180deg, #000 66%, transparent);
     }
     .hero__video { display: none; }
-    .hero__poster { object-position: 50% 30% !important; }
+    .hero__poster, .hero__visual img { object-position: var(--pos-m, 50% 30%) !important; }
+    .hero__img--desk { display: none; }
+    .hero__img--mob { display: block; }
     .hero__shade { background: linear-gradient(180deg, rgb(10 10 10 / 0.25) 0%, transparent 18%); }
     /* Tablet vertical: foto completa en 4:3 (la cuadrada empujaba el formulario muy abajo) */
     @media (min-width: 600px) { .hero__stage { aspect-ratio: 4 / 3; max-height: 60svh; } }

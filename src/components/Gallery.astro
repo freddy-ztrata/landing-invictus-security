@@ -1,0 +1,146 @@
+---
+/**
+ * Galería de fotos REALES (src/data/fotos-reales.ts) en tira horizontal con scroll-snap nativo.
+ * Sin lightbox ni dependencias: botones anterior/siguiente (scrollBy) + swipe/teclado nativos.
+ * Las fotos con marcas de terceros llegan aquí solo si el flag está encendido y llevan sello.
+ */
+import { Picture } from 'astro:assets';
+import { SELLO_MARCA, type FotoReal } from '../data/fotos-reales';
+
+interface Props {
+  id: string;
+  eyebrow: string;
+  titulo: string;
+  texto?: string;
+  fotos: FotoReal[];
+  tono?: 'light' | 'dark';
+}
+const { id, eyebrow, titulo, texto, fotos, tono = 'light' } = Astro.props;
+const titleId = `${id}-title`;
+const varias = fotos.length > 1;
+---
+{fotos.length > 0 && (
+  <section id={id} class:list={['section', 'gallery', tono === 'dark' ? 'section--dark on-dark' : 'section--bone', !varias && 'gallery--solo']} aria-labelledby={titleId} data-gallery>
+    <div class="container">
+      <div class="gallery__head reveal">
+        <div class="section-head">
+          <span class="eyebrow">{eyebrow}</span>
+          <h2 id={titleId}>{titulo}</h2>
+          {texto && <p>{texto}</p>}
+        </div>
+        {varias && (
+          <div class="gallery__nav" hidden data-gallery-nav>
+            <button type="button" class="gallery__btn" data-dir="-1" aria-label="Foto anterior" aria-controls={`${id}-track`}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+            <button type="button" class="gallery__btn" data-dir="1" aria-label="Foto siguiente" aria-controls={`${id}-track`}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+    <ul class="gallery__track reveal" id={`${id}-track`} role="list" tabindex="0" aria-label={`Galería: ${titulo}`} data-gallery-track>
+      {fotos.map((f) => (
+        <li class="gallery__item">
+          <figure class="gallery__fig viewfinder" style={`aspect-ratio:${f.src.width} / ${f.src.height}`}>
+            <Picture
+              src={f.src}
+              formats={['avif', 'webp']}
+              widths={[400, 640, 960].filter((w) => w <= f.src.width)}
+              sizes={f.src.width > f.src.height ? '(max-width: 760px) 85vw, 680px' : '(max-width: 760px) 70vw, 360px'}
+              alt={f.alt}
+              loading="lazy"
+              decoding="async"
+              style={`object-position:${f.pos}`}
+            />
+            <figcaption class="gallery__cap mono">{f.caption}</figcaption>
+            {f.marca && <span class="brand-seal" title={`Marca visible: ${f.marca}`}>{SELLO_MARCA}</span>}
+          </figure>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => {
+    const track = g.querySelector<HTMLElement>('[data-gallery-track]');
+    const nav = g.querySelector<HTMLElement>('[data-gallery-nav]');
+    if (!track || !nav) return;
+    const btns = nav.querySelectorAll<HTMLButtonElement>('button');
+    const sync = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      nav.hidden = max < 8;
+      btns[0].disabled = track.scrollLeft < 8;
+      btns[1].disabled = track.scrollLeft > max - 8;
+    };
+    btns.forEach((b) => b.addEventListener('click', () => {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      track.scrollBy({ left: Number(b.dataset.dir) * track.clientWidth * 0.8, behavior: reduce ? 'auto' : 'smooth' });
+    }));
+    track.addEventListener('scroll', sync, { passive: true });
+    new ResizeObserver(sync).observe(track);
+    sync();
+  });
+</script>
+
+<style>
+  .gallery { overflow: clip; }
+  .gallery__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .gallery__head .section-head { margin-bottom: 0; }
+  .gallery__nav { display: flex; gap: 10px; flex-shrink: 0; }
+  .gallery__btn {
+    width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+    border: 1px solid var(--line); background: var(--paper); color: var(--text);
+    transition: background var(--dur-2), color var(--dur-2), opacity var(--dur-2);
+  }
+  .on-dark .gallery__btn { border-color: var(--line-dark-2); background: rgb(255 255 255 / 0.04); color: var(--on-dark); }
+  .gallery__btn:hover:not(:disabled) { background: var(--signal-2); color: #fff; border-color: var(--signal-2); }
+  .gallery__btn:disabled { opacity: 0.35; cursor: default; }
+  .gallery__btn svg { width: 20px; height: 20px; }
+  .gallery__btn:focus-visible { outline: 3px solid var(--signal-2); outline-offset: 2px; }
+
+  /* Tira con scroll-snap: alto fijo, el ancho lo da la proporción de cada foto */
+  .gallery__track {
+    --h: clamp(340px, 58vh, 540px);
+    --pad: max(var(--gutter), calc((100vw - var(--maxw)) / 2 + var(--gutter)));
+    list-style: none; margin: clamp(24px, 4vw, 40px) 0 0; padding: 4px var(--pad) 12px;
+    display: flex; gap: 16px; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-padding-inline: var(--pad);
+    scrollbar-width: thin; scrollbar-color: var(--signal-2) transparent;
+  }
+  .gallery__track:focus-visible { outline: 3px solid var(--signal-2); outline-offset: -3px; }
+  .gallery__item { flex: none; scroll-snap-align: start; }
+  .gallery__fig {
+    margin: 0; height: var(--h); max-width: min(85vw, 820px);
+    /* Placeholder mientras carga (lazy): gris medio, no negro, para que no se lea como "foto negra" */
+    border-radius: var(--r-lg); overflow: hidden; background: color-mix(in srgb, var(--ink) 28%, var(--bone));
+    box-shadow: 0 30px 60px -36px rgb(0 0 0 / 0.65);
+  }
+  .on-dark .gallery__fig { background: var(--graphite-2); }
+  .gallery__fig :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
+  .gallery__fig:hover :global(img) { transform: scale(1.04); }
+  .gallery__fig::before, .gallery__fig::after { opacity: 0; transition: opacity var(--dur-2); }
+  .gallery__fig:hover::before, .gallery__fig:hover::after { opacity: 1; }
+  .gallery__cap {
+    position: absolute; left: 14px; bottom: 14px; z-index: 3;
+    padding: 7px 12px; border-radius: var(--r-pill);
+    background: rgb(10 10 10 / 0.62); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--line-dark-2); color: var(--on-dark);
+    font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .gallery--solo .gallery__track { justify-content: center; }
+
+  /* Cada foto se "enfoca" al entrar en la tira (timeline horizontal del propio scroller) */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .gallery__item { animation: gal-in linear both; animation-timeline: view(inline); animation-range: entry 0% entry 70%; }
+      @keyframes gal-in { from { opacity: 0.35; transform: scale(0.94); } }
+    }
+  }
+  @media (max-width: 760px) {
+    .gallery__head { flex-direction: column; align-items: flex-start; }
+    .gallery__track { --h: clamp(300px, 62svh, 460px); gap: 12px; }
+  }
+</style>

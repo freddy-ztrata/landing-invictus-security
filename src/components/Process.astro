@@ -5,7 +5,9 @@
  * Solo describe lo que el servicio incluye (sin funcionalidades no confirmadas).
  */
 import { Picture } from 'astro:assets';
-import imgCentral from '../assets/img/gen/central-monitoreo.jpg';
+import { USO } from '../data/fotos-reales';
+
+const foto = USO.process;
 
 const pasos = [
   { n: '01', titulo: 'Diagnóstico gratuito', texto: 'Nos cuentas tu necesidad y visitamos el recinto: accesos, puntos ciegos, horarios de riesgo y procedimientos actuales. Con eso definimos puestos y turnos.' },
@@ -16,9 +18,9 @@ const pasos = [
 ---
 <section class="section process" aria-labelledby="process-title">
   <div class="container process__grid">
-    <div class="process__visual">
+    <div class="process__visual reveal">
       <div class="process__frame viewfinder">
-        <Picture src={imgCentral} formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes="(max-width: 960px) 100vw, 45vw" alt="Operador de seguridad supervisando cámaras de varios recintos en una sala de monitoreo" loading="lazy" decoding="async" />
+        <Picture src={foto.src} formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes="(max-width: 960px) 100vw, 45vw" alt={foto.alt} loading="lazy" decoding="async" style={`object-position:${foto.pos}`} />
         <div class="process__hud mono" aria-hidden="true">
           <span>PASO <b data-process-n>01</b> / 04</span>
           <span class="process__rec"><i></i> EN TURNO</span>
@@ -32,7 +34,7 @@ const pasos = [
       </div>
       <ol class="steps" role="list">
         {pasos.map((p) => (
-          <li class="step" data-step-n={p.n}>
+          <li class="step reveal" data-step-n={p.n}>
             <span class="step__n mono">{p.n}</span>
             <div>
               <h3>{p.titulo}</h3>
