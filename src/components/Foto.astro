@@ -1,0 +1,31 @@
+---
+/**
+ * Foto responsive LIVIANA para el build: WebP con srcset + UN solo JPG de fallback.
+ * Reemplaza a <Picture formats={['avif','webp']}>, que además generaba un srcset JPG completo
+ * y un JPG a tamaño original por foto (el build de imágenes saturaba el servidor de Dokploy).
+ * Los atributos extra (style, data-*, class, view-transition…) van al <img>.
+ */
+import type { ImageMetadata } from 'astro';
+import type { HTMLAttributes } from 'astro/types';
+import { getImage } from 'astro:assets';
+
+type Props = Omit<HTMLAttributes<'img'>, 'src' | 'srcset' | 'sizes' | 'width' | 'height'> & {
+  src: ImageMetadata;
+  alt: string;
+  widths: number[];
+  sizes: string;
+  /** Ancho del JPG de fallback (navegadores sin WebP). */
+  fallbackWidth?: number;
+};
+const { src, alt, widths, sizes, fallbackWidth = 960, loading = 'lazy', decoding = 'async', ...attrs } = Astro.props;
+const w = widths.filter((x) => x <= src.width);
+if (w.length === 0) w.push(src.width);
+const [webp, jpg] = await Promise.all([
+  getImage({ src, widths: w, format: 'webp', quality: 74 }),
+  getImage({ src, width: Math.min(fallbackWidth, src.width), format: 'jpg', quality: 74 }),
+]);
+---
+<picture>
+  <source type="image/webp" srcset={webp.srcSet.attribute} sizes={sizes} />
+  <img src={jpg.src} alt={alt} width={src.width} height={src.height} loading={loading} decoding={decoding} {...attrs} />
+</picture>

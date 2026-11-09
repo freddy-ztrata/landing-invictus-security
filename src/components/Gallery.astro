@@ -4,7 +4,7 @@
  * Sin lightbox ni dependencias: botones anterior/siguiente (scrollBy) + swipe/teclado nativos.
  * Las fotos con marcas de terceros llegan aquí solo si el flag está encendido y llevan sello.
  */
-import { Picture } from 'astro:assets';
+import Foto from './Foto.astro';
 import { SELLO_MARCA, type FotoReal } from '../data/fotos-reales';
 
 interface Props {
@@ -44,10 +44,9 @@ const varias = fotos.length > 1;
       {fotos.map((f) => (
         <li class="gallery__item">
           <figure class="gallery__fig viewfinder" style={`aspect-ratio:${f.src.width} / ${f.src.height}`}>
-            <Picture
+            <Foto
               src={f.src}
-              formats={['avif', 'webp']}
-              widths={[400, 640, 960].filter((w) => w <= f.src.width)}
+              widths={[480, 960]}
               sizes={f.src.width > f.src.height ? '(max-width: 760px) 85vw, 680px' : '(max-width: 760px) 70vw, 360px'}
               alt={f.alt}
               loading="lazy"

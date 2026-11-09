@@ -3,7 +3,7 @@
  * Mapa de cobertura estilo radar: comunas de la RM proyectadas desde sus coordenadas reales
  * (equirectangular simple), barrido de radar en CSS y la lista de comunas en TEXTO (SEO local).
  */
-import { Picture } from 'astro:assets';
+import Foto from './Foto.astro';
 import { comunasRM, comunasFormulario, empresa } from '../data/empresa';
 import { USO } from '../data/fotos-reales';
 
@@ -35,7 +35,7 @@ const comunas = comunasFormulario.filter((c) => c !== 'Otra región');
 ---
 <section class="section section--dark coverage" aria-labelledby="cov-title">
   <div class="coverage__bg" aria-hidden="true">
-    <Picture src={fondo.src} formats={['avif', 'webp']} widths={[960, 1600]} sizes="100vw" alt="" loading="lazy" decoding="async" style={`object-position:${fondo.pos}`} data-parallax="10" />
+    <Foto src={fondo.src} widths={[960, 1600]} sizes="100vw" alt="" loading="lazy" decoding="async" style={`object-position:${fondo.pos}`} data-parallax="10" />
   </div>
   <div class="container coverage__grid">
     <div>

@@ -52,16 +52,17 @@ const stage = mode === 'stage';
 const vtStyle = vtName ? `view-transition-name:${vtName};` : '';
 
 // --- stage: desktop a todo el ancho + (móvil) foto propia o recorte cuadrado (centrado)
-const deskWidths = [960, 1280, 1600, 1920, 2560].filter((w) => w <= image.width);
-const mobWidths = [480, 720, 832].filter((w) => w <= image.height);
-const squareSet = (format: 'avif' | 'webp', quality: number) =>
+// Build liviano (Dokploy): solo WebP + un JPG de fallback, y pocos anchos.
+const deskWidths = [480, 960, 1600].filter((w) => w <= image.width);
+const mobWidths = [480, 832].filter((w) => w <= image.height);
+const squareSet = (format: 'webp', quality: number) =>
   Promise.all(mobWidths.map((w) => getImage({ src: image, width: w, height: w, fit: 'cover', position: 'center', format, quality })))
     .then((list) => list.map((r, i) => `${r.src} ${mobWidths[i]}w`).join(', '));
 // Art-direction móvil: la foto completa (sin recorte en build), el encuadre lo da object-position.
-const artWidths = imageMobile ? [480, 720, 960, 1200].filter((w) => w <= imageMobile.width) : [];
-const artSet = (format: 'avif' | 'webp', quality: number) =>
+const artWidths = imageMobile ? [480, 960].filter((w) => w <= imageMobile.width) : [];
+const artSet = (format: 'webp', quality: number) =>
   getImage({ src: imageMobile!, widths: artWidths, format, quality }).then((r) => r.srcSet.attribute);
-const mobileSet = (format: 'avif' | 'webp', quality: number) =>
+const mobileSet = (format: 'webp', quality: number) =>
   imageMobile ? artSet(format, quality) : stage ? squareSet(format, quality) : Promise.resolve('');
 // Móvil: con foto propia aplica a todo el layout móvil (≤ 960); el recorte cuadrado, solo < 600.
 const mobileMedia = imageMobile ? '(max-width: 960px)' : '(max-width: 599px)';
@@ -79,15 +80,13 @@ const mobAlt = imageMobileAlt ?? imageAlt;
 const posM = imageMobilePosition ?? (imageMobile ? '50% 40%' : stage ? '50% 30%' : imagePosition);
 
 // --- card: tarjeta + fondo desenfocado
-const cardWidths = [480, 720, 960, 1280, 1600].filter((w) => w <= image.width);
+const cardWidths = [480, 960, 1600].filter((w) => w <= image.width);
 const cardSizes = '(max-width: 960px) 100vw, 46vw';
 
-const [avif, webp, mAvif, mWebp, fallback, ambient] = await Promise.all([
-  getImage({ src: image, widths: stage ? deskWidths : cardWidths, format: 'avif', quality: stage ? 62 : 50 }),
+const [webp, mWebp, fallback, ambient] = await Promise.all([
   getImage({ src: image, widths: stage ? deskWidths : cardWidths, format: 'webp', quality: stage ? 80 : 70 }),
-  mobileSet('avif', imageMobile ? 50 : 45),
   mobileSet('webp', imageMobile ? 72 : 80),
-  getImage({ src: image, width: stage ? 1600 : 1280, format: 'jpg', quality: 74 }),
+  getImage({ src: image, width: Math.min(stage ? 1600 : 960, image.width), format: 'jpg', quality: 74 }),
   stage ? Promise.resolve(null) : getImage({ src: image, width: 48, format: 'webp', quality: 60 }), // miniatura: Chrome no la cuenta como LCP (baja entropía)
 ]);
 const mFallback = imageMobile ? await getImage({ src: imageMobile, width: Math.min(960, imageMobile.width), format: 'jpg', quality: 74 }) : null;
@@ -100,7 +99,6 @@ const lng = empresa.geo.lng.toFixed(4);
       {imageMobile && (
         <picture>
           <source media={MOB_ONLY} srcset={BLANK} />
-          <source type="image/avif" srcset={mAvif} sizes="100vw" />
           <source type="image/webp" srcset={mWebp} sizes="100vw" />
           <img
             class="hero__poster hero__img--mob"
@@ -115,9 +113,8 @@ const lng = empresa.geo.lng.toFixed(4);
         </picture>
       )}
       <picture>
-        {imageMobile ? <source media={DESK_ONLY} srcset={BLANK} /> : <source media={mobileMedia} type="image/avif" srcset={mAvif} sizes="100vw" />}
+        {imageMobile && <source media={DESK_ONLY} srcset={BLANK} />}
         {!imageMobile && <source media={mobileMedia} type="image/webp" srcset={mWebp} sizes="100vw" />}
-        <source type="image/avif" srcset={avif.srcSet.attribute} sizes="100vw" />
         <source type="image/webp" srcset={webp.srcSet.attribute} sizes="100vw" />
         <img
           class:list={['hero__poster', imageMobile && 'hero__img--desk']}
@@ -169,7 +166,6 @@ const lng = empresa.geo.lng.toFixed(4);
           {imageMobile && (
             <picture>
               <source media={MOB_ONLY} srcset={BLANK} />
-              <source type="image/avif" srcset={mAvif} sizes="100vw" />
               <source type="image/webp" srcset={mWebp} sizes="100vw" />
               <img
                 class="hero__img--mob"
@@ -185,7 +181,6 @@ const lng = empresa.geo.lng.toFixed(4);
           )}
           <picture>
             {imageMobile && <source media={DESK_ONLY} srcset={BLANK} />}
-            <source type="image/avif" srcset={avif.srcSet.attribute} sizes={cardSizes} />
             <source type="image/webp" srcset={webp.srcSet.attribute} sizes={cardSizes} />
             <img
               class:list={[imageMobile && 'hero__img--desk']}

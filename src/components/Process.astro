@@ -4,7 +4,7 @@
  * enciende al pasar por el centro de la pantalla. En móvil es una lista simple.
  * Solo describe lo que el servicio incluye (sin funcionalidades no confirmadas).
  */
-import { Picture } from 'astro:assets';
+import Foto from './Foto.astro';
 import { USO } from '../data/fotos-reales';
 
 const foto = USO.process;
@@ -20,7 +20,7 @@ const pasos = [
   <div class="container process__grid">
     <div class="process__visual reveal">
       <div class="process__frame viewfinder">
-        <Picture src={foto.src} formats={['avif', 'webp']} widths={[480, 800, 1200]} sizes="(max-width: 960px) 100vw, 45vw" alt={foto.alt} loading="lazy" decoding="async" style={`object-position:${foto.pos}`} />
+        <Foto src={foto.src} widths={[480, 960]} sizes="(max-width: 960px) 100vw, 45vw" alt={foto.alt} loading="lazy" decoding="async" style={`object-position:${foto.pos}`} />
         <div class="process__hud mono" aria-hidden="true">
           <span>PASO <b data-process-n>01</b> / 04</span>
           <span class="process__rec"><i></i> EN TURNO</span>

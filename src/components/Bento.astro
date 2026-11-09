@@ -3,7 +3,7 @@
  * Servicios en bento. Cada tarjeta comparte view-transition-name con el hero de su landing:
  * al navegar, la foto "vuela" a la página destino (View Transitions cross-document, nativo).
  */
-import { Picture } from 'astro:assets';
+import Foto from './Foto.astro';
 import { segmentos } from '../data/segmentos';
 import { SELLO_MARCA, USO } from '../data/fotos-reales';
 
@@ -25,10 +25,9 @@ const lista = segmentos.filter((s) => s.slug !== excluir);
         <li class:list={['card', 'reveal', i === 0 && 'card--wide']}>
           <a href={`/${s.slug}/`} class="card__link">
             <span class="card__media viewfinder">
-              <Picture
+              <Foto
                 src={s.imagen}
-                formats={['avif', 'webp']}
-                widths={[480, 720, 960, 1280]}
+                widths={[480, 960]}
                 sizes={i === 0 ? '(max-width: 760px) 100vw, 66vw' : '(max-width: 760px) 100vw, 33vw'}
                 alt={s.imagenAlt}
                 loading="lazy"
@@ -49,7 +48,7 @@ const lista = segmentos.filter((s) => s.slug !== excluir);
       <li class="card card--ppi reveal">
         <a href="/seguridad-para-empresas/" class="card__link">
           <span class="card__media viewfinder">
-            <Picture src={ppi.src} formats={['avif', 'webp']} widths={[480, 720, 960]} sizes="(max-width: 760px) 100vw, 33vw" alt={ppi.alt} loading="lazy" decoding="async" style={`object-position:${ppi.pos}`} />
+            <Foto src={ppi.src} widths={[480, 960]} sizes="(max-width: 760px) 100vw, 33vw" alt={ppi.alt} loading="lazy" decoding="async" style={`object-position:${ppi.pos}`} />
           </span>
           {ppi.marca && <span class="brand-seal" title={`Marca visible: ${ppi.marca}`}>{SELLO_MARCA}</span>}
           <span class="card__body">
