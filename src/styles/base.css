@@ -152,6 +152,16 @@
   .viewfinder::before { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
   .viewfinder::after { bottom: 12px; right: 12px; border-left: 0; border-top: 0; }
 
+  /* Sello de vista previa sobre fotos con marcas de terceros (src/data/fotos-reales.ts).
+     Con INCLUDE_THIRD_PARTY_BRAND_PHOTOS = false esas fotos no se renderizan y el sello tampoco. */
+  .brand-seal {
+    position: absolute; top: 12px; right: 12px; z-index: 4; max-width: calc(100% - 24px);
+    padding: 5px 10px; border-radius: var(--r-pill);
+    background: rgb(250 204 21 / 0.92); color: #1a1400;
+    font: 600 0.66rem/1.25 var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase;
+    box-shadow: 0 4px 14px rgb(0 0 0 / 0.35); pointer-events: none;
+  }
+
   .mono { font-family: var(--f-mono); font-feature-settings: 'zero'; }
   .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }

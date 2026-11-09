@@ -4,12 +4,16 @@ import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';
 
 const OUT = 'public/img/og';
+// Fotos REALES del cliente (src/assets/img/real/). Solo fotos SIN marcas de terceros: la OG
+// se comparte fuera del sitio y no depende del flag de vista previa (src/data/fotos-reales.ts).
+// position: keyword de sharp o un desplazamiento vertical 0–1 para las fotos verticales.
+const R = 'src/assets/img/real/invictus-';
 const jobs = [
-  ['home', 'src/assets/img/gen/hero-guardias-centro.jpg', 'centre'],
-  ['condominios', 'src/assets/img/gen/condominio-conserjeria.jpg', 'centre'],
-  ['eventos', 'src/assets/img/gen/evento-control-acceso.jpg', 'centre'],
-  ['empresas', 'src/assets/img/gen/empresa-bodega-acceso.jpg', 'centre'],
-  ['guardias', 'src/assets/img/gen/hero-guardias-equipo.jpg', 'right'],
+  ['home', `${R}hero-flota.jpg`, 'centre'],
+  ['condominios', `${R}guardia-camioneta.jpg`, 0.4],
+  ['eventos', `${R}evento-escenario.jpg`, 0.3],
+  ['empresas', `${R}camioneta-atardecer.jpg`, 0.58],
+  ['guardias', `${R}equipo-camioneta.jpg`, 'top'],
 ];
 
 const W = 1200;
@@ -34,9 +38,18 @@ const logo = await sharp('src/assets/img/logo-invictus.png')
   .toBuffer();
 
 await mkdir(OUT, { recursive: true });
+// Recorte 1200×630 centrado en `y` (0 = arriba, 1 = abajo) para fotos verticales.
+async function cropAt(src, y) {
+  const { width, height } = await sharp(src).metadata();
+  const h = Math.round((width * H) / W);
+  const top = Math.max(0, Math.min(height - h, Math.round(height * y - h / 2)));
+  return sharp(src).extract({ left: 0, top, width, height: h }).toBuffer();
+}
+
 for (const [name, src, position] of jobs) {
-  await sharp(src)
-    .resize(W, H, { fit: 'cover', position })
+  const input = typeof position === 'number' ? await cropAt(src, position) : src;
+  await sharp(input)
+    .resize(W, H, { fit: 'cover', position: typeof position === 'number' ? 'centre' : position })
     .composite([
       { input: shade, top: 0, left: 0 },
       { input: logo, top: 64, left: 64 },

@@ -17,7 +17,9 @@ import Testimonials from '../../components/Testimonials.astro';
 import Faq from '../../components/Faq.astro';
 import Bento from '../../components/Bento.astro';
 import CtaBand from '../../components/CtaBand.astro';
+import Gallery from '../../components/Gallery.astro';
 import { segmentos, type Segmento } from '../../data/segmentos';
+import { USO } from '../../data/fotos-reales';
 import { SITE_URL } from '../../data/empresa';
 import { nodoBreadcrumb, nodoFaq, nodoPagina, nodoServicio } from '../../data/schema';
 
@@ -29,6 +31,14 @@ const crumbs = [
   { nombre: 'Inicio', url: `${SITE_URL}/` },
   { nombre: s.nav, url },
 ];
+// Etiqueta sobre la foto real del hero (honesta con lo que muestra la foto)
+const tags: Record<string, string> = {
+  'guardias-de-seguridad': 'Equipo Invictus en terreno',
+  'seguridad-para-condominios': 'Supervisión en terreno 24/7',
+  'guardias-para-eventos': 'Resguardo de escenario',
+  'seguridad-para-empresas': 'Flota de supervisión Invictus',
+};
+const galeria = s.slug === 'guardias-para-eventos' ? USO.galeriaEventos : [];
 const ogSlug = s.slug.replace('seguridad-para-', '').replace('guardias-para-', '').replace('guardias-de-seguridad', 'guardias');
 ---
 <Base
@@ -51,7 +61,11 @@ const ogSlug = s.slug.replace('seguridad-para-', '').replace('guardias-para-', '
     bullets={s.bullets}
     image={s.imagen}
     imageAlt={s.imagenAlt}
-    imagePosition="60% 50%"
+    imagePosition={s.imagenPos}
+    imageMobile={s.imagenMovil?.src}
+    imageMobilePosition={s.imagenMovil?.pos}
+    imageBrand={s.imagenMarca}
+    tag={tags[s.slug]}
     vtName={`seg-${s.slug}`}
     segmento={s.formSegmento}
     formTitle={s.ctaTexto}
@@ -61,6 +75,16 @@ const ogSlug = s.slug.replace('seguridad-para-', '').replace('guardias-para-', '
   <Answer pregunta={`¿Qué incluye el servicio de ${s.serviceType.toLowerCase()}?`} respuesta={s.resumen} />
   <Pains titulo="¿Te suena alguno de estos problemas?" items={s.dolores} />
   <Features titulo={`Todo lo que incluye: ${s.nav.toLowerCase()}`} items={s.incluye} recintos={s.recintos} />
+  {galeria.length > 0 && (
+    <Gallery
+      id="eventos-en-terreno"
+      eyebrow="Eventos reales"
+      titulo="Nuestro equipo en eventos"
+      texto="Conciertos, ferias, competencias deportivas y encuentros corporativos: el mismo estándar de presentación y control en cada producción."
+      fotos={galeria}
+      tono="dark"
+    />
+  )}
   <Process />
   {s.formSegmento !== 'evento' && <Calculator compacto />}
   <Credential />

@@ -7,10 +7,13 @@
  * usuarios, Google y los motores de respuesta (AEO/GEO).
  */
 import type { ImageMetadata } from 'astro';
-import imgCondominio from '../assets/img/gen/condominio-conserjeria.jpg';
-import imgEvento from '../assets/img/gen/evento-control-acceso.jpg';
-import imgEmpresa from '../assets/img/gen/empresa-bodega-acceso.jpg';
-import imgGuardia from '../assets/img/gen/hero-guardias-equipo.jpg';
+import { USO, type FotoReal } from './fotos-reales';
+
+// Fotos reales del cliente (src/data/fotos-reales.ts). Las IA de img/gen/ quedan de respaldo.
+const fotoSeg = (slug: keyof typeof USO.segmentos) => {
+  const f: { desktop: FotoReal; movil?: FotoReal } = USO.segmentos[slug];
+  return { imagen: f.desktop.src, imagenAlt: f.desktop.alt, imagenPos: f.desktop.pos, imagenMarca: f.desktop.marca, imagenMovil: f.movil };
+};
 
 export type SegmentoForm = 'condominio' | 'empresa' | 'evento' | 'ppi' | 'otro';
 
@@ -31,6 +34,9 @@ export interface Segmento {
   resumen: string; // bloque "respuesta primero" (AEO)
   imagen: ImageMetadata;
   imagenAlt: string;
+  imagenPos: string; // object-position (dónde está el sujeto)
+  imagenMarca: string | null; // marcas de terceros visibles (sello en vista previa)
+  imagenMovil?: FotoReal; // art-direction móvil (opcional)
   dolores: Item[];
   incluye: Item[];
   recintos: string[];
@@ -56,8 +62,7 @@ export const segmentos: Segmento[] = [
       'Rondas registradas y reportes para tu administración',
     ],
     resumen: 'Invictus Security es una empresa de guardias de seguridad con base en la Región Metropolitana. Asigna guardias acreditados por puesto y turno, los supervisa en terreno y a distancia, y cubre ausencias con reemplazos para que el puesto nunca quede vacío. La cotización es gratuita y se entrega en menos de 24 horas hábiles.',
-    imagen: imgGuardia,
-    imagenAlt: 'Guardias de seguridad uniformados en el acceso de un edificio residencial de Santiago al anochecer, con la cordillera de los Andes al fondo',
+    ...fotoSeg('guardias-de-seguridad'),
     dolores: [
       { titulo: 'Puestos que quedan vacíos', texto: 'Licencias, renuncias o atrasos que nadie cubre: el recinto queda sin vigilancia justo cuando más importa.' },
       { titulo: 'Guardias sin credencial vigente', texto: 'Personal sin acreditación expone a tu empresa o comunidad a sanciones y te deja sin respaldo ante un incidente.' },
@@ -117,8 +122,7 @@ export const segmentos: Segmento[] = [
       'Reportes para el administrador y el comité',
     ],
     resumen: 'Invictus Security es una empresa de seguridad privada para condominios: entrega guardias de seguridad para condominios de casas y edificios en Santiago y la Región Metropolitana. El servicio incluye control de acceso de visitas y proveedores, rondas perimetrales, registro de novedades y un supervisor que responde ante la administración. La cotización es gratuita y considera el tamaño del condominio, los accesos y los horarios de mayor riesgo.',
-    imagen: imgCondominio,
-    imagenAlt: 'Guardia de seguridad en la conserjería de un edificio residencial de Santiago revisando cámaras de acceso',
+    ...fotoSeg('seguridad-para-condominios'),
     dolores: [
       { titulo: 'Accesos sin control', texto: 'Visitas, deliveries y proveedores que entran sin registro: la puerta de tu condominio es el primer punto débil.' },
       { titulo: 'Noches sin rondas', texto: 'Robos en estacionamientos y bodegas ocurren cuando nadie recorre el perímetro.' },
@@ -178,8 +182,7 @@ export const segmentos: Segmento[] = [
       'Jefe de seguridad coordinado con tu producción',
     ],
     resumen: 'Invictus Security provee guardias para eventos en Santiago y regiones: conciertos, festivales, eventos corporativos, matrimonios y ferias. El personal de seguridad para eventos se dimensiona según el aforo, el tipo de público y el recinto, y lo coordina un jefe de seguridad que trabaja con la producción desde el montaje hasta el desarme. La cotización es gratuita.',
-    imagen: imgEvento,
-    imagenAlt: 'Personal de seguridad controlando el acceso de público en la entrada de un festival de música nocturno',
+    ...fotoSeg('guardias-para-eventos'),
     dolores: [
       { titulo: 'Accesos colapsados', texto: 'Filas eternas, entradas falsas y colados: el primer contacto con tu evento define la experiencia.' },
       { titulo: 'Incidentes sin protocolo', texto: 'Una pelea, una avalancha o una emergencia médica sin un equipo preparado puede arruinar el evento y tu reputación.' },
@@ -239,8 +242,7 @@ export const segmentos: Segmento[] = [
       'Contratos, cotizaciones y certificados al día',
     ],
     resumen: 'Invictus Security presta servicios de seguridad privada a empresas en la Región Metropolitana: oficinas corporativas, bodegas y centros logísticos, plantas industriales y retail. El servicio combina guardias acreditados, control de acceso de personas y vehículos, rondas y reportes, con supervisión en terreno y cumplimiento laboral documentado. La cotización es gratuita.',
-    imagen: imgEmpresa,
-    imagenAlt: 'Guardia de seguridad controlando el ingreso de un camión en la barrera de un centro logístico al atardecer',
+    ...fotoSeg('seguridad-para-empresas'),
     dolores: [
       { titulo: 'Pérdidas y mermas', texto: 'Robos hormiga, carga que no cuadra y accesos de vehículos sin control golpean directo tu margen.' },
       { titulo: 'Riesgo laboral del contratista', texto: 'Si tu empresa de seguridad no paga cotizaciones, la ley puede hacer responder a tu empresa por esas deudas.' },

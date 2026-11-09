@@ -1,8 +1,8 @@
 ---
 /**
  * Nosotros (E-E-A-T): quiénes somos, cómo trabajamos, cumplimiento y datos de la entidad.
- * ⚠️ Pendiente del cliente: historia, año de fundación, RUT, N° de autorización y fotos reales
- * del equipo (no usar imágenes generadas como si fueran el personal).
+ * ⚠️ Pendiente del cliente: historia, año de fundación, RUT y N° de autorización.
+ * Fotos: reales del cliente (src/data/fotos-reales.ts); galería "En terreno".
  */
 import Base from '../../layouts/Base.astro';
 import Hero from '../../components/Hero.astro';
@@ -11,7 +11,8 @@ import Features from '../../components/Features.astro';
 import Credential from '../../components/Credential.astro';
 import CoverageMap from '../../components/CoverageMap.astro';
 import CtaBand from '../../components/CtaBand.astro';
-import img from '../../assets/img/gen/central-monitoreo.jpg';
+import Gallery from '../../components/Gallery.astro';
+import { USO } from '../../data/fotos-reales';
 import { SITE_URL } from '../../data/empresa';
 import { nodoBreadcrumb, nodoPagina } from '../../data/schema';
 
@@ -27,9 +28,11 @@ const crumbs = [{ nombre: 'Inicio', url: `${SITE_URL}/` }, { nombre: 'Nosotros',
     h1Accent="disciplina y cercanía"
     lead="Somos una empresa de seguridad privada de la Región Metropolitana. Protegemos condominios, empresas, bodegas y eventos con guardias acreditados, supervisión constante y un trato directo con cada cliente."
     bullets={['Supervisión en terreno y a distancia', 'Reemplazos garantizados', 'Cumplimiento laboral y de seguridad privada']}
-    image={img}
-    imageAlt="Sala de supervisión de seguridad con monitores de cámaras de varios recintos"
-    imagePosition="50% 40%"
+    image={USO.nosotrosHero.src}
+    imageAlt={USO.nosotrosHero.alt}
+    imagePosition={USO.nosotrosHero.pos}
+    imageMobilePosition="40% 28%"
+    tag="Equipo Invictus · turno de noche"
     breadcrumbs={crumbs}
   />
   <Answer
@@ -47,6 +50,13 @@ const crumbs = [{ nombre: 'Inicio', url: `${SITE_URL}/` }, { nombre: 'Nosotros',
       { titulo: 'Cumplimiento', texto: 'Contratos, cotizaciones y seguros al día, y operación bajo la Ley 21.659 de Seguridad Privada.' },
       { titulo: 'Transparencia', texto: 'Propuestas claras, reportes de novedades y un contacto directo para resolver cualquier tema.' },
     ]}
+  />
+  <Gallery
+    id="en-terreno"
+    eyebrow="En terreno"
+    titulo="Nuestro equipo y flota, en terreno"
+    texto="Guardias, motoristas y camionetas de supervisión de Invictus Security en servicio."
+    fotos={USO.galeriaNosotros}
   />
   <Credential />
   <CoverageMap />
