@@ -12,6 +12,7 @@ import Credential from '../../components/Credential.astro';
 import CoverageMap from '../../components/CoverageMap.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Gallery from '../../components/Gallery.astro';
+import HeroPreload from '../../components/HeroPreload.astro';
 import { USO } from '../../data/fotos-reales';
 import { SITE_URL } from '../../data/empresa';
 import { nodoBreadcrumb, nodoPagina } from '../../data/schema';
@@ -22,6 +23,7 @@ const description = 'Conoce a Invictus Security: empresa de seguridad privada de
 const crumbs = [{ nombre: 'Inicio', url: `${SITE_URL}/` }, { nombre: 'Nosotros', url }];
 ---
 <Base title={title} description={description} path="/nosotros/" schema={[nodoPagina({ url, titulo: title, descripcion: description, tipo: 'AboutPage' }), nodoBreadcrumb(crumbs)]}>
+  <HeroPreload slot="head" image={USO.nosotrosHero.src} />
   <Hero
     eyebrow="Nosotros"
     h1="Seguridad privada hecha con "

@@ -1,0 +1,21 @@
+---
+/**
+ * Preload de la foto LCP del hero, para el <head> (usar con slot="head" dentro de <Base>).
+ * Una <link> por variante con su media query: cada viewport descarga SOLO la suya.
+ * Debe recibir los mismos props de imagen que el <Hero> de la página.
+ */
+import type { ImageMetadata } from 'astro';
+import { heroImagenes } from '../data/hero-imagenes';
+
+interface Props {
+  image: ImageMetadata;
+  imageMobile?: ImageMetadata;
+  mode?: 'stage' | 'card';
+}
+const { image, imageMobile, mode = 'card' } = Astro.props;
+const img = await heroImagenes({ image, imageMobile, stage: mode === 'stage' });
+const variantes = [img.movil, img.desktop].filter((v) => v !== null);
+---
+{variantes.map((v) => (
+  <link rel="preload" as="image" type="image/webp" imagesrcset={v.srcset} imagesizes={v.sizes} media={v.media === 'all' ? undefined : v.media} fetchpriority="high" />
+))}

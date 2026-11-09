@@ -7,12 +7,13 @@
  * usuarios, Google y los motores de respuesta (AEO/GEO).
  */
 import type { ImageMetadata } from 'astro';
-import { USO, type FotoReal } from './fotos-reales';
+import { USO, heroImagen, type FotoHero, type HeroImagen } from './fotos-reales';
 
 // Fotos reales del cliente (src/data/fotos-reales.ts). Las IA de img/gen/ quedan de respaldo.
+// `imagen*` = foto completa (bento); `hero` = foto/recorte, encuadres y alt del hero.
 const fotoSeg = (slug: keyof typeof USO.segmentos) => {
-  const f: { desktop: FotoReal; movil?: FotoReal } = USO.segmentos[slug];
-  return { imagen: f.desktop.src, imagenAlt: f.desktop.alt, imagenPos: f.desktop.pos, imagenMarca: f.desktop.marca, imagenMovil: f.movil };
+  const f: FotoHero = USO.segmentos[slug];
+  return { imagen: f.desktop.src, imagenAlt: f.desktop.alt, imagenPos: f.desktop.pos, imagenMarca: f.desktop.marca, hero: heroImagen(f) };
 };
 
 export type SegmentoForm = 'condominio' | 'empresa' | 'evento' | 'ppi' | 'otro';
@@ -36,7 +37,7 @@ export interface Segmento {
   imagenAlt: string;
   imagenPos: string; // object-position (dónde está el sujeto)
   imagenMarca: string | null; // marcas de terceros visibles (sello en vista previa)
-  imagenMovil?: FotoReal; // art-direction móvil (opcional)
+  hero: HeroImagen; // foto del hero (recorte, encuadres, art-direction móvil, alt)
   dolores: Item[];
   incluye: Item[];
   recintos: string[];

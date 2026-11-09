@@ -4,15 +4,15 @@
  * Dos modos según la foto:
  *   - 'stage': foto/video A PANTALLA COMPLETA. La foto debe tener a las personas AL CENTRO del
  *     encuadre: en desktop quedan visibles en la franja libre entre el titular (izq.) y el
- *     formulario (der.). Con `imageMobile` hay art-direction (<picture>): en móvil va esa foto
- *     (vertical) sin recorte forzado; sin ella, recorte cuadrado de la principal. Ken Burns
+ *     formulario (der.). Con `imageMobile` hay art-direction (<source media> en el mismo
+ *     <picture>, un solo <img>); sin ella, recorte cuadrado de la principal en teléfonos. Ken Burns
  *     suave en CSS (off con reduced-motion). El video (opcional; loop sin sonido) se carga solo
  *     en desktop, después del LCP; la foto es su primer cuadro.
  *   - 'card': para fotos con el sujeto a un lado. La foto va en una tarjeta enmarcada y el
  *     fondo es la misma foto desenfocada y oscurecida.
  */
 import type { ImageMetadata } from 'astro';
-import { getImage } from 'astro:assets';
+import { heroImagenes } from '../data/hero-imagenes';
 import LeadForm from './LeadForm.astro';
 import Breadcrumbs from './Breadcrumbs.astro';
 import { empresa } from '../data/empresa';
@@ -26,13 +26,12 @@ interface Props {
   lead: string;
   bullets?: string[];
   image: ImageMetadata;
+  /** Con `imageMobile`, el alt debe describir AMBAS fotos (es un solo <img>). */
   imageAlt: string;
   /** object-position de la foto (dónde están las personas en el encuadre) */
   imagePosition?: string;
   /** Art-direction: foto para móvil (≤ 960 px), p. ej. vertical. */
   imageMobile?: ImageMetadata;
-  /** Alt de la foto móvil (es OTRA foto: cada variante lleva su propio alt). */
-  imageMobileAlt?: string;
   /** object-position en móvil (con o sin imageMobile) */
   imageMobilePosition?: string;
   /** Marcas de terceros visibles en la foto → sello "pendiente de autorización" (vista previa). */
@@ -47,77 +46,30 @@ interface Props {
   formTitle?: string;
   breadcrumbs?: { nombre: string; url: string }[];
 }
-const { eyebrow, h1, h1Accent, lead, bullets = [], image, imageAlt, imagePosition = '70% 50%', imageMobile, imageMobileAlt, imageMobilePosition, imageBrand = null, tag = 'Operación 24/7', mode = 'card', video, vtName, segmento = null, formTitle, breadcrumbs } = Astro.props;
+const { eyebrow, h1, h1Accent, lead, bullets = [], image, imageAlt, imagePosition = '70% 50%', imageMobile, imageMobilePosition, imageBrand = null, tag = 'Operación 24/7', mode = 'card', video, vtName, segmento = null, formTitle, breadcrumbs } = Astro.props;
 const stage = mode === 'stage';
 const vtStyle = vtName ? `view-transition-name:${vtName};` : '';
 
-// --- stage: desktop a todo el ancho + (móvil) foto propia o recorte cuadrado (centrado)
-// Build liviano (Dokploy): solo WebP + un JPG de fallback, y pocos anchos.
-const deskWidths = [480, 960, 1600].filter((w) => w <= image.width);
-const mobWidths = [480, 832].filter((w) => w <= image.height);
-const squareSet = (format: 'webp', quality: number) =>
-  Promise.all(mobWidths.map((w) => getImage({ src: image, width: w, height: w, fit: 'cover', position: 'center', format, quality })))
-    .then((list) => list.map((r, i) => `${r.src} ${mobWidths[i]}w`).join(', '));
-// Art-direction móvil: la foto completa (sin recorte en build), el encuadre lo da object-position.
-const artWidths = imageMobile ? [480, 960].filter((w) => w <= imageMobile.width) : [];
-const artSet = (format: 'webp', quality: number) =>
-  getImage({ src: imageMobile!, widths: artWidths, format, quality }).then((r) => r.srcSet.attribute);
-const mobileSet = (format: 'webp', quality: number) =>
-  imageMobile ? artSet(format, quality) : stage ? squareSet(format, quality) : Promise.resolve('');
-// Móvil: con foto propia aplica a todo el layout móvil (≤ 960); el recorte cuadrado, solo < 600.
-const mobileMedia = imageMobile ? '(max-width: 960px)' : '(max-width: 599px)';
-const mobW = imageMobile ? imageMobile.width : undefined;
-const mobH = imageMobile ? imageMobile.height : undefined;
 const sello = imageBrand ? SELLO_MARCA : null;
-// Con foto móvil distinta se renderizan DOS <img> (cada una con su alt; <source> no admite alt).
-// Cada <picture> lleva una <source> con un GIF vacío para el rango donde NO se muestra:
-// el navegador no descarga la foto oculta y el lector de pantalla solo ve la visible.
-const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-const DESK_ONLY = '(max-width: 960px)';
-const MOB_ONLY = '(min-width: 961px)';
-const mobAlt = imageMobileAlt ?? imageAlt;
 // Encuadre móvil: explícito, o el de la foto móvil, o (card) el mismo de desktop.
 const posM = imageMobilePosition ?? (imageMobile ? '50% 40%' : stage ? '50% 30%' : imagePosition);
-
-// --- card: tarjeta + fondo desenfocado
-const cardWidths = [480, 960, 1600].filter((w) => w <= image.width);
-const cardSizes = '(max-width: 960px) 100vw, 46vw';
-
-const [webp, mWebp, fallback, ambient] = await Promise.all([
-  getImage({ src: image, widths: stage ? deskWidths : cardWidths, format: 'webp', quality: stage ? 80 : 70 }),
-  mobileSet('webp', imageMobile ? 72 : 80),
-  getImage({ src: image, width: Math.min(stage ? 1600 : 960, image.width), format: 'jpg', quality: 74 }),
-  stage ? Promise.resolve(null) : getImage({ src: image, width: 48, format: 'webp', quality: 60 }), // miniatura: Chrome no la cuenta como LCP (baja entropía)
-]);
-const mFallback = imageMobile ? await getImage({ src: imageMobile, width: Math.min(960, imageMobile.width), format: 'jpg', quality: 74 }) : null;
+// UN solo <img> por hero (un solo candidato LCP con fetchpriority=high): la foto móvil es una
+// <source media> del mismo <picture>. Por eso el alt debe describir ambas variantes.
+// Mismas URLs que el preload del <head> (HeroPreload.astro).
+const img = await heroImagenes({ image, imageMobile, stage });
+const fallback = { src: img.fallback };
 const lat = empresa.geo.lat.toFixed(4);
 const lng = empresa.geo.lng.toFixed(4);
 ---
 <section class:list={['hero', 'on-dark', stage ? 'hero--stage' : 'hero--card']} aria-labelledby="hero-title">
   {stage ? (
     <div class="hero__stage">
-      {imageMobile && (
-        <picture>
-          <source media={MOB_ONLY} srcset={BLANK} />
-          <source type="image/webp" srcset={mWebp} sizes="100vw" />
-          <img
-            class="hero__poster hero__img--mob"
-            src={mFallback!.src}
-            alt={mobAlt}
-            width={mobW}
-            height={mobH}
-            fetchpriority="high"
-            decoding="async"
-            style={`--pos-m:${posM};${vtStyle}`}
-          />
-        </picture>
-      )}
       <picture>
-        {imageMobile && <source media={DESK_ONLY} srcset={BLANK} />}
-        {!imageMobile && <source media={mobileMedia} type="image/webp" srcset={mWebp} sizes="100vw" />}
-        <source type="image/webp" srcset={webp.srcSet.attribute} sizes="100vw" />
+        {img.movil && <source media={img.movil.media} type="image/webp" srcset={img.movil.srcset} sizes={img.movil.sizes} width={img.movil.width} height={img.movil.height} />}
+        {img.movil?.jpg && <source media={img.movil.media} srcset={img.movil.jpg} width={img.movil.width} height={img.movil.height} />}
+        <source type="image/webp" srcset={img.desktop.srcset} sizes={img.desktop.sizes} />
         <img
-          class:list={['hero__poster', imageMobile && 'hero__img--desk']}
+          class="hero__poster"
           src={fallback.src}
           alt={imageAlt}
           width={image.width}
@@ -149,7 +101,7 @@ const lng = empresa.geo.lng.toFixed(4);
     </div>
   ) : (
     <div class="hero__ambient" aria-hidden="true">
-      <img src={ambient!.src} alt="" width={ambient!.attributes.width} height={ambient!.attributes.height} decoding="async" fetchpriority="low" data-parallax="10" />
+      <img src={img.ambient!.src} alt="" width={img.ambient!.width} height={img.ambient!.height} decoding="async" fetchpriority="low" data-parallax="10" />
     </div>
   )}
   <div class="hero__grain" aria-hidden="true"></div>
@@ -163,27 +115,11 @@ const lng = empresa.geo.lng.toFixed(4);
     <div class="hero__intro">
       {!stage && (
         <figure class="hero__visual viewfinder">
-          {imageMobile && (
-            <picture>
-              <source media={MOB_ONLY} srcset={BLANK} />
-              <source type="image/webp" srcset={mWebp} sizes="100vw" />
-              <img
-                class="hero__img--mob"
-                src={mFallback!.src}
-                alt={mobAlt}
-                width={mobW}
-                height={mobH}
-                fetchpriority="high"
-                decoding="async"
-                style={`--pos-m:${posM};${vtStyle}`}
-              />
-            </picture>
-          )}
           <picture>
-            {imageMobile && <source media={DESK_ONLY} srcset={BLANK} />}
-            <source type="image/webp" srcset={webp.srcSet.attribute} sizes={cardSizes} />
+            {img.movil && <source media={img.movil.media} type="image/webp" srcset={img.movil.srcset} sizes={img.movil.sizes} width={img.movil.width} height={img.movil.height} />}
+            {img.movil?.jpg && <source media={img.movil.media} srcset={img.movil.jpg} width={img.movil.width} height={img.movil.height} />}
+            <source type="image/webp" srcset={img.desktop.srcset} sizes={img.desktop.sizes} />
             <img
-              class:list={[imageMobile && 'hero__img--desk']}
               src={fallback.src}
               alt={imageAlt}
               width={image.width}
@@ -345,9 +281,6 @@ const lng = empresa.geo.lng.toFixed(4);
     font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-dark);
   }
 
-  /* Art-direction con dos <img>: solo una se muestra (y solo esa descarga su foto) */
-  .hero__img--mob { display: none; }
-
   /* ---------- común ---------- */
   .hero__grid {
     display: grid;
@@ -426,8 +359,6 @@ const lng = empresa.geo.lng.toFixed(4);
     }
     .hero__video { display: none; }
     .hero__poster, .hero__visual img { object-position: var(--pos-m, 50% 30%) !important; }
-    .hero__img--desk { display: none; }
-    .hero__img--mob { display: block; }
     .hero__shade { background: linear-gradient(180deg, rgb(10 10 10 / 0.25) 0%, transparent 18%); }
     /* Tablet vertical: foto completa en 4:3 (la cuadrada empujaba el formulario muy abajo) */
     @media (min-width: 600px) { .hero__stage { aspect-ratio: 4 / 3; max-height: 60svh; } }

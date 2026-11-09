@@ -18,6 +18,7 @@ import Faq from '../../components/Faq.astro';
 import Bento from '../../components/Bento.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Gallery from '../../components/Gallery.astro';
+import HeroPreload from '../../components/HeroPreload.astro';
 import { segmentos, type Segmento } from '../../data/segmentos';
 import { USO } from '../../data/fotos-reales';
 import { SITE_URL } from '../../data/empresa';
@@ -53,19 +54,19 @@ const ogSlug = s.slug.replace('seguridad-para-', '').replace('guardias-para-', '
     nodoBreadcrumb(crumbs),
   ]}
 >
+  <HeroPreload slot="head" image={s.hero.src} imageMobile={s.hero.movilSrc} />
   <Hero
     eyebrow={s.eyebrow}
     h1={s.h1}
     h1Accent={s.h1Accent}
     lead={s.lead}
     bullets={s.bullets}
-    image={s.imagen}
-    imageAlt={s.imagenAlt}
-    imagePosition={s.imagenPos}
-    imageMobile={s.imagenMovil?.src}
-    imageMobileAlt={s.imagenMovil?.alt}
-    imageMobilePosition={s.imagenMovil?.pos}
-    imageBrand={s.imagenMarca}
+    image={s.hero.src}
+    imageAlt={s.hero.alt}
+    imagePosition={s.hero.pos}
+    imageMobile={s.hero.movilSrc}
+    imageMobilePosition={s.hero.posMovil}
+    imageBrand={s.hero.marca}
     tag={tags[s.slug]}
     vtName={`seg-${s.slug}`}
     segmento={s.formSegmento}
@@ -76,7 +77,7 @@ const ogSlug = s.slug.replace('seguridad-para-', '').replace('guardias-para-', '
   <Answer pregunta={`¿Qué incluye el servicio de ${s.serviceType.toLowerCase()}?`} respuesta={s.resumen} />
   <Pains titulo="¿Te suena alguno de estos problemas?" items={s.dolores} />
   <Features titulo={`Todo lo que incluye: ${s.nav.toLowerCase()}`} items={s.incluye} recintos={s.recintos} />
-  {galeria.length > 0 && (
+  {galeria.length >= 3 && (
     <Gallery
       id="eventos-en-terreno"
       eyebrow="Eventos reales"

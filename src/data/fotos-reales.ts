@@ -25,6 +25,11 @@ import eventoCorporativo from '../assets/img/real/invictus-evento-corporativo.jp
 import eventoHotel from '../assets/img/real/invictus-evento-hotel.jpg';
 import patrullaMoto from '../assets/img/real/invictus-patrulla-moto.jpg';
 import flotaCamionetas from '../assets/img/real/invictus-flota-camionetas.jpg';
+// Recortes 4:3 de las fotos verticales para el hero (scripts/make-crops.mjs): el hero muestra
+// una franja, así el LCP no descarga la foto vertical completa.
+import recorteAtardecer from '../assets/img/real/recortes/invictus-camioneta-atardecer-4x3.jpg';
+import recorteGuardia from '../assets/img/real/recortes/invictus-guardia-camioneta-4x3.jpg';
+import recorteEscenario from '../assets/img/real/recortes/invictus-evento-escenario-4x3.jpg';
 
 /** `true` = vista previa (se muestran fotos con marcas de terceros + sello). `false` antes de prod. */
 export const INCLUDE_THIRD_PARTY_BRAND_PHOTOS = false;
@@ -111,13 +116,56 @@ function limpia(id: FotoId): FotoReal {
   return FOTOS[id];
 }
 
-export interface FotoHero { desktop: FotoReal; movil?: FotoReal }
+/** Recorte 4:3 + encuadre propio (object-position dentro del recorte) para el hero. */
+const RECORTES_HERO: Partial<Record<FotoId, { src: ImageMetadata; pos: string; posMovil: string }>> = {
+  'camioneta-atardecer': { src: recorteAtardecer, pos: '50% 60%', posMovil: '50% 62%' },
+  'guardia-camioneta': { src: recorteGuardia, pos: '50% 30%', posMovil: '50% 34%' },
+  'evento-escenario': { src: recorteEscenario, pos: '50% 22%', posMovil: '50% 30%' },
+};
+
+export interface FotoHero {
+  desktop: FotoReal;
+  movil?: FotoReal;
+  /** Alt común cuando hay foto móvil distinta (un solo <img>: debe describir ambas). */
+  alt?: string;
+}
+
+/** Lo que necesita <Hero>/<HeroPreload>: foto (o su recorte), encuadres y alt. */
+export interface HeroImagen {
+  src: ImageMetadata;
+  alt: string;
+  pos: string;
+  movilSrc?: ImageMetadata;
+  posMovil?: string;
+  marca: string | null;
+}
+
+export function heroImagen(h: FotoHero): HeroImagen {
+  const d = RECORTES_HERO[h.desktop.id];
+  const m = h.movil ? RECORTES_HERO[h.movil.id] : undefined;
+  return {
+    src: d?.src ?? h.desktop.src,
+    alt: h.alt ?? h.desktop.alt,
+    pos: d?.pos ?? h.desktop.pos,
+    movilSrc: h.movil ? (m?.src ?? h.movil.src) : undefined,
+    posMovil: h.movil ? (m?.posMovil ?? h.movil.pos) : d?.posMovil,
+    marca: h.desktop.marca,
+  };
+}
 
 /** Mapa de uso: qué foto va a cada sección. */
 export const USO = {
-  homeHero: { desktop: limpia('hero-flota'), movil: limpia('camioneta-atardecer') } satisfies FotoHero,
+  homeHero: {
+    desktop: limpia('hero-flota'),
+    movil: limpia('camioneta-atardecer'),
+    alt: 'Flota de Invictus Security: guardias motorizados de la empresa, sus motocicletas y camionetas de patrulla',
+  } satisfies FotoHero,
   segmentos: {
-    'guardias-de-seguridad': { desktop: limpia('equipo-camioneta'), movil: limpia('guardia-camioneta') },
+    'guardias-de-seguridad': {
+      desktop: limpia('equipo-camioneta'),
+      movil: limpia('guardia-camioneta'),
+      alt: 'Guardias de Invictus Security con chaleco táctico junto a una camioneta de patrulla de la empresa',
+    },
     // Proxy honesto: guardia real en terreno (no hay foto de conserjería).
     'seguridad-para-condominios': { desktop: limpia('guardia-camioneta') },
     'guardias-para-eventos': { desktop: limpia('evento-escenario') },

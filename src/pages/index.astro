@@ -12,7 +12,10 @@ import CoverageMap from '../components/CoverageMap.astro';
 import Testimonials from '../components/Testimonials.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
-import { USO } from '../data/fotos-reales';
+import HeroPreload from '../components/HeroPreload.astro';
+import { USO, heroImagen } from '../data/fotos-reales';
+
+const hero = heroImagen(USO.homeHero);
 import { faqsHome } from '../data/faqs';
 import { nodoFaq, nodoPagina } from '../data/schema';
 import { SITE_URL } from '../data/empresa';
@@ -28,18 +31,18 @@ const description = 'Empresa de seguridad privada en Santiago y todo Chile: guar
   ogImage="/img/og/home.jpg"
   schema={[nodoPagina({ url, titulo: title, descripcion: description }), nodoFaq(faqsHome, url)]}
 >
+  <HeroPreload slot="head" image={hero.src} imageMobile={hero.movilSrc} mode="stage" />
   <Hero
     eyebrow="Empresa de seguridad privada · Santiago"
     h1="Empresa de seguridad privada "
     h1Accent="con supervisión real 24/7"
     lead="Guardias de seguridad acreditados para condominios, empresas, bodegas y eventos en Santiago y regiones. Con contrato, seguros, reemplazos garantizados y un supervisor que responde por cada turno."
     bullets={['Personal con credencial vigente y seguros al día', 'Despliegue en 48 a 72 horas', 'Propuesta gratis en menos de 24 h hábiles']}
-    image={USO.homeHero.desktop.src}
-    imageAlt={USO.homeHero.desktop.alt}
-    imagePosition={USO.homeHero.desktop.pos}
-    imageMobile={USO.homeHero.movil.src}
-    imageMobileAlt={USO.homeHero.movil.alt}
-    imageMobilePosition={USO.homeHero.movil.pos}
+    image={hero.src}
+    imageAlt={hero.alt}
+    imagePosition={hero.pos}
+    imageMobile={hero.movilSrc}
+    imageMobilePosition={hero.posMovil}
     mode="stage"
   />
   <TrustStrip />

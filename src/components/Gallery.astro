@@ -3,6 +3,11 @@
  * Galería de fotos REALES (src/data/fotos-reales.ts) en tira horizontal con scroll-snap nativo.
  * Sin lightbox ni dependencias: botones anterior/siguiente (scrollBy) + swipe/teclado nativos.
  * Las fotos con marcas de terceros llegan aquí solo si el flag está encendido y llevan sello.
+ * Con menos de `min` fotos (p. ej. Eventos con el flag de marcas apagado) NO se renderiza:
+ * una "galería" de 1–2 fotos se ve pobre.
+ * Carga: `loading=lazy` en el HTML, pero al acercarse la sección se pasan TODAS a eager: el
+ * lazy-load nativo dentro de un scroller horizontal dejaba fotos fuera de pantalla sin cargar
+ * (naturalWidth 0 → tiles grises al deslizar).
  */
 import Foto from './Foto.astro';
 import { SELLO_MARCA, type FotoReal } from '../data/fotos-reales';
@@ -14,12 +19,14 @@ interface Props {
   texto?: string;
   fotos: FotoReal[];
   tono?: 'light' | 'dark';
+  /** Mínimo de fotos para mostrar la sección. */
+  min?: number;
 }
-const { id, eyebrow, titulo, texto, fotos, tono = 'light' } = Astro.props;
+const { id, eyebrow, titulo, texto, fotos, tono = 'light', min = 3 } = Astro.props;
 const titleId = `${id}-title`;
 const varias = fotos.length > 1;
 ---
-{fotos.length > 0 && (
+{fotos.length >= min && (
   <section id={id} class:list={['section', 'gallery', tono === 'dark' ? 'section--dark on-dark' : 'section--bone', !varias && 'gallery--solo']} aria-labelledby={titleId} data-gallery>
     <div class="container">
       <div class="gallery__head reveal">
@@ -63,7 +70,17 @@ const varias = fotos.length > 1;
 )}
 
 <script>
-  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => {
+  // Todas las fotos de la tira se cargan cuando la sección se acerca al viewport (vertical).
+  const eager = (g: Element) => g.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((img) => { img.loading = 'eager'; });
+  const galerias = document.querySelectorAll<HTMLElement>('[data-gallery]');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (e.isIntersecting) { eager(e.target); io.unobserve(e.target); }
+    }), { rootMargin: '600px 0px' });
+    galerias.forEach((g) => io.observe(g));
+  } else galerias.forEach(eager);
+
+  galerias.forEach((g) => {
     const track = g.querySelector<HTMLElement>('[data-gallery-track]');
     const nav = g.querySelector<HTMLElement>('[data-gallery-nav]');
     if (!track || !nav) return;

@@ -107,11 +107,18 @@ test('sin opción de empleo: ningún enlace a postulaciones', async ({ page }) =
 
 test('home: foto real a pantalla completa con art-direction móvil; sin video en esta fase', async ({ page }, info) => {
   await page.goto('/');
-  const poster = page.locator('.hero__stage .hero__poster:visible');
+  const poster = page.locator('.hero__stage .hero__poster');
   await expect(poster).toBeVisible();
   await expect(poster).toHaveAttribute('fetchpriority', 'high');
-  // Un solo candidato LCP con prioridad alta
-  await expect(page.locator('img[fetchpriority="high"]:visible')).toHaveCount(1);
+  // Un solo <img> LCP en el DOM (la variante móvil es una <source media>), con alt
+  await expect(page.locator('img[fetchpriority="high"]')).toHaveCount(1);
+  await expect(page.locator('.hero__stage img')).toHaveCount(1);
+  await expect(poster).toHaveAttribute('alt', /Invictus Security/);
+  // Preload en <head> de cada variante con su media query (cada viewport baja solo la suya)
+  const preloads = page.locator('head link[rel="preload"][as="image"]');
+  await expect(preloads).toHaveCount(2);
+  await expect(preloads.nth(0)).toHaveAttribute('media', '(max-width: 960px)');
+  await expect(preloads.nth(1)).toHaveAttribute('media', '(min-width: 961px)');
   const box = await poster.boundingBox();
   expect(box!.y).toBeLessThan(page.viewportSize()!.height);
   expect(box!.height).toBeGreaterThan(info.project.name === 'desktop' ? 300 : 150);
@@ -122,12 +129,16 @@ test('home: foto real a pantalla completa con art-direction móvil; sin video en
     await expect(page.locator('.hero__confidence')).toBeInViewport();
   }
   await expect(page.locator('[data-hero-video]')).toHaveCount(0);
-  // Cada variante del art-direction lleva el alt de SU foto
-  const alt = await poster.getAttribute('alt');
-  expect(alt).toMatch(info.project.name === 'desktop' ? /motocicletas/ : /Camioneta de patrulla .* al atardecer/);
-  // La variante oculta no descarga su foto (usa el GIF vacío)
-  const hidden = page.locator('.hero__stage .hero__poster:not(:visible)');
-  expect(await hidden.evaluate((img: HTMLImageElement) => img.currentSrc)).toMatch(/^data:image\/gif/);
+});
+
+test('home: cada viewport descarga UNA sola foto de hero', async ({ page }, info) => {
+  const heroReqs: string[] = [];
+  page.on('request', (r) => { if (/invictus-(hero-flota|camioneta-atardecer-4x3)/.test(r.url())) heroReqs.push(r.url()); });
+  await page.goto('/');
+  await page.waitForLoadState('load');
+  const otra = info.project.name === 'desktop' ? /camioneta-atardecer-4x3/ : /hero-flota/;
+  expect(heroReqs.filter((u) => otra.test(u)), heroReqs.join('\n')).toHaveLength(0);
+  expect(heroReqs.length).toBeGreaterThanOrEqual(1);
 });
 
 test('fotos reales: galería "En terreno" en Nosotros y banda en Eventos', async ({ page }) => {
@@ -136,9 +147,14 @@ test('fotos reales: galería "En terreno" en Nosotros y banda en Eventos', async
   await expect(gal.getByRole('heading', { level: 2 })).toBeVisible();
   expect(await gal.locator('.gallery__item').count()).toBeGreaterThanOrEqual(4);
   await expect(gal.locator('img[src*="/img/gen/"], img[src*="central-monitoreo"]')).toHaveCount(0);
+  // Todas las fotos de la tira cargan (también las que están fuera de pantalla en el scroll horizontal)
+  await gal.scrollIntoViewIfNeeded();
+  await expect.poll(() => gal.locator('img').evaluateAll((imgs) => imgs.every((i) => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0)), { timeout: 10000 }).toBe(true);
+  // Eventos: la banda solo existe con 3 fotos o más (con el flag de marcas apagado no se muestra)
   await page.goto('/guardias-para-eventos/');
   const ev = page.locator('#eventos-en-terreno');
-  await expect(ev.locator('img').first()).toHaveAttribute('src', /invictus-evento-escenario/);
+  const n = await ev.locator('.gallery__item').count();
+  expect(n === 0 || n >= 3, `fotos en la banda de eventos: ${n}`).toBe(true);
   // Toda foto con marca de tercero visible lleva el sello de vista previa
   const conMarca = page.locator('.gallery__fig:has(.brand-seal)');
   for (const f of await conMarca.all()) await expect(f.locator('.brand-seal')).toHaveText(/pendiente de autorización/i);
@@ -154,7 +170,7 @@ test('fotos reales: ninguna página usa fotos IA de img/gen ni el video', async 
 
 test('segmento: foto en tarjeta sobre el pliegue', async ({ page }) => {
   await page.goto('/guardias-de-seguridad/');
-  const img = page.locator('.hero__visual img:visible');
+  const img = page.locator('.hero__visual img');
   await expect(img).toBeVisible();
   await expect(img).toHaveAttribute('fetchpriority', 'high');
   const box = await img.boundingBox();
@@ -180,13 +196,32 @@ test('URL sin barra final redirige conservando el gclid', async ({ request }) =>
   expect(res.headers()['location']).toBe('/seguridad-para-condominios/?gclid=ABC');
 });
 
-test('embed real: el formulario de hapee carga en la página', async ({ page }) => {
-  test.skip(!!process.env.OFFLINE, 'sin red');
-  await page.goto('/cotizar/');
-  const frame = page.frameLocator(`#cotizar iframe[data-zentru-iframe-id="${HAPEE_FORM}"]`);
-  await expect(frame.locator('select').first()).toBeVisible({ timeout: 20000 });
-  // El texto del botón se edita en hapee ("Enviar", "Solicitar cotización"...): basta con que exista un submit.
-  await expect(frame.locator('button[type="submit"], input[type="submit"]').first()).toBeVisible();
+// Depende de la red y de beta.hapee.ai (servicio externo): reintentos + esperas explícitas por
+// etapa, para distinguir "el sitio no carga el embed" de "hapee tardó/falló" en el log del CI.
+test.describe('embed real', () => {
+  test.describe.configure({ retries: 2 });
+  test('embed real: el formulario de hapee carga en la página', async ({ page }) => {
+    test.skip(!!process.env.OFFLINE, 'sin red');
+    test.setTimeout(90_000);
+    const esEmbed = (url: string) => url.startsWith('https://beta.hapee.ai/static/form-embed.js');
+    // Respuesta o fallo de red (lo que ocurra primero): el error del CI dice cuál fue.
+    const embedJs = Promise.race([
+      page.waitForResponse((r) => esEmbed(r.url()), { timeout: 30_000 }).then((r) => `HTTP ${r.status()}`),
+      page.waitForEvent('requestfailed', { predicate: (r) => esEmbed(r.url()), timeout: 30_000 }).then((r) => `falla de red: ${r.failure()?.errorText}`),
+    ]);
+    await page.goto('/cotizar/');
+    // El sitio carga el embed al acercarse el formulario (IntersectionObserver): lo llevamos a la vista.
+    await page.locator('#cotizar').scrollIntoViewIfNeeded();
+    expect(await embedJs, 'carga de https://beta.hapee.ai/static/form-embed.js').toBe('HTTP 200');
+    // 1) el embed convierte el div en un iframe de hapee
+    const iframe = page.locator('#cotizar iframe').first();
+    await expect(iframe, 'iframe de hapee creado').toBeAttached({ timeout: 30_000 });
+    // 2) dentro del iframe aparece el formulario (selects/inputs) y un submit
+    const frame = iframe.contentFrame();
+    await expect(frame.locator('select, input:not([type="hidden"])').first(), 'campos del formulario').toBeVisible({ timeout: 30_000 });
+    // El texto del botón se edita en hapee ("Enviar", "Solicitar cotización"...): basta con que exista un submit.
+    await expect(frame.locator('button[type="submit"], input[type="submit"]').first()).toBeVisible();
+  });
 });
 
 test('convención dg_: dg_envio_formulario se dispara en /gracias/ con el token del envío', async ({ page }) => {
