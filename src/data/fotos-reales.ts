@@ -27,7 +27,7 @@ import patrullaMoto from '../assets/img/real/invictus-patrulla-moto.jpg';
 import flotaCamionetas from '../assets/img/real/invictus-flota-camionetas.jpg';
 
 /** `true` = vista previa (se muestran fotos con marcas de terceros + sello). `false` antes de prod. */
-export const INCLUDE_THIRD_PARTY_BRAND_PHOTOS = true;
+export const INCLUDE_THIRD_PARTY_BRAND_PHOTOS = false;
 
 /** Texto del sello que se superpone a las fotos con marcas mientras el flag esté encendido. */
 export const SELLO_MARCA = 'Marca de tercero — pendiente de autorización';
