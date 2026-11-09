@@ -141,6 +141,48 @@ test('home: cada viewport descarga UNA sola foto de hero', async ({ page }, info
   expect(heroReqs.length).toBeGreaterThanOrEqual(1);
 });
 
+test('home: hero 4K nítido en pantallas anchas, full-bleed y sin scroll horizontal', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'solo desktop');
+  for (const w of [1440, 1920, 2560]) {
+    await page.setViewportSize({ width: w, height: Math.round(w * 0.5625) });
+    await page.goto('/');
+    const poster = page.locator('.hero__stage .hero__poster');
+    await expect.poll(() => poster.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth)).toBeTruthy();
+    const { src, natural, shown, vw, scrollW, stageW } = await poster.evaluate((i: HTMLImageElement) => ({
+      src: i.currentSrc, natural: i.naturalWidth, shown: i.getBoundingClientRect().width / 1.02,
+      vw: innerWidth, scrollW: document.documentElement.scrollWidth,
+      stageW: document.querySelector('.hero__stage')!.getBoundingClientRect().width,
+    }));
+    expect(src, `${w}`).toMatch(/invictus-hero-flota-4k/);
+    // la variante elegida cubre el ancho al que se muestra (sin estirar un archivo de 1600/1920)
+    expect(natural, `${w}: ${natural}px para ${Math.round(shown)}px`).toBeGreaterThanOrEqual(Math.min(3200, shown * 0.95));
+    expect(stageW, `${w}`).toBe(vw);
+    expect(scrollW, `${w}`).toBe(vw);
+  }
+});
+
+test('home: movimiento de cámara 6 s en CSS (sin video); estático con reduced-motion', async ({ page, browser }, info) => {
+  const videoReqs: string[] = [];
+  page.on('request', (r) => { if (/\.(mp4|webm)(\?|$)/.test(r.url())) videoReqs.push(r.url()); });
+  await page.goto('/');
+  await page.waitForLoadState('load');
+  await page.waitForTimeout(1500);
+  expect(videoReqs, 'el hero no descarga video').toHaveLength(0);
+  const anim = await page.locator('.hero__stage .hero__poster').evaluate((i) => {
+    const cs = getComputedStyle(i);
+    return { name: cs.animationName, dur: cs.animationDuration, dir: cs.animationDirection, iter: cs.animationIterationCount, origin: cs.transformOrigin };
+  });
+  expect(anim).toMatchObject({ name: 'hero-breathe', dur: '3s', dir: 'alternate', iter: 'infinite' });
+  // reduced-motion: imagen estática
+  const ctx = await browser.newContext({ ...(info.project.use as object), reducedMotion: 'reduce' });
+  const p2 = await ctx.newPage();
+  await p2.route('https://beta.hapee.ai/**', (r) => r.abort());
+  await p2.goto('http://localhost:4321/');
+  const rm = await p2.locator('.hero__stage .hero__poster').evaluate((i) => ({ name: getComputedStyle(i).animationName, t: getComputedStyle(i).transform }));
+  expect(rm).toEqual({ name: 'none', t: 'none' });
+  await ctx.close();
+});
+
 test('fotos reales: galería "En terreno" en Nosotros y banda en Eventos', async ({ page }) => {
   await page.goto('/nosotros/');
   const gal = page.locator('#en-terreno');

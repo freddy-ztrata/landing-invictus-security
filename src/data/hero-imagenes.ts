@@ -36,11 +36,14 @@ export interface HeroImagenes {
 }
 
 export async function heroImagenes({ image, imageMobile, stage }: HeroImagenOpts): Promise<HeroImagenes> {
-  const deskWidths = [480, 960, 1600].filter((w) => w <= image.width);
-  const deskSizes = stage ? '100vw' : '(max-width: 960px) 100vw, 46vw';
+  // Stage (home): en desktop la foto mide calc(122% + 30px) del viewport (va anclada a la derecha
+  // para dejar al guardia en la franja libre) → ≈2372 px a 1920 y ≈3153 px a 2560. Con la fuente
+  // 4K se sirven anchos hasta 3200 para que se vea nítida en pantallas anchas; card: hasta 1600.
+  const deskWidths = (stage ? [960, 1600, 2400, 3200] : [480, 960, 1600]).filter((w) => w <= image.width);
+  const deskSizes = stage ? '(min-width: 961px) calc(122vw + 30px), 100vw' : '(max-width: 960px) 100vw, 46vw';
 
   const [desk, fallback, ambient] = await Promise.all([
-    getImage({ src: image, widths: deskWidths, format: 'webp', quality: stage ? 80 : 70 }),
+    getImage({ src: image, widths: deskWidths, format: 'webp', quality: stage ? 74 : 70 }),
     getImage({ src: image, width: Math.min(stage ? 1600 : 960, image.width), format: 'jpg', quality: 74 }),
     stage ? Promise.resolve(null) : getImage({ src: image, width: 48, format: 'webp', quality: 60 }), // Chrome no la cuenta como LCP (baja entropía)
   ]);

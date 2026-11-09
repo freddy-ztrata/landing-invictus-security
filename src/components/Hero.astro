@@ -5,8 +5,8 @@
  *   - 'stage': foto/video A PANTALLA COMPLETA. La foto debe tener a las personas AL CENTRO del
  *     encuadre: en desktop quedan visibles en la franja libre entre el titular (izq.) y el
  *     formulario (der.). Con `imageMobile` hay art-direction (<source media> en el mismo
- *     <picture>, un solo <img>); sin ella, recorte cuadrado de la principal en teléfonos. Ken Burns
- *     suave en CSS (off con reduced-motion). El video (opcional; loop sin sonido) se carga solo
+ *     <picture>, un solo <img>); sin ella, recorte cuadrado de la principal en teléfonos.
+ *     Movimiento de cámara 1 → 1,02 → 1 (6 s) en CSS (off con reduced-motion). El video (opcional; loop sin sonido) se carga solo
  *     en desktop, después del LCP; la foto es su primer cuadro.
  *   - 'card': para fotos con el sujeto a un lado. La foto va en una tarjeta enmarcada y el
  *     fondo es la misma foto desenfocada y oscurecida.
@@ -327,12 +327,13 @@ const lng = empresa.geo.lng.toFixed(4);
     .hero__lead { animation-delay: 200ms; }
     .hero__visual { animation: visual-in 1100ms var(--ease-out) both; }
     .hero__form { animation: hero-in 1000ms 160ms var(--ease-out) both; }
-    /* Ken Burns: acercamiento lento y continuo sobre el poster (transform ≠ scale de poster-in) */
-    .hero__poster { animation: poster-in 1600ms var(--ease-out) both, ken-burns 16s 1.6s ease-in-out infinite alternate; transform-origin: 46% 55%; will-change: transform; }
+    /* Movimiento aprobado (Freddy, 2026-11-09): cámara 1 → 1,02 → 1 en 6 s, zoom desde el centro y
+       curva sinusoidal, medido cuadro a cuadro sobre el clip de referencia. Se hace en CSS sobre el
+       still 4K (no con el MP4 1080p): misma nitidez, un solo <img> LCP, sin video que descargar. */
+    .hero__poster { animation: hero-breathe 3s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate; transform-origin: 50% 50%; will-change: transform; }
     @keyframes hero-in { from { opacity: 0.001; translate: 0 18px; } }
     @keyframes visual-in { from { opacity: 0.001; scale: 0.985; } }
-    @keyframes poster-in { from { scale: 1.04; } }
-    @keyframes ken-burns { from { transform: scale(1) translate3d(0, 0, 0); } to { transform: scale(1.07) translate3d(-1.2%, -0.6%, 0); } }
+    @keyframes hero-breathe { from { transform: scale(1); } to { transform: scale(1.02); } }
   }
 
   @media (min-width: 961px) {
@@ -350,8 +351,7 @@ const lng = empresa.geo.lng.toFixed(4);
     .hero__quick { display: grid; gap: 12px; order: 4; justify-items: start; }
     .hero__confidence { font-size: 0.875rem; color: var(--on-dark-2); }
     .hero__text > *, .hero__lead, .hero__extra > *, .hero__visual, .hero__form { animation: none; }
-    /* Móvil: sin entrada (LCP), pero sí Ken Burns si no hay reduced-motion */
-    .hero__poster { animation-name: none, ken-burns; }
+    /* Móvil: mismo movimiento suave (solo transform, compuesto en GPU); reduced-motion = estático */
 
     .hero__hud { display: none; }
     .hero .hero__grid { grid-template-columns: 1fr; grid-template-areas: 'intro' 'form' 'extra'; grid-template-rows: auto; row-gap: 22px; padding-top: 0; }

@@ -30,6 +30,9 @@ import flotaCamionetas from '../assets/img/real/invictus-flota-camionetas.jpg';
 import recorteAtardecer from '../assets/img/real/recortes/invictus-camioneta-atardecer-4x3.jpg';
 import recorteGuardia from '../assets/img/real/recortes/invictus-guardia-camioneta-4x3.jpg';
 import recorteEscenario from '../assets/img/real/recortes/invictus-evento-escenario-4x3.jpg';
+// Hero de la home en 4096×2304, aprobada por Freddy (2026-11-09): upscale con los logos y letras
+// restaurados desde el original. Bytes intactos; NO usar el upscale crudo de Higgsfield.
+import heroFlota4k from '../assets/img/real/invictus-hero-flota-4k.png';
 
 /** `true` = vista previa (se muestran fotos con marcas de terceros + sello). `false` antes de prod. */
 export const INCLUDE_THIRD_PARTY_BRAND_PHOTOS = false;
@@ -116,8 +119,9 @@ function limpia(id: FotoId): FotoReal {
   return FOTOS[id];
 }
 
-/** Recorte 4:3 + encuadre propio (object-position dentro del recorte) para el hero. */
+/** Fuente propia del hero (recorte 4:3 de fotos verticales, o versión 4K) + encuadres. */
 const RECORTES_HERO: Partial<Record<FotoId, { src: ImageMetadata; pos: string; posMovil: string }>> = {
+  'hero-flota': { src: heroFlota4k, pos: '100% 55%', posMovil: '50% 30%' },
   'camioneta-atardecer': { src: recorteAtardecer, pos: '50% 60%', posMovil: '50% 62%' },
   'guardia-camioneta': { src: recorteGuardia, pos: '50% 30%', posMovil: '50% 34%' },
   'evento-escenario': { src: recorteEscenario, pos: '50% 22%', posMovil: '50% 30%' },
