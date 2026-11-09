@@ -230,7 +230,8 @@ const lng = empresa.geo.lng.toFixed(4);
   .hero__stage {
     position: absolute; inset: 0 0 auto; z-index: -1; overflow: hidden; background: var(--ink);
     height: 880px;
-    width: min(100%, 1600px); margin-inline: auto;
+    /* Full-bleed: de borde a borde en cualquier ancho (el contenido sigue en .container) */
+    width: 100%;
     /* Se funde a transparente (sobre el negro de la sección): sin borde visible donde termina */
     -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent);
     mask-image: linear-gradient(180deg, #000 78%, transparent);
@@ -238,10 +239,19 @@ const lng = empresa.geo.lng.toFixed(4);
   .hero__stage picture, .hero__poster, .hero__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .hero__video { opacity: 0; transition: opacity 1.2s var(--ease-out); }
   .hero__video[data-on] { opacity: 1; }
+  /* Desktop: la foto es más ancha que la pantalla y va anclada a la derecha. El ancho escala con
+     el viewport (≈ 124 % a 1440, 123 % a 2560) para que el guardia del centro de la foto quede
+     siempre en la franja libre, ~160 px antes del formulario, en cualquier ancho (con cover, en
+     pantallas anchas se recorta arriba/abajo, no a los lados). */
+  @media (min-width: 961px) {
+    .hero__stage picture, .hero__poster, .hero__video { left: auto; right: 0; width: calc(122% + 30px); max-width: none; }
+  }
   .hero__shade {
+    --content-left: max(0px, (100% - var(--maxw)) / 2);
     position: absolute; inset: 0;
     background:
-      linear-gradient(90deg, rgb(10 10 10 / 0.92) 0%, rgb(10 10 10 / 0.78) 22%, rgb(10 10 10 / 0.25) 38%, transparent 46%),
+      /* Oscurece bajo el titular: medido desde el borde del contenedor, no de la pantalla */
+      linear-gradient(90deg, rgb(10 10 10 / 0.92) 0%, rgb(10 10 10 / 0.78) calc(var(--content-left) + 300px), rgb(10 10 10 / 0.25) calc(var(--content-left) + 480px), transparent calc(var(--content-left) + 580px)),
       linear-gradient(180deg, rgb(10 10 10 / 0.5) 0%, transparent 16%, transparent 70%, rgb(10 10 10 / 0.6) 100%);
   }
   /* Tres zonas: titular | personas (franja libre) | formulario */
