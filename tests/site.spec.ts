@@ -107,11 +107,11 @@ test('sin opción de empleo: ningún enlace a postulaciones', async ({ page }) =
 
 test('home: foto real a pantalla completa con art-direction móvil; sin video en esta fase', async ({ page }, info) => {
   await page.goto('/');
-  const poster = page.locator('.hero__stage .hero__poster');
+  const poster = page.locator('.hero__stage .hero__poster:visible');
   await expect(poster).toBeVisible();
   await expect(poster).toHaveAttribute('fetchpriority', 'high');
   // Un solo candidato LCP con prioridad alta
-  await expect(page.locator('img[fetchpriority="high"]')).toHaveCount(1);
+  await expect(page.locator('img[fetchpriority="high"]:visible')).toHaveCount(1);
   const box = await poster.boundingBox();
   expect(box!.y).toBeLessThan(page.viewportSize()!.height);
   expect(box!.height).toBeGreaterThan(info.project.name === 'desktop' ? 300 : 150);
@@ -122,6 +122,12 @@ test('home: foto real a pantalla completa con art-direction móvil; sin video en
     await expect(page.locator('.hero__confidence')).toBeInViewport();
   }
   await expect(page.locator('[data-hero-video]')).toHaveCount(0);
+  // Cada variante del art-direction lleva el alt de SU foto
+  const alt = await poster.getAttribute('alt');
+  expect(alt).toMatch(info.project.name === 'desktop' ? /motocicletas/ : /Camioneta de patrulla .* al atardecer/);
+  // La variante oculta no descarga su foto (usa el GIF vacío)
+  const hidden = page.locator('.hero__stage .hero__poster:not(:visible)');
+  expect(await hidden.evaluate((img: HTMLImageElement) => img.currentSrc)).toMatch(/^data:image\/gif/);
 });
 
 test('fotos reales: galería "En terreno" en Nosotros y banda en Eventos', async ({ page }) => {
@@ -148,7 +154,7 @@ test('fotos reales: ninguna página usa fotos IA de img/gen ni el video', async 
 
 test('segmento: foto en tarjeta sobre el pliegue', async ({ page }) => {
   await page.goto('/guardias-de-seguridad/');
-  const img = page.locator('.hero__visual img');
+  const img = page.locator('.hero__visual img:visible');
   await expect(img).toBeVisible();
   await expect(img).toHaveAttribute('fetchpriority', 'high');
   const box = await img.boundingBox();

@@ -129,6 +129,7 @@ export const USO = {
   bentoPpi: fotoOr('patrulla-moto', 'equipo-noche'),
   coverage: limpia('hero-noche-ciudad'),
   process: limpia('equipo-camioneta'),
-  galeriaNosotros: fotosPermitidas(['equipo-camioneta', 'equipo-guardias', 'equipo-noche', 'guardia-camioneta', 'camioneta-atardecer']),
+  // Abre con fotos luminosas (atardecer/día); las nocturnas, más oscuras, van después.
+  galeriaNosotros: fotosPermitidas(['guardia-camioneta', 'equipo-guardias', 'camioneta-atardecer', 'equipo-camioneta', 'equipo-noche']),
   galeriaEventos: fotosPermitidas(['evento-escenario', 'evento-exterior', 'evento-festival', 'evento-corporativo', 'evento-hotel']),
 };

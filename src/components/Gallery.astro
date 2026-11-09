@@ -114,9 +114,11 @@ const varias = fotos.length > 1;
   .gallery__item { flex: none; scroll-snap-align: start; }
   .gallery__fig {
     margin: 0; height: var(--h); max-width: min(85vw, 820px);
-    border-radius: var(--r-lg); overflow: hidden; background: var(--ink);
+    /* Placeholder mientras carga (lazy): gris medio, no negro, para que no se lea como "foto negra" */
+    border-radius: var(--r-lg); overflow: hidden; background: color-mix(in srgb, var(--ink) 28%, var(--bone));
     box-shadow: 0 30px 60px -36px rgb(0 0 0 / 0.65);
   }
+  .on-dark .gallery__fig { background: var(--graphite-2); }
   .gallery__fig :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
   .gallery__fig:hover :global(img) { transform: scale(1.04); }
   .gallery__fig::before, .gallery__fig::after { opacity: 0; transition: opacity var(--dur-2); }
